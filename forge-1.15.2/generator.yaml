@@ -1,7 +1,7 @@
 name: Minecraft Forge for @minecraft (@buildfileversion)
 basefeatures: [model_json, model_java, model_obj]
 status: lts
-buildfileversion: 31.2.0
+buildfileversion: 31.2.57
 subversion: 1.0.1
 
 # gradle task definitions
