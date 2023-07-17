@@ -298,7 +298,7 @@ import net.minecraft.block.material.Material;
 										if (state.getBlock().isAir(state, world, blockpos)
 												|| state.getMaterial().blocksMovement()
 												|| state.isIn(BlockTags.LEAVES)
-												|| state.getBlock() == ${mappedBlockToBlock(data.treeVines)}
+												|| state.getBlock() == <#if (data.treeVines?has_content && !data.treeVines.isEmpty())> ${mappedBlockToBlock(data.treeVines)}<#else> Blocks.AIR</#if>
 												|| state.getBlock() == ${mappedBlockToBlock(data.treeBranch)}) {
 											setTreeBlockState(changedBlocks, world,
 													blockpos, ${mappedBlockToBlockStateCode(data.treeBranch)}, bbox);
@@ -319,7 +319,7 @@ import net.minecraft.block.material.Material;
 							if (state.getBlock().isAir(state, world, genhPos)
 										|| state.getMaterial().blocksMovement()
 										|| state.isIn(BlockTags.LEAVES)
-										|| state.getBlock() == ${mappedBlockToBlock(data.treeVines)}
+										|| state.getBlock() == <#if (data.treeVines?has_content && !data.treeVines.isEmpty())> ${mappedBlockToBlock(data.treeVines)}<#else> Blocks.AIR</#if>
 										|| state.getBlock() == ${mappedBlockToBlock(data.treeBranch)}){
 
 								<#if (data.treeVines?has_content && !data.treeVines.isEmpty())>
@@ -397,10 +397,10 @@ import net.minecraft.block.material.Material;
 		}
 
 		private void addVines(IWorld world, BlockPos pos, Set<BlockPos> changedBlocks, MutableBoundingBox bbox) {
-			setTreeBlockState(changedBlocks, world, pos, ${mappedBlockToBlockStateCode(data.treeVines)}, bbox);
+			setTreeBlockState(changedBlocks, world, pos, <#if (data.treeVines?has_content && !data.treeVines.isEmpty())> ${mappedBlockToBlockStateCode(data.treeVines)}<#else> Blocks.AIR.getDefaultState()</#if>, bbox);
 			int i = 5;
 			for (BlockPos blockpos = pos.down(); world.isAirBlock(blockpos) && i > 0; --i) {
-				setTreeBlockState(changedBlocks, world, blockpos, ${mappedBlockToBlockStateCode(data.treeVines)}, bbox);
+				setTreeBlockState(changedBlocks, world, blockpos, <#if (data.treeVines?has_content && !data.treeVines.isEmpty())> ${mappedBlockToBlockStateCode(data.treeVines)}<#else> Blocks.AIR.getDefaultState()</#if>, bbox);
 				blockpos = blockpos.down();
 			}
 		}
