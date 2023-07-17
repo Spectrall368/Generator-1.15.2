@@ -287,13 +287,13 @@ import net.minecraft.block.material.Material;
 									double dz = this.posZ - CustomEntity.this.getPosZ();
 
 									float f = (float)(MathHelper.atan2(dz, dx) * (double)(180 / Math.PI)) - 90;
-						float f1 = (float)(this.speed * CustomEntity.this.getAttribute(Attributes.MOVEMENT_SPEED).getValue());
+						float f1 = (float)(this.speed * CustomEntity.this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue());
 									CustomEntity.this.rotationYaw = this.limitAngle(CustomEntity.this.rotationYaw, f, 10);
 									CustomEntity.this.renderYawOffset = CustomEntity.this.rotationYaw;
 									CustomEntity.this.rotationYawHead = CustomEntity.this.rotationYaw;
 
 									if (CustomEntity.this.isInWater()) {
-							CustomEntity.this.setAIMoveSpeed((float)CustomEntity.this.getAttribute(Attributes.MOVEMENT_SPEED).getValue());
+							CustomEntity.this.setAIMoveSpeed((float)CustomEntity.this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue());
 										float f2 = - (float) (MathHelper.atan2(dy, MathHelper.sqrt(dx * dx + dz * dz)) * (180F / Math.PI));
 										f2 = MathHelper.clamp(MathHelper.wrapDegrees(f2), -85, 85);
 										CustomEntity.this.rotationPitch = this.limitAngle(CustomEntity.this.rotationPitch, f2, 5);
