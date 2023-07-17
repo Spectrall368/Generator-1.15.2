@@ -1,3 +1,4 @@
+<#include "mcelements.ftl">
 (new Object() {
     public boolean hasRecipe(Entity _ent, ResourceLocation recipe) {
         if (_ent instanceof ServerPlayerEntity)
