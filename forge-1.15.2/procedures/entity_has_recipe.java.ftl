@@ -6,4 +6,4 @@
             return ((ClientPlayerEntity)_ent).getRecipeBook().func_226144_b_(recipe);
         return false;
     }
-}.hasRecipe(${input$entity}, new ResourceLocation(${input$recipe})))
+}.hasRecipe(${input$entity}, ${toResourceLocation(input$recipe)}))
