@@ -1,0 +1,8 @@
+{
+  "generator-1.15.2": {
+    "latest": "1.0",
+	"changes": [
+		"Release of 1.15.2 Minecraft Forge mods generator plugin."
+	]
+  }
+}
