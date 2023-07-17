@@ -1,8 +1,12 @@
 name: Minecraft Forge for @minecraft (@buildfileversion)
-basefeatures: [model_json, model_java, model_obj]
+basefeatures: [model_java]
 status: deprecated
 buildfileversion: 31.2.57
 subversion: 1.0.1
+
+java_models:
+  key: legacy
+  requested_key_words: [ModelRenderer, ~ModelPart]
 
 # gradle task definitions
 gradle:
