@@ -41,6 +41,8 @@ base_templates:
     writer: json
     name: "@RESROOT/pack.mcmeta"
   - template: modbase/mods.toml.ftl
+    writer: file
+    name: "@RESROOT/META-INF/mods.toml"
 
 language_file:
   format: json
