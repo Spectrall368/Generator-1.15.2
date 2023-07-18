@@ -105,7 +105,7 @@ import net.minecraft.block.material.Material;
 			</#if>
 
 			<#if data.spawnMineshaftMesa>
-			this.addStructure(Feature.MINESHAFT_BADLANDS.withConfiguration(new MineshaftBadlandsConfig(0.004D, MineshaftBadlandsStructure.Type.MESA)));
+			this.addStructure(Feature.MINESHAFT.withConfiguration(new MineshaftConfig(0.004D, MineshaftStructure.Type.MESA)));
 			</#if>
 
 			<#if data.spawnPillagerOutpost>
@@ -145,7 +145,7 @@ import net.minecraft.block.material.Material;
 			</#if>
 
 			<#if data.spawnBuriedTreasure>
-			this.addStructure(Feature.BURIED_TREASURE.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG));
+			this.addStructure(Feature.BURIED_TREASURE.withConfiguration(new BuriedTreasureConfig(false)));
 			</#if>
 
 			<#if data.oceanRuinType != "NONE">
