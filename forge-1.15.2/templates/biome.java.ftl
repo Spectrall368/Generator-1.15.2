@@ -104,6 +104,10 @@ import net.minecraft.block.material.Material;
 			this.addStructure(Feature.MINESHAFT.withConfiguration(new MineshaftConfig(0.004D, MineshaftStructure.Type.NORMAL)));
 			</#if>
 
+			<#if data.spawnMineshaftMesa>
+			this.addStructure(Feature.MINESHAFT_BADLANDS.withConfiguration(new MineshaftBadlandsConfig(0.004D, MineshaftBadlandsStructure.Type.MESA)));
+			</#if>
+
 			<#if data.spawnPillagerOutpost>
 			this.addStructure(Feature.PILLAGER_OUTPOST.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG));
 			</#if>
@@ -124,6 +128,10 @@ import net.minecraft.block.material.Material;
 			this.addStructure(Feature.DESERT_PYRAMID.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG));
 			</#if>
 
+			<#if data.spawnSwampHut>
+			this.addStructure(Feature.SWAMP_HUT.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG));
+			</#if>
+
 			<#if data.spawnIgloo>
 			this.addStructure(Feature.IGLOO.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG));
 			</#if>
@@ -136,8 +144,20 @@ import net.minecraft.block.material.Material;
 			this.addStructure(Feature.SHIPWRECK.withConfiguration(new ShipwreckConfig(false)));
 			</#if>
 
+			<#if data.spawnBuriedTreasure>
+			this.addStructure(Feature.BURIED_TREASURE.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG));
+			</#if>
+
 			<#if data.oceanRuinType != "NONE">
 			this.addStructure(Feature.OCEAN_RUIN.withConfiguration(new OceanRuinConfig(OceanRuinStructure.Type.${data.oceanRuinType}, 0.3F, 0.9F)));
+			</#if>
+
+			<#if data.spawnNetherBridge>
+			this.addStructure(Feature.NETHER_BRIDGE.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG));
+			</#if>
+
+			<#if data.spawnEndCity>
+			this.addStructure(Feature.END_CITY.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG));
 			</#if>
 
 			<#if (data.flowersPerChunk > 0)>
