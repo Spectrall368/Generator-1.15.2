@@ -77,9 +77,9 @@ import ${package}.${JavaModName};
 			PlayerEntity entity = event.player;
 			if(event.phase == TickEvent.Phase.END && entity.openContainer instanceof GuiContainerMod) {
 				World world = entity.world;
-				double x = entity.posX;
-				double y = entity.posY;
-				double z = entity.posZ;
+				double x = entity.getPosX();
+				double y = entity.getPosY();
+				double z = entity.getPosZ();
 				<@procedureOBJToCode data.onTick/>
 			}
 		}
