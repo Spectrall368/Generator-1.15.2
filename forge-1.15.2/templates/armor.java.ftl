@@ -30,7 +30,6 @@
 <#-- @formatter:off -->
 <#include "mcitems.ftl">
 <#include "procedures.java.ftl">
-
 package ${package}.item;
 
 @${JavaModName}Elements.ModElement.Tag public class ${name}Item extends ${JavaModName}Elements.ModElement{
@@ -53,19 +52,19 @@ package ${package}.item;
 
 	@Override public void initElements() {
 		IArmorMaterial armormaterial = new IArmorMaterial() {
-			public int getDurability(EquipmentSlotType slot) {
+			@Override public int getDurability(EquipmentSlotType slot) {
 				return new int[]{13, 15, 16, 11}[slot.getIndex()] * ${data.maxDamage};
 			}
 
-  		 	public int getDamageReductionAmount(EquipmentSlotType slot) {
+  		 	@Override public int getDamageReductionAmount(EquipmentSlotType slot) {
 				return new int[] { ${data.damageValueBoots}, ${data.damageValueLeggings}, ${data.damageValueBody}, ${data.damageValueHelmet} }[slot.getIndex()];
 			}
 
-			public int getEnchantability() {
+			@Override public int getEnchantability() {
 				return ${data.enchantability};
 			}
 
-			public net.minecraft.util.SoundEvent getSoundEvent() {
+			@Override public net.minecraft.util.SoundEvent getSoundEvent() {
 				<#if data.equipSound??>
 				return (net.minecraft.util.SoundEvent) ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation("${data.equipSound}"));
 				<#else>
@@ -73,24 +72,23 @@ package ${package}.item;
 				</#if>
 			}
 
-			public Ingredient getRepairMaterial() {
+			@Override public Ingredient getRepairMaterial() {
 				<#if data.repairItems?has_content>
 				return Ingredient.fromStacks(
 							<#list data.repairItems as repairItem>
 							${mappedMCItemToItemStackCode(repairItem,1)}<#if repairItem?has_next>,</#if>
-                			</#list>
+                					</#list>
 						);
 				<#else>
 				return Ingredient.EMPTY;
 				</#if>
 			}
 
-			@OnlyIn(Dist.CLIENT)
-			public String getName() {
+			@OnlyIn(Dist.CLIENT) @Override public String getName() {
 				return 	"${registryname}";
 			}
 
-			public float getToughness() {
+			@Override public float getToughness() {
 				return 	${data.toughness}f;
 			}
 		};
