@@ -29,10 +29,10 @@
 
 <#-- @formatter:off -->
 <#include "mcitems.ftl">
-
 package ${package}.world.biome;
 
 import net.minecraft.block.material.Material;
+import net.minecraftforge.common.BiomeManager;
 
 @${JavaModName}Elements.ModElement.Tag public class ${name}Biome extends ${JavaModName}Elements.ModElement{
 
