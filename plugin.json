@@ -6,6 +6,7 @@
     "name": "Minecraft Forge 1.15.2 Java Edition/Datapack Generator",
     "version": "1.0",
     "authors": "_Spectrall",
+    "pluginPageID": 99063,
 	"updateJSONURL": "https://raw.githubusercontent.com/Spectrall368/Generator-1.15.2/2021.3/update.json"
   }
 }
