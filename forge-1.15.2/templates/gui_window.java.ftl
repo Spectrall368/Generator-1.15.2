@@ -88,7 +88,9 @@ import ${package}.${JavaModName};
 	}
 
 	@Override protected void drawGuiContainerBackgroundLayer(float partialTicks, int gx, int gy) {
-		GlStateManager.color4f(1, 1, 1, 1);
+		RenderSystem.color4f(1, 1, 1, 1);
+		RenderSystem.enableBlend();
+		RenderSystem.defaultBlendFunc();
 
 		<#if data.renderBgLayer>
 		Minecraft.getInstance().getTextureManager().bindTexture(texture);
@@ -108,6 +110,7 @@ import ${package}.${JavaModName};
 			</#if>
 		</#list>
 
+		RenderSystem.disableBlend();
 	}
 
 	@Override public boolean keyPressed(int key, int b, int c) {
@@ -198,7 +201,7 @@ import ${package}.${JavaModName};
 						}
 					}
 				)
-                <#if hasProcedure(component.displayCondition)>
+                		<#if hasProcedure(component.displayCondition)>
                 {
 					@Override public void render(int gx, int gy, float ticks) {
 						if (<@procedureOBJToConditionCode component.displayCondition/>)
