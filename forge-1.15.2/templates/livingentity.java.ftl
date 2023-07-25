@@ -283,9 +283,9 @@ import net.minecraft.block.material.Material;
                         CustomEntity.this.setMotion(CustomEntity.this.getMotion().add(0, 0.005, 0));
 
 					if (this.action == MovementController.Action.MOVE_TO && !CustomEntity.this.getNavigator().noPath()) {
-						double dx = this.posX - CustomEntity.this.posX;
-						double dy = this.posY - CustomEntity.this.posY;
-						double dz = this.posZ - CustomEntity.this.posZ;
+						double dx = this.posX - CustomEntity.this.getPosX();
+						double dy = this.posY - CustomEntity.this.getPosY();
+						double dz = this.posZ - CustomEntity.this.getPosZ();
 
 						float f = (float)(MathHelper.atan2(dz, dx) * (double)(180 / Math.PI)) - 90;
 						float f1 = (float)(this.speed * CustomEntity.this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue());
