@@ -1,7 +1,7 @@
-# MCreator generator for Minecraft Forge 1.15.2 mods
+# MCreator generator for Minecraft Forge 1.15.2 Java Edition mods/Datapack.
 ![License](https://img.shields.io/badge/License-GPLv3-blue.svg)
 
-MCreator generator plugin for Minecraft Forge 1.15.2 mods.
+MCreator generator plugin for Minecraft Forge 1.15.2 Java Edition mods/Datapack.
 
 ## How to install
 
