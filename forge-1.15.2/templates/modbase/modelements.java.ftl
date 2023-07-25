@@ -145,9 +145,7 @@ public class ${JavaModName}Elements {
 
 		@Override public int compareTo(ModElement other){
         	return this.sortid - other.sortid;
-    	}
-
+    		}
 	}
-
 }
 <#-- @formatter:on -->
