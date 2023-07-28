@@ -57,7 +57,19 @@ import net.minecraftforge.common.BiomeManager;
 		</#if>
 		<#if data.spawnBiome>
 		BiomeManager.addSpawnBiome(biome);
-		BiomeManager.addBiome(BiomeManager.BiomeType.${data.biomeType}, new BiomeManager.BiomeEntry(biome, ${data.biomeWeight}));
+			BiomeManager.addBiome(
+				BiomeManager.BiomeType.
+				<#if (data.temperature < -0.25)>
+					ICY
+				<#elseif (data.temperature > -0.25) && (data.temperature <= 0.15)>
+					COOL
+				<#elseif (data.temperature > 0.15) && (data.temperature <= 1.0)>
+					WARM
+				<#elseif (data.temperature > 1.0)>
+					DESERT
+				</#if>,
+				new BiomeManager.BiomeEntry(biome, ${data.biomeWeight})
+			);
         </#if>
 	}
 
@@ -69,7 +81,7 @@ import net.minecraftforge.common.BiomeManager;
 				.scale(${data.heightVariation}f)
 				.temperature(${data.temperature}f)
 				.precipitation(Biome.RainType.<#if (data.rainingPossibility > 0)><#if (data.temperature > 0.15)>RAIN<#else>SNOW</#if><#else>NONE</#if>)
-				.category(Biome.Category.${data.biomeCategory})
+				.category(Biome.Category.${data.biomeCategory?replace("UNDERGROUND", "NONE")?replace("MOUNTAIN", "NONE")})
 				<#if data.waterColor?has_content>
 				.waterColor(${data.waterColor.getRGB()})
 				<#else>
@@ -84,7 +96,7 @@ import net.minecraftforge.common.BiomeManager;
 				.parent("${data.parent}")
 				</#if>
 				.surfaceBuilder(SurfaceBuilder.DEFAULT, new SurfaceBuilderConfig(
-				${mappedBlockToBlockStateCode(data.groundBlock)}, ${mappedBlockToBlockStateCode(data.undergroundBlock)}, ${mappedBlockToBlockStateCode(data.undergroundBlock)}))
+				${mappedBlockToBlockStateCode(data.groundBlock)}, ${mappedBlockToBlockStateCode(data.undergroundBlock)}, ${mappedBlockToBlockStateCode(data.getUnderwaterBlock)}))
 			);
 
 			setRegistryName("${registryname}");
