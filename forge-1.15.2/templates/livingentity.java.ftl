@@ -43,10 +43,10 @@ import net.minecraft.block.material.Material;
 					<#if data.immuneToFire>.immuneToFire()</#if>.size(${data.modelWidth}f, ${data.modelHeight}f))
 			.build("${registryname}").setRegistryName("${registryname}");
 
-	<#if data.ranged && data.rangedItemType == "Default item">
+	<#if data.ranged && data.rangedItemType == "Default item" && !data.rangedAttackItem.isEmpty()>
 	public static final EntityType arrow = (EntityType.Builder.<ArrowCustomEntity>create(ArrowCustomEntity::new, EntityClassification.MISC)
 			.setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(1)
-			.setCustomClientFactory(ArrowCustomEntity::new).size(0.5f, 0.5f)).build("entitybullet${registryname}").setRegistryName("entitybullet${registryname}");
+			.setCustomClientFactory(ArrowCustomEntity::new).size(0.5f, 0.5f)).build("projectile_${registryname}").setRegistryName("projectile_${registryname}");
 	</#if>
 
 	public ${name}Entity(${JavaModName}Elements instance) {
@@ -58,7 +58,7 @@ import net.minecraft.block.material.Material;
 	@Override public void initElements() {
 		elements.entities.add(() -> entity);
 
-		<#if data.ranged && data.rangedItemType == "Default item">
+		<#if data.ranged && data.rangedItemType == "Default item" && !data.rangedAttackItem.isEmpty()>
 		elements.entities.add(() -> arrow);
 		</#if>
 
@@ -153,58 +153,93 @@ import net.minecraft.block.material.Material;
 			RenderingRegistry.registerEntityRenderingHandler(entity, renderManager -> new MobRenderer(renderManager, new ChickenModel(), ${data.modelShadowSize}f) {
 					<#if data.mobModelGlowTexture?has_content>{ this.addLayer(new GlowingLayer<>(this)); }</#if>
 					@Override public ResourceLocation getEntityTexture(Entity entity) { return new ResourceLocation("${modid}:textures/${data.mobModelTexture}"); }
+					<@renderConditions/>
+				});
+            	<#elseif data.mobModelName == "Cod">
+			RenderingRegistry.registerEntityRenderingHandler(entity, renderManager -> new MobRenderer(renderManager, new CodModel(), ${data.modelShadowSize}f) {
+					<#if data.mobModelGlowTexture?has_content>{ this.addLayer(new GlowingLayer<>(this)); }</#if>
+					@Override public ResourceLocation getEntityTexture(Entity entity) { return new ResourceLocation("${modid}:textures/${data.mobModelTexture}"); }
+					<@renderConditions/>
 				});
 		<#elseif data.mobModelName == "Cow">
 			RenderingRegistry.registerEntityRenderingHandler(entity, renderManager -> new MobRenderer(renderManager, new CowModel(), ${data.modelShadowSize}f) {
 					<#if data.mobModelGlowTexture?has_content>{ this.addLayer(new GlowingLayer<>(this)); }</#if>
 					@Override public ResourceLocation getEntityTexture(Entity entity) { return new ResourceLocation("${modid}:textures/${data.mobModelTexture}"); }
+					<@renderConditions/>
 				});
 		<#elseif data.mobModelName == "Creeper">
 			RenderingRegistry.registerEntityRenderingHandler(entity, renderManager -> new MobRenderer(renderManager, new CreeperModel(), ${data.modelShadowSize}f) {
 					<#if data.mobModelGlowTexture?has_content>{ this.addLayer(new GlowingLayer<>(this)); }</#if>
 					@Override public ResourceLocation getEntityTexture(Entity entity) { return new ResourceLocation("${modid}:textures/${data.mobModelTexture}"); }
+					<@renderConditions/>
 				});
 		<#elseif data.mobModelName == "Ghast">
 			RenderingRegistry.registerEntityRenderingHandler(entity, renderManager -> new MobRenderer(renderManager, new GhastModel(), ${data.modelShadowSize}f) {
 					<#if data.mobModelGlowTexture?has_content>{ this.addLayer(new GlowingLayer<>(this)); }</#if>
 					@Override public ResourceLocation getEntityTexture(Entity entity) { return new ResourceLocation("${modid}:textures/${data.mobModelTexture}"); }
+					<@renderConditions/>
+				});
+            	<#elseif data.mobModelName == "Ocelot">
+				RenderingRegistry.registerEntityRenderingHandler(entity, renderManager -> new MobRenderer(renderManager, new OcelotModel(0), ${data.modelShadowSize}f) {
+					<#if data.mobModelGlowTexture?has_content>{ this.addLayer(new GlowingLayer<>(this)); }</#if>
+					@Override public ResourceLocation getEntityTexture(Entity entity) { return new ResourceLocation("${modid}:textures/${data.mobModelTexture}"); }
+					<@renderConditions/>
 				});
 		<#elseif data.mobModelName == "Pig">
 			RenderingRegistry.registerEntityRenderingHandler(entity, renderManager -> new MobRenderer(renderManager, new PigModel(), ${data.modelShadowSize}f) {
 					<#if data.mobModelGlowTexture?has_content>{ this.addLayer(new GlowingLayer<>(this)); }</#if>
 					@Override public ResourceLocation getEntityTexture(Entity entity) { return new ResourceLocation("${modid}:textures/${data.mobModelTexture}"); }
+					<@renderConditions/>
+				});
+            	<#elseif data.mobModelName == "Salmon">
+				RenderingRegistry.registerEntityRenderingHandler(entity, renderManager -> new MobRenderer(renderManager, new SalmonModel(), ${data.modelShadowSize}f) {
+					<#if data.mobModelGlowTexture?has_content>{ this.addLayer(new GlowingLayer<>(this)); }</#if>
+					@Override public ResourceLocation getEntityTexture(Entity entity) { return new ResourceLocation("${modid}:textures/${data.mobModelTexture}"); }
+					<@renderConditions/>
 				});
 		<#elseif data.mobModelName == "Slime">
 			RenderingRegistry.registerEntityRenderingHandler(entity, renderManager -> new MobRenderer(renderManager, new SlimeModel(0), ${data.modelShadowSize}f) {
 					<#if data.mobModelGlowTexture?has_content>{ this.addLayer(new GlowingLayer<>(this)); }</#if>
 					@Override public ResourceLocation getEntityTexture(Entity entity) { return new ResourceLocation("${modid}:textures/${data.mobModelTexture}"); }
+					<@renderConditions/>
 				});
 		<#elseif data.mobModelName == "Spider">
 			RenderingRegistry.registerEntityRenderingHandler(entity, renderManager -> new MobRenderer(renderManager, new SpiderModel(), ${data.modelShadowSize}f) {
 					<#if data.mobModelGlowTexture?has_content>{ this.addLayer(new GlowingLayer<>(this)); }</#if>
 					@Override public ResourceLocation getEntityTexture(Entity entity) { return new ResourceLocation("${modid}:textures/${data.mobModelTexture}"); }
+					<@renderConditions/>
 				});
 		<#elseif data.mobModelName == "Villager">
 			RenderingRegistry.registerEntityRenderingHandler(entity, renderManager -> new MobRenderer(renderManager, new VillagerModel(0), ${data.modelShadowSize}f) {
-				<#if data.mobModelGlowTexture?has_content>{ this.addLayer(new GlowingLayer<>(this)); }</#if>
-				@Override public ResourceLocation getEntityTexture(Entity entity) { return new ResourceLocation("${modid}:textures/${data.mobModelTexture}"); }
+					<#if data.mobModelGlowTexture?has_content>{ this.addLayer(new GlowingLayer<>(this)); }</#if>
+					@Override public ResourceLocation getEntityTexture(Entity entity) { return new ResourceLocation("${modid}:textures/${data.mobModelTexture}"); }
+					<@renderConditions/>
 			});
+            	<#elseif data.mobModelName == "Witch">
+				RenderingRegistry.registerEntityRenderingHandler(entity, renderManager -> new MobRenderer(renderManager, new WitchModel(0), ${data.modelShadowSize}f) {
+					<#if data.mobModelGlowTexture?has_content>{ this.addLayer(new GlowingLayer<>(this)); }</#if>
+					@Override public ResourceLocation getEntityTexture(Entity entity) { return new ResourceLocation("${modid}:textures/${data.mobModelTexture}"); }
+					<@renderConditions/>
+				});
 		<#elseif data.mobModelName == "Silverfish">
 			RenderingRegistry.registerEntityRenderingHandler(entity, renderManager -> new MobRenderer(renderManager, new SilverfishModel(), ${data.modelShadowSize}f) {
-				<#if data.mobModelGlowTexture?has_content>{ this.addLayer(new GlowingLayer<>(this)); }</#if>
-				@Override public ResourceLocation getEntityTexture(Entity entity) { return new ResourceLocation("${modid}:textures/${data.mobModelTexture}"); }
+					<#if data.mobModelGlowTexture?has_content>{ this.addLayer(new GlowingLayer<>(this)); }</#if>
+					@Override public ResourceLocation getEntityTexture(Entity entity) { return new ResourceLocation("${modid}:textures/${data.mobModelTexture}"); }
+					<@renderConditions/>
 			});
 		<#elseif !data.isBuiltInModel()>
 			RenderingRegistry.registerEntityRenderingHandler(entity, renderManager -> {
 				return new MobRenderer(renderManager, new ${data.mobModelName}(), ${data.modelShadowSize}f) {
 					<#if data.mobModelGlowTexture?has_content>{ this.addLayer(new GlowingLayer<>(this)); }</#if>
 					@Override public ResourceLocation getEntityTexture(Entity entity) { return new ResourceLocation("${modid}:textures/${data.mobModelTexture}"); }
+					<@renderConditions/>
 				};
 			});
 		<#else>
 			RenderingRegistry.registerEntityRenderingHandler(entity, renderManager -> {
 				BipedRenderer customRender = new BipedRenderer(renderManager, new BipedModel(0), ${data.modelShadowSize}f) {
 					@Override public ResourceLocation getEntityTexture(Entity entity) { return new ResourceLocation("${modid}:textures/${data.mobModelTexture}"); }
+					<@renderConditions/>
 				};
 				customRender.addLayer(new BipedArmorLayer(customRender, new BipedModel(0.5f), new BipedModel(1)));
 				<#if data.mobModelGlowTexture?has_content>customRender.addLayer(new GlowingLayer<>(customRender));</#if>
@@ -213,7 +248,7 @@ import net.minecraft.block.material.Material;
 		</#if>
 
 
-		<#if data.ranged && data.rangedItemType == "Default item">
+		<#if data.ranged && data.rangedItemType == "Default item" && !data.rangedAttackItem.isEmpty()>
 		RenderingRegistry.registerEntityRenderingHandler(arrow, renderManager -> new SpriteRenderer(renderManager, Minecraft.getInstance().getItemRenderer()));
 		</#if>
 	}
@@ -281,27 +316,21 @@ import net.minecraft.block.material.Material;
 				@Override public void tick() {
 				    if (CustomEntity.this.isInWater())
                         CustomEntity.this.setMotion(CustomEntity.this.getMotion().add(0, 0.005, 0));
-
 					if (this.action == MovementController.Action.MOVE_TO && !CustomEntity.this.getNavigator().noPath()) {
-						double dx = this.posX - CustomEntity.this.getPosX();
-						double dy = this.posY - CustomEntity.this.getPosY();
-						double dz = this.posZ - CustomEntity.this.getPosZ();
-
+						double dx = this.posX - CustomEntity.this.posX;
+						double dy = this.posY - CustomEntity.this.posY;
+						double dz = this.posZ - CustomEntity.this.posZ;
 						float f = (float)(MathHelper.atan2(dz, dx) * (double)(180 / Math.PI)) - 90;
 						float f1 = (float)(this.speed * CustomEntity.this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue());
-
 						CustomEntity.this.rotationYaw = this.limitAngle(CustomEntity.this.rotationYaw, f, 10);
 						CustomEntity.this.renderYawOffset = CustomEntity.this.rotationYaw;
 						CustomEntity.this.rotationYawHead = CustomEntity.this.rotationYaw;
-
 						if (CustomEntity.this.isInWater()) {
 							CustomEntity.this.setAIMoveSpeed((float)CustomEntity.this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue());
-
 							float f2 = - (float) (MathHelper.atan2(dy, MathHelper.sqrt(dx * dx + dz * dz)) * (180F / Math.PI));
 							f2 = MathHelper.clamp(MathHelper.wrapDegrees(f2), -85, 85);
 							CustomEntity.this.rotationPitch = this.limitAngle(CustomEntity.this.rotationPitch, f2, 5);
 							float f3 = MathHelper.cos(CustomEntity.this.rotationPitch * (float) (Math.PI / 180.0));
-
 							CustomEntity.this.setMoveForward(f3 * f1);
 							CustomEntity.this.setMoveVertical((float) (f1 * dy));
 						} else {
@@ -434,7 +463,7 @@ import net.minecraft.block.material.Material;
 					return false;
 			</#if>
 			<#if data.immuneToPotions>
-				if (source.getImmediateSource() instanceof PotionEntity)
+				if (source.getImmediateSource() instanceof PotionEntity || source.getImmediateSource() instanceof AreaEffectCloudEntity)
 					return false;
 			</#if>
 			<#if data.immuneToFallDamage>
@@ -712,7 +741,11 @@ import net.minecraft.block.material.Material;
         <#if data.ranged>
 		    public void attackEntityWithRangedAttack(LivingEntity target, float flval) {
 				<#if data.rangedItemType == "Default item">
+					<#if !data.rangedAttackItem.isEmpty()>
 					ArrowCustomEntity entityarrow = new ArrowCustomEntity(arrow, this, this.world);
+					<#else>
+					ArrowEntity entityarrow = new ArrowEntity(this.world, this);
+					</#if>
 					double d0 = target.getPosY() + (double) target.getEyeHeight() - 1.1;
 					double d1 = target.getPosX() - this.getPosX();
 					double d3 = target.getPosZ() - this.getPosZ();
@@ -889,7 +922,7 @@ import net.minecraft.block.material.Material;
 	}
 	</#if>
 
-	<#if data.ranged && data.rangedItemType == "Default item">
+	<#if data.ranged && data.rangedItemType == "Default item" && !data.rangedAttackItem.isEmpty()>
    	@OnlyIn(value = Dist.CLIENT, _interface = IRendersAsItem.class) private static class ArrowCustomEntity extends AbstractArrowEntity implements IRendersAsItem {
 
 		public ArrowCustomEntity(FMLPlayMessages.SpawnEntity packet, World world) {
@@ -967,4 +1000,17 @@ import net.minecraft.block.material.Material;
 	</#if>
 
 }
+<#macro renderConditions>
+    <#if hasProcedure(data.transparentModelCondition)>
+        @Override
+	    protected boolean isVisible(LivingEntity _ent) {
+	        Entity entity = _ent;
+	        World world = entity.world;
+	        double x = entity.getPosX();
+	        double y = entity.getPosY();
+	        double z = entity.getPosZ();
+		    return !<@procedureOBJToConditionCode data.transparentModelCondition/>;
+	    }
+	</#if>
+</#macro>
 <#-- @formatter:on -->
