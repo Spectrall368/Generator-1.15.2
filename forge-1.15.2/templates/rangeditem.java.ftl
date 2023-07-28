@@ -254,7 +254,7 @@ public class ${name}Item extends ${JavaModName}Elements.ModElement{
 			double z = this.getPosZ();
 			World world = this.world;
 			Entity entity = this.getShooter();
-			Entity imediatesourceentity = this;
+			Entity immediatesourceentity = this;
 			<@procedureOBJToCode data.onBulletFlyingTick/>
 			if (this.inGround) {
 			    <@procedureOBJToCode data.onBulletHitsBlock/>
