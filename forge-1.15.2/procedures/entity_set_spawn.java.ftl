@@ -1,2 +1,3 @@
+<#include "mcelements.ftl">
 if(${input$entity} instanceof PlayerEntity)
-	((PlayerEntity)${input$entity}).setSpawnPoint(new BlockPos((int)${input$x},(int)${input$y},(int)${input$z}), true, false, ${input$entity}.dimension);
+	((PlayerEntity)${input$entity}).setSpawnPoint(${toBlockPos(input$x,input$y,input$z)}, true, ${input$entity}.dimension);

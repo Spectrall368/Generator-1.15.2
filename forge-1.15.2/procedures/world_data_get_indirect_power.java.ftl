@@ -1,1 +1,2 @@
-(world.getWorld().getRedstonePowerFromNeighbors(new BlockPos((int)${input$x},(int)${input$y},(int)${input$z})))
+<#include "mcelements.ftl">
+(world.getWorld().getRedstonePowerFromNeighbors(${toBlockPos(input$x,input$y,input$z)}))

@@ -1,2 +1,3 @@
-(ForgeRegistries.BIOMES.getKey(world.getBiome(new BlockPos((int)${input$x},(int)${input$y},(int)${input$z})))
+<#include "mcelements.ftl">
+(ForgeRegistries.BIOMES.getKey(world.getBiome(${toBlockPos(input$x,input$y,input$z)}))
         .equals(new ResourceLocation("${generator.map(field$biome, "biomes")}")))

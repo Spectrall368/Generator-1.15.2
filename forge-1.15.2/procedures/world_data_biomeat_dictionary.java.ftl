@@ -1,2 +1,3 @@
-(BiomeDictionary.hasType(world.getBiome(new BlockPos((int)${input$x},(int)${input$y},(int)${input$z})),
+<#include "mcelements.ftl">
+(BiomeDictionary.hasType(world.getBiome(${toBlockPos(input$x,input$y,input$z)}),
         BiomeDictionary.Type.${generator.map(field$biomedict, "biomedictionarytypes")}))

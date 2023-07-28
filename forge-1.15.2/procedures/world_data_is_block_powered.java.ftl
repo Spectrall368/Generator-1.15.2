@@ -1,1 +1,2 @@
-(world.getWorld().isBlockPowered(new BlockPos((int)${input$x},(int)${input$y},(int)${input$z})))
+<#include "mcelements.ftl">
+(world.getWorld().isBlockPowered(${toBlockPos(input$x,input$y,input$z)}))
