@@ -41,7 +41,7 @@ public class ${name}Item extends ${JavaModName}Elements.ModElement{
 
 	public static final EntityType arrow = (EntityType.Builder.<ArrowCustomEntity>create(ArrowCustomEntity::new, EntityClassification.MISC)
 			.setShouldReceiveVelocityUpdates(true).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(ArrowCustomEntity::new)
-			.size(0.5f, 0.5f)).build("entitybullet${registryname}").setRegistryName("entitybullet${registryname}");
+			.size(0.5f, 0.5f)).build("projectile_${registryname}").setRegistryName("projectile_${registryname}");
 
 	public ${name}Item(${JavaModName}Elements instance) {
 		super(instance, ${data.getModElement().getSortID()});
@@ -190,7 +190,7 @@ public class ${name}Item extends ${JavaModName}Elements.ModElement{
 			<#if !data.bulletItemTexture.isEmpty()>
 			return ${mappedMCItemToItemStackCode(data.bulletItemTexture, 1)};
 			<#else>
-			return null;
+			return ItemStack.EMPTY;
 			</#if>
 		}
 
@@ -198,36 +198,54 @@ public class ${name}Item extends ${JavaModName}Elements.ModElement{
 			<#if !data.ammoItem.isEmpty()>
 			return ${mappedMCItemToItemStackCode(data.ammoItem, 1)};
 			<#else>
-			return null;
+			return ItemStack.EMPTY;
 			</#if>
+		}
+
+		@Override protected void arrowHit(LivingEntity entity) {
+			super.arrowHit(entity);
+			entity.setArrowCountInEntity(entity.getArrowCountInEntity() - 1); <#-- #53957 -->
 		}
 
 		<#if hasProcedure(data.onBulletHitsPlayer)>
 		@Override public void onCollideWithPlayer(PlayerEntity entity) {
 			super.onCollideWithPlayer(entity);
 			Entity sourceentity = this.getShooter();
+			Entity immediatesourceentity = this;
 			double x = this.getPosX();
 			double y = this.getPosY();
 			double z = this.getPosZ();
 			World world = this.world;
-			Entity imediatesourceentity = this;
 			<@procedureOBJToCode data.onBulletHitsPlayer/>
 		}
         </#if>
 
-		@Override protected void arrowHit(LivingEntity entity) {
-			super.arrowHit(entity);
-			entity.setArrowCountInEntity(entity.getArrowCountInEntity() - 1); <#-- #53957 -->
-			<#if hasProcedure(data.onBulletHitsEntity)>
-				Entity sourceentity = this.getShooter();
-				double x = this.getPosX();
-				double y = this.getPosY();
-				double z = this.getPosZ();
-				World world = this.world;
-				Entity imediatesourceentity = this;
-				<@procedureOBJToCode data.onBulletHitsEntity/>
-			</#if>
+		<#if hasProcedure(data.onBulletHitsEntity)>
+		public void onHitEntity(EntityRayTraceResult entityRayTraceResult) {
+			super.onHit(entityRayTraceResult);
+			Entity entity = entityRayTraceResult.getEntity();
+			Entity sourceentity = this.getShooter();
+			Entity immediatesourceentity = this;
+			double x = this.getPosX();
+			double y = this.getPosY();
+			double z = this.getPosZ();
+			World world = this.world;
+			<@procedureOBJToCode data.onBulletHitsEntity/>
 		}
+		</#if>
+
+		<#if hasProcedure(data.onBulletHitsBlock)>
+		public void onHitBlock(BlockRayTraceResult blockRayTraceResult) {
+			super.onHit(blockRayTraceResult);
+			double x = blockRayTraceResult.getPos().getX();
+			double y = blockRayTraceResult.getPos().getY();
+			double z = blockRayTraceResult.getPos().getZ();
+			World world = this.world;
+			Entity entity = this.getShooter();
+			Entity immediatesourceentity = this;
+			<@procedureOBJToCode data.onBulletHitsBlock/>
+		}
+		</#if>
 
 		@Override public void tick() {
 			super.tick();
