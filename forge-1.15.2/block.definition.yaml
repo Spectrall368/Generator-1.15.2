@@ -361,4 +361,4 @@ localizationkeys:
   - key: block.@modid.@registryname
     mapto: name
 
-field_exclusions: [generationShape]
+field_exclusions: [generationShape, requiresCorrectTool]
