@@ -249,6 +249,7 @@ public class ${name}Item extends ${JavaModName}Elements.ModElement{
 
 		@Override public void tick() {
 			super.tick();
+
 			double x = this.getPosX();
 			double y = this.getPosY();
 			double z = this.getPosZ();
@@ -256,17 +257,15 @@ public class ${name}Item extends ${JavaModName}Elements.ModElement{
 			Entity entity = this.getShooter();
 			Entity immediatesourceentity = this;
 			<@procedureOBJToCode data.onBulletFlyingTick/>
-			if (this.inGround) {
-			    <@procedureOBJToCode data.onBulletHitsBlock/>
+			if (this.inGround)
 				this.remove();
-			}
 		}
 
 	}
 
 <#if data.bulletModel != "Default">
 		public static class CustomRender extends EntityRenderer<ArrowCustomEntity> {
-			private static final ResourceLocation texture = new ResourceLocation("${modid}:textures/${data.customBulletModelTexture}");
+			private static final ResourceLocation texture = new ResourceLocation("${modid}:textures/entities/${data.customBulletModelTexture}");
 
 			public CustomRender(EntityRendererManager renderManager) {
 				super(renderManager);
