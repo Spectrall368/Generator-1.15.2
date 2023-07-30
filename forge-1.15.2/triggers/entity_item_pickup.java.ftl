@@ -1,10 +1,10 @@
 @Mod.EventBusSubscriber private static class GlobalTrigger {
 	@SubscribeEvent public static void onPickup(EntityItemPickupEvent event) {
-		PlayerEntity entity=event.getEntityPlayer();
+		PlayerEntity entity=event.getPlayer();
 		ItemStack itemstack=event.getItem().getItem();
-		double i = entity.posX;
-		double j = entity.posY;
-		double k = entity.posZ;
+		double i=entity.getPosX();
+		double j=entity.getPosY();
+		double k=entity.getPosZ();
 		World world=entity.world;
 		Map<String, Object> dependencies = new HashMap<>();
 		dependencies.put("x",i);
