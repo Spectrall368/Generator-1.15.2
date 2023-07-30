@@ -73,17 +73,25 @@ import net.minecraft.util.SoundEvent;
 	<#if data.tintType != "No tint">
 	@OnlyIn(Dist.CLIENT) @SubscribeEvent public void blockColorLoad(ColorHandlerEvent.Block event) {
 		event.getBlockColors().register((bs, world, pos, index) -> {
-			return world != null && pos != null ?
-			<#if data.tintType == "Grass">
-				BiomeColors.getGrassColor(world, pos) : GrassColors.get(0.5D, 1.0D);
-			<#elseif data.tintType == "Foliage">
-				BiomeColors.getFoliageColor(world, pos) : FoliageColors.getDefault();
-			<#elseif data.tintType == "Water">
-				BiomeColors.getWaterColor(world, pos) : -1;
-			<#elseif data.tintType == "Sky">
-				Minecraft.getInstance().world.getBiome(pos).getSkyColor() : 8562943;
-			<#else>
-				Minecraft.getInstance().world.getBiome(pos).getWaterFogColor() : 329011;
+				<#if data.tintType == "Default foliage">
+					return FoliageColors.getDefault();
+				<#elseif data.tintType == "Birch foliage">
+					return FoliageColors.getBirch();
+				<#elseif data.tintType == "Spruce foliage">
+					return FoliageColors.getSpruce();
+					<#else>
+					return world != null && pos != null ?
+					<#if data.tintType == "Grass">
+						BiomeColors.getGrassColor(world, pos) : GrassColors.get(0.5D, 1.0D);
+					<#elseif data.tintType == "Foliage">
+						BiomeColors.getFoliageColor(world, pos) : FoliageColors.getDefault();
+					<#elseif data.tintType == "Water">
+						BiomeColors.getWaterColor(world, pos) : -1;
+					<#elseif data.tintType == "Sky">
+						Minecraft.getInstance().world.getBiome(pos).getSkyColor() : 8562943;
+					<#else>
+						Minecraft.getInstance().world.getBiome(pos).getWaterFogColor() : 329011;
+					</#if>
 			</#if>
 		}, block);
 	}
@@ -93,8 +101,12 @@ import net.minecraft.util.SoundEvent;
 			event.getItemColors().register((stack, index) -> {
 				<#if data.tintType == "Grass">
 					return GrassColors.get(0.5D, 1.0D);
-				<#elseif data.tintType == "Foliage">
+				<#elseif data.tintType == "Foliage" || data.tintType == "Default foliage">
 					return FoliageColors.getDefault();
+				<#elseif data.tintType == "Birch foliage">
+					return FoliageColors.getBirch();
+				<#elseif data.tintType == "Spruce foliage">
+					return FoliageColors.getSpruce();
 				<#elseif data.tintType == "Water">
 					return 3694022;
 				<#elseif data.tintType == "Sky">
@@ -282,7 +294,11 @@ import net.minecraft.util.SoundEvent;
 					<#if data.plantType == "growapable" || data.forceTicking>
 					.tickRandomly()
 					</#if>
+					<#if data.isSolid>
+					.notSolid().setOpaque((bs, br, bp) -> false)
+					<#else>
 					.doesNotBlockMovement()
+					</#if>
 					<#if data.isCustomSoundType>
 						.sound(new SoundType(1.0f, 1.0f, null, null, null, null, null){
 							@Override public SoundEvent getBreakSound() { return new SoundEvent(new ResourceLocation("${data.breakSound}")); }
@@ -628,6 +644,31 @@ import net.minecraft.util.SoundEvent;
 			</#if>
 		}
         </#if>
+
+		<#if hasProcedure(data.onEntityWalksOn)>
+		@Override public void onEntityWalk(World world, BlockPos pos, Entity entity) {
+			super.onEntityWalk(world, pos, entity);
+			int x = pos.getX();
+			int y = pos.getY();
+			int z = pos.getZ();
+			BlockState blockstate = world.getBlockState(pos);
+			<@procedureOBJToCode data.onEntityWalksOn/>
+		}
+        </#if>
+
+		<#if hasProcedure(data.onHitByProjectile)>
+		@Override public void onProjectileCollision(World world, BlockState blockstate, BlockRayTraceResult hit, Entity entity) {
+			BlockPos pos = hit.getPos();
+			int x = pos.getX();
+			int y = pos.getY();
+			int z = pos.getZ();
+			double hitX = hit.getHitVec().x;
+			double hitY = hit.getHitVec().y;
+			double hitZ = hit.getHitVec().z;
+			Direction direction = hit.getFace();
+			<@procedureOBJToCode data.onHitByProjectile/>
+		}
+		</#if>
 
 		<#if data.hasTileEntity>
 		@Override public boolean hasTileEntity(BlockState state) {
