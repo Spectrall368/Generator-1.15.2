@@ -1091,7 +1091,7 @@ public class ${name}Block extends ${JavaModName}Elements.ModElement {
 					</#list>
 						return blockCriteria;
 					}), block.getDefaultState(), ${data.frequencyOnChunk}))
-				.withPlacement(Placement.COUNT_RANGE.configure(new CountRangeConfig(${data.frequencyPerChunks}, <#if data.minGenerateHeight gt 256>256<#elseif data.minGenerateHeight lt 0>0<#else>${data.minGenerateHeight}</#if>, <#if data.minGenerateHeight gt 256>256<#elseif data.minGenerateHeight lt 0>0<#else>${data.minGenerateHeight}</#if>, <#if data.maxGenerateHeight gt 256>256<#elseif data.maxGenerateHeight lt 0>0<#else>${data.maxGenerateHeight}</#if>)));
+				.withPlacement(Placement.COUNT_RANGE.configure(new CountRangeConfig(${data.frequencyPerChunks}, <#if data.minGenerateHeight gt 256>256<#elseif data.minGenerateHeight lt 0>0<#else>${data.minGenerateHeight}</#if>, <#if data.minGenerateHeight gt 256>256<#elseif data.minGenerateHeight lt 0>0<#else>${data.minGenerateHeight}</#if>, <#if data.maxGenerateHeight gt 256>256<#elseif data.maxGenerateHeight lt 0>0<#else>${data.maxGenerateHeight}</#if>)))
 			);
 		}
 	}
