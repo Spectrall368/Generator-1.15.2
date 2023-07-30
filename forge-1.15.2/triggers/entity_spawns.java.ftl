@@ -1,9 +1,9 @@
 @Mod.EventBusSubscriber private static class GlobalTrigger {
 	@SubscribeEvent public static void onEntitySpawned(EntityJoinWorldEvent event) {
 		Entity entity=event.getEntity();
-		double i = entity.posX;
-		double j = entity.posY;
-		double k = entity.posZ;
+		double i=entity.getPosX();
+		double j=entity.getPosY();
+		double k=entity.getPosZ();
 		World world = event.getWorld().getWorld();
 		Map<String, Object> dependencies = new HashMap<>();
 		dependencies.put("x",i);
