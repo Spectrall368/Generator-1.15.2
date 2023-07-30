@@ -3,9 +3,9 @@
 		Entity entity=event.getEntity();
 		int dimension=event.getDimension().getId();
 		World world = entity.world;
-		double i = entity.posX;
-		double j = entity.posY;
-		double k = entity.posZ;
+		double i=entity.getPosX();
+		double j=entity.getPosY();
+		double k=entity.getPosZ();
 		Map<String, Object> dependencies = new HashMap<>();
 		dependencies.put("x",i);
 		dependencies.put("y",j);
