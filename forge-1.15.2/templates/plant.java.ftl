@@ -295,7 +295,7 @@ import net.minecraft.util.SoundEvent;
 					.tickRandomly()
 					</#if>
 					<#if data.isSolid>
-					.notSolid().setOpaque((bs, br, bp) -> false)
+					.notSolid()
 					<#else>
 					.doesNotBlockMovement()
 					</#if>
