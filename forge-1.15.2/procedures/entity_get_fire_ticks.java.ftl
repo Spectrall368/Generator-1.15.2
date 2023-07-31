@@ -1,1 +1,1 @@
-(${input$entity}.getRemainingFireTicks())
+(${input$entity}.getFireTimer())
