@@ -936,7 +936,7 @@ import net.minecraft.block.material.Material;
 	</#if>
 
 	<#if data.mobModelName == "Villager">
-	@OnlyIn(Dist.CLIENT) public void render(CustomEntity entity, float entityYaw, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn) {
+	@OnlyIn(Dist.CLIENT) public void render(CustomEntity VillagerModel, float entityYaw, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn) {
 	matrixStack.push();
        	matrixStack.scale(0.9375f, 0.9375f, 0.9375f);
        	matrixStack.pop();
