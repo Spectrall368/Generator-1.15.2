@@ -108,6 +108,10 @@ public static class CustomPortalBlock extends NetherPortalBlock {
 		entity.changeDimension(destinationType, getTeleporterForDimension(entity, pos, entity.getServer().getWorld(destinationType)));
 	}
 
+		@OnlyIn(Dist.CLIENT) public static void registerRenderLayer() {
+			RenderTypeLookup.setRenderLayer(portal, RenderType.getTranslucent());
+		}
+
 	private TeleporterDimensionMod getTeleporterForDimension(Entity entity, BlockPos pos, ServerWorld nextWorld) {
 		BlockPattern.PatternHelper bph = ${name}Dimension.CustomPortalBlock.createPatternHelper(entity.world, pos);
 		double d0 = bph.getForwards().getAxis() == Direction.Axis.X ? (double) bph.getFrontTopLeft().getZ() : (double) bph.getFrontTopLeft().getX();
