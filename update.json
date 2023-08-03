@@ -2,7 +2,7 @@
   "generator-1.15.2": {
     "latest": "1.3",
 	"changes": [
-		"Ported The Plugin To MCreator 2022.3"
+		"Bug Fix"
 	]
   }
 }
