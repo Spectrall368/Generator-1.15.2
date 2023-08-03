@@ -379,6 +379,16 @@ import net.minecraft.block.material.Material;
 		}
         	</#if>
 
+		<#if data.mobModelName == "Biped">
+		public double getRidingHeight() {
+			return -0.35D;
+		}
+		<#elseif data.mobModelName == "Silverfish">
+		public double getRidingHeight() {
+			return 0.1D;
+		}
+		</#if>
+
 		<#if data.mountedYOffset != 0>
 		@Override public double getMountedYOffset() {
 			return super.getMountedYOffset() + ${data.mountedYOffset};
@@ -923,6 +933,14 @@ import net.minecraft.block.material.Material;
 		}
 
 	}
+	</#if>
+
+	<#if data.mobModelName == "Villager">
+	@OnlyIn(Dist.CLIENT) public void render(CustomEntity entity, float entityYaw, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn) {
+	matrixStack.push();
+       	matrixStack.scale(0.9375f, 0.9375f, 0.9375f);
+       	matrixStack.pop();
+    	}
 	</#if>
 
 	<#if data.ranged && data.rangedItemType == "Default item" && !data.rangedAttackItem.isEmpty()>
