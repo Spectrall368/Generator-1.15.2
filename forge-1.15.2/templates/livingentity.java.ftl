@@ -936,11 +936,9 @@ import net.minecraft.block.material.Material;
 	</#if>
 
 	<#if data.mobModelName == "Villager">
-	@OnlyIn(Dist.CLIENT) public void render(CustomEntity VillagerEntity, float entityYaw, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn) {
-	matrixStack.push();
-       	matrixStack.scale(0.9375f, 0.9375f, 0.9375f);
-       	matrixStack.pop();
-    	}
+	@OnlyIn(Dist.CLIENT) protected void preRenderCallback(${name}Entity villagerEntity, float f) {
+		matrixStack.scale(0.9375f, 0.9375f, 0.9375f);
+	}
 	</#if>
 
 	<#if data.ranged && data.rangedItemType == "Default item" && !data.rangedAttackItem.isEmpty()>
@@ -1023,8 +1021,7 @@ import net.minecraft.block.material.Material;
 }
 <#macro renderConditions>
     <#if hasProcedure(data.transparentModelCondition)>
-        @Override
-	    protected boolean isVisible(LivingEntity _ent) {
+        @Override protected boolean isVisible(LivingEntity _ent) {
 	        Entity entity = _ent;
 	        World world = entity.world;
 	        double x = entity.getPosX();
