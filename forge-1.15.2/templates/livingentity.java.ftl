@@ -936,8 +936,8 @@ import net.minecraft.block.material.Material;
 	</#if>
 
 	<#if data.mobModelName == "Villager">
-	@OnlyIn(Dist.CLIENT) protected void preRenderCallback(${name}Entity villagerEntity, float f) {
-		matrixStack.scale(0.9375f, 0.9375f, 0.9375f);
+	@OnlyIn(Dist.CLIENT) protected void preRenderCallback(${name}Entity villagerEntity, MatrixStack matrixStackIn, float f) {
+		matrixStackIn.scale(0.9375f, 0.9375f, 0.9375f);
 	}
 	</#if>
 
