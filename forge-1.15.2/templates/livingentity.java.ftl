@@ -935,12 +935,6 @@ import net.minecraft.block.material.Material;
 	}
 	</#if>
 
-	<#if data.mobModelName == "Villager">
-	@OnlyIn(Dist.CLIENT) protected void preRenderCallback(${name}Entity villagerEntity, MatrixStack matrixStackIn, float f) {
-		matrixStackIn.scale(0.9375f, 0.9375f, 0.9375f);
-	}
-	</#if>
-
 	<#if data.ranged && data.rangedItemType == "Default item" && !data.rangedAttackItem.isEmpty()>
    	@OnlyIn(value = Dist.CLIENT, _interface = IRendersAsItem.class) private static class ArrowCustomEntity extends AbstractArrowEntity implements IRendersAsItem {
 
