@@ -61,7 +61,6 @@ public class ${JavaModName}Elements {
 	public final List<Supplier<Enchantment>> enchantments = new ArrayList<>();
 	</#if>
 
-
 	public static Map<ResourceLocation, net.minecraft.util.SoundEvent> sounds = new HashMap<>();
 
 	public ${JavaModName}Elements () {
