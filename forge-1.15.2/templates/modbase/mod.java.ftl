@@ -36,7 +36,6 @@ import org.apache.logging.log4j.Logger;
 		elements = new ${JavaModName}Elements();
 
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
 		FMLJavaModLoadingContext.get().getModEventBus().register(this);
 
 		MinecraftForge.EVENT_BUS.register(this);
