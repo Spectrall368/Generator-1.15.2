@@ -61,17 +61,17 @@ public class ${name}PotionEffect extends Effect {
 		<#if data.isInstant>
 			@Override public void affectEntity(Entity source, Entity indirectSource, LivingEntity entity, int amplifier, double health) {
 				World world = entity.world;
-				double x = entity.posX;
-				double y = entity.posY;
-				double z = entity.posZ;
+				double x = entity.getPosX();
+				double y = entity.getPosY();
+				double z = entity.getPosZ();
 				<@procedureOBJToCode data.onStarted/>
 			}
 		<#else>
 			@Override public void applyAttributesModifiersToEntity(LivingEntity entity, AbstractAttributeMap attributeMapIn, int amplifier) {
 				World world = entity.world;
-				double x = entity.posX;
-				double y = entity.posY;
-				double z = entity.posZ;
+				double x = entity.getPosX();
+				double y = entity.getPosY();
+				double z = entity.getPosZ();
 				<@procedureOBJToCode data.onStarted/>
 			}
 		</#if>
@@ -80,9 +80,9 @@ public class ${name}PotionEffect extends Effect {
 	<#if hasProcedure(data.onActiveTick)>
 		@Override public void performEffect(LivingEntity entity, int amplifier) {
 			World world = entity.world;
-			double x = entity.posX;
-			double y = entity.posY;
-			double z = entity.posZ;
+			double x = entity.getPosX();
+			double y = entity.getPosY();
+			double z = entity.getPosZ();
 			<@procedureOBJToCode data.onActiveTick/>
 		}
 	</#if>
@@ -91,9 +91,9 @@ public class ${name}PotionEffect extends Effect {
 		@Override public void removeAttributesModifiersFromEntity(LivingEntity entity, AbstractAttributeMap attributeMapIn, int amplifier) {
 			super.removeAttributesModifiersFromEntity(entity, attributeMapIn, amplifier);
     				World world = entity.world;
-				double x = entity.posX;
-				double y = entity.posY;
-				double z = entity.posZ;
+				double x = entity.getPosX();
+				double y = entity.getPosY();
+				double z = entity.getPosZ();
 				<@procedureOBJToCode data.onExpired/>
 		}
 	</#if>
