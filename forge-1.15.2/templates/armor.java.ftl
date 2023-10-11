@@ -309,6 +309,5 @@ package ${package}.item;
 		}
 		</#if>
 	</#if>
-
 }
 <#-- @formatter:on -->
