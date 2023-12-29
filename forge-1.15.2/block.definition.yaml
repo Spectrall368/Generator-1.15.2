@@ -1,6 +1,16 @@
 templates:
-  - template: block.java.ftl
+  - template: block/block.java.ftl
     name: "@SRCROOT/@BASEPACKAGEPATH/block/@NAMEBlock.java"
+  - template: block/blockentity.java.ftl
+    deleteWhenConditionFalse: true
+    condition: hasInventory
+    name: "@SRCROOT/@BASEPACKAGEPATH/block/entity/@NAMEBlockEntity.java"
+
+  # Worldgen
+  - template: block/oregen.java.ftl
+    deleteWhenConditionFalse: true
+    condition: doesGenerateInWorld()
+    name: "@SRCROOT/@BASEPACKAGEPATH/world/features/ores/@NAMEFeature.java"
 
   # Block item templates
   - template: json/block_item.json.ftl
@@ -205,12 +215,16 @@ templates:
     variables: "variant= "
     name: "@MODASSETSROOT/blockstates/@registryname.json"
   - template: json/block.json.ftl
-    condition: [ "blockBase %= Leaves", "tintType %= No tint" ]
+    condition:
+      - "blockBase %= Leaves"
+      - "tintType %= No tint"
     writer: json
     variables: "model=cube_all;txname=all"
     name: "@MODASSETSROOT/models/block/@registryname.json"
   - template: json/block.json.ftl
-    condition: [ "blockBase %= Leaves", "isBlockTinted()" ]
+    condition:
+      - "blockBase %= Leaves"
+      - "isBlockTinted()"
     writer: json
     variables: "model=leaves;txname=all"
     name: "@MODASSETSROOT/models/block/@registryname.json"
@@ -361,4 +375,30 @@ localizationkeys:
   - key: block.@modid.@registryname
     mapto: name
 
-field_exclusions: [generationShape, requiresCorrectTool]
+global_templates:
+  - template: block/mineable_tag.json.ftl
+    writer: json
+    variables: "type=pickaxe"
+    name: "@RESROOT/data/minecraft/tags/blocks/mineable/pickaxe.json"
+    deleteWhenConditionFalse: true
+    condition: ${w.hasBlocksMineableWith('pickaxe')}
+  - template: block/mineable_tag.json.ftl
+    writer: json
+    variables: "type=axe"
+    name: "@RESROOT/data/minecraft/tags/blocks/mineable/axe.json"
+    deleteWhenConditionFalse: true
+    condition: ${w.hasBlocksMineableWith('axe')}
+  - template: block/mineable_tag.json.ftl
+    writer: json
+    variables: "type=shovel"
+    name: "@RESROOT/data/minecraft/tags/blocks/mineable/shovel.json"
+    deleteWhenConditionFalse: true
+    condition: ${w.hasBlocksMineableWith('shovel')}
+  - template: block/mineable_tag.json.ftl
+    writer: json
+    variables: "type=hoe"
+    name: "@RESROOT/data/minecraft/tags/blocks/mineable/hoe.json"
+    deleteWhenConditionFalse: true
+    condition: ${w.hasBlocksMineableWith('hoe')}
+
+field_exclusions: [displayFluidOverlay, speedFactor, jumpFactor, generationShape]

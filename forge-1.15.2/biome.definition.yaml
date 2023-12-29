@@ -1,6 +1,17 @@
 templates:
-  - template: biome.java.ftl
+  - template: biome/biome.java.ftl
     name: "@SRCROOT/@BASEPACKAGEPATH/world/biome/@NAMEBiome.java"
+  - template: biome/tree_trunk_decorator.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/world/features/treedecorators/@NAMETreeFeature.java"
+    condition_any:
+      - hasVines()
+      - hasFruits()
+    deleteWhenConditionFalse: true
+
+global_templates:
+  - template: elementinits/biomes.java.ftl
+    writer: java
+    name: "@SRCROOT/@BASEPACKAGEPATH/init/@JavaModNameBiomes.java"
 
 localizationkeys:
   - key: biome.@modid.@registryname
