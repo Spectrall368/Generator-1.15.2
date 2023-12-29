@@ -13,9 +13,9 @@ this.goalSelector.addGoal(${customBlockIndex+1}, new Goal() {
 	public boolean shouldExecute() {
 		if (${name}Entity.this.getAttackTarget() != null && !${name}Entity.this.getMoveHelper().isUpdating()) {
 			<#if hasProcedure(conditions[0])>
-                        double x = ${name}Entity.this.posX;
-			double y = ${name}Entity.this.posY;
-			double z = ${name}Entity.this.posZ;
+                        double x = ${name}Entity.this.getPosX();
+			double y = ${name}Entity.this.getPosY();
+			double z = ${name}Entity.this.getPosZ();
 			Entity entity = ${name}Entity.this;
 			</#if>
 			return <#if hasProcedure(conditions[0])><@procedureOBJToConditionCode conditions[0]/><#else>true</#if>;
@@ -26,9 +26,9 @@ this.goalSelector.addGoal(${customBlockIndex+1}, new Goal() {
 
 	@Override public boolean shouldContinueExecuting() {
 		<#if hasProcedure(conditions[1])>
-		double x = ${name}Entity.this.posX;
-		double y = ${name}Entity.this.posY;
-		double z = ${name}Entity.this.posZ;
+		double x = ${name}Entity.this.getPosX();
+		double y = ${name}Entity.this.getPosY();
+		double z = ${name}Entity.this.getPosZ();
 		Entity entity = ${name}Entity.this;
 		</#if>
 		return <#if hasProcedure(conditions[1])><@procedureOBJToConditionCode conditions[1]/> &&</#if>
