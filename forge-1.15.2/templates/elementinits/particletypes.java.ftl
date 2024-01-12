@@ -29,16 +29,14 @@
 -->
 
 <#-- @formatter:off -->
-
 /*
  *    MCreator note: This file will be REGENERATED on each build.
  */
-
 package ${package}.init;
 
 public class ${JavaModName}ParticleTypes {
 
-	public static final DeferredRegister<ParticleType<?>> REGISTRY = new DeferredRegister<>(ForgeRegistries.PARTICLE_TYPES, ${JavaModName}.MODID);
+	public static final DeferredRegister<ParticleType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, ${JavaModName}.MODID);
 
 	<#list particles as particle>
 	public static final RegistryObject<BasicParticleType> ${particle.getModElement().getRegistryNameUpper()} =
