@@ -16,17 +16,8 @@ public class ${JavaModName}Elements {
 
 	public final List<ModElement> elements = new ArrayList<>();
 
-	<#if w.hasElementsOfBaseType("block")>
+	<#if w.hasElementsOfType("dimension")>
 	public final List<Supplier<Block>> blocks = new ArrayList<>();
-	</#if>
-	<#if w.hasElementsOfBaseType("item")>
-	public final List<Supplier<Item>> items = new ArrayList<>();
-	</#if>
-	<#if w.hasElementsOfType("biome")>
-	public final List<Supplier<Biome>> biomes = new ArrayList<>();
-	</#if>
-	<#if w.hasElementsOfBaseType("entity")>
-	public final List<Supplier<EntityType<?>>> entities = new ArrayList<>();
 	</#if>
 
 	public ${JavaModName}Elements () {
@@ -47,45 +38,15 @@ public class ${JavaModName}Elements {
 
 		Collections.sort(elements);
 		elements.forEach(${JavaModName}Elements.ModElement::initElements);
-
-		<#if w.hasVariables()>
-		MinecraftForge.EVENT_BUS.register(new ${JavaModName}Variables(this));
-		</#if>
-	}
-
-	private int messageID = 0;
-
-	public <T> void addNetworkMessage(Class<T> messageType, BiConsumer<T, PacketBuffer> encoder, Function<PacketBuffer, T> decoder,
-			BiConsumer<T, Supplier<NetworkEvent.Context>> messageConsumer) {
-		${JavaModName}.PACKET_HANDLER.registerMessage(messageID, messageType, encoder, decoder, messageConsumer);
-		messageID++;
 	}
 
 	public List<ModElement> getElements() {
 		return elements;
 	}
 
-	<#if w.hasElementsOfBaseType("block")>
+	<#if w.hasElementsOfType("dimension")>
 	public List<Supplier<Block>> getBlocks() {
 		return blocks;
-	}
-	</#if>
-
-	<#if w.hasElementsOfBaseType("item")>
-	public List<Supplier<Item>> getItems() {
-		return items;
-	}
-	</#if>
-
-	<#if w.hasElementsOfType("biome")>
-	public List<Supplier<Biome>> getBiomes() {
-		return biomes;
-	}
-	</#if>
-
-	<#if w.hasElementsOfBaseType("entity")>
-	public List<Supplier<EntityType<?>>> getEntities() {
-		return entities;
 	}
 	</#if>
 
