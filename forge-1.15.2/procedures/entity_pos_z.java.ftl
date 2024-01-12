@@ -1,1 +1,1 @@
-(${input$entity}.posZ)
+(${input$entity}.getPosZ())
