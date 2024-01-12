@@ -85,6 +85,10 @@ import org.apache.logging.log4j.Logger;
 		elements.getElements().forEach(element -> element.serverLoad(event));
 	}
 
+	@SubscribeEvent @OnlyIn(Dist.CLIENT) public void clientLoad(FMLClientSetupEvent event) {
+		elements.getElements().forEach(element -> element.clientLoad(event));
+	}
+
 	@SubscribeEvent public void registerBlocks(RegistryEvent.Register<Block> event) {
 		event.getRegistry().registerAll(elements.getBlocks().stream().map(Supplier::get).toArray(Block[]::new));
 	}
