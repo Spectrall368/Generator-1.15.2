@@ -29,21 +29,21 @@
 -->
 
 <#-- @formatter:off -->
-
+<#include "../mcitems.ftl">
 /*
- *    MCreator note: This file will be REGENERATED on each build.
+ *	MCreator note: This file will be REGENERATED on each build.
  */
-
 package ${package}.init;
 
-public class ${JavaModName}Enchantments {
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD) public class ${JavaModName}CompostableItems {
 
-	public static final DeferredRegister<Enchantment> REGISTRY = new DeferredRegister<>(ForgeRegistries.ENCHANTMENTS, ${JavaModName}.MODID);
-
-	<#list enchantments as enchantment>
-	public static final RegistryObject<Enchantment> ${enchantment.getModElement().getRegistryNameUpper()} =
-		REGISTRY.register("${enchantment.getModElement().getRegistryName()}", () -> new ${enchantment.getModElement().getName()}Enchantment());
-	</#list>
-
+	@SubscribeEvent
+	public static void addComposterItems(FMLCommonSetupEvent event) {
+		<#list itemextensions as extension>
+			<#if (extension.compostLayerChance > 0)>
+				ComposterBlock.CHANCES.put(${mappedMCItemToItem(extension.item)}, ${extension.compostLayerChance}f);
+			</#if>
+		</#list>
+	}
 }
 <#-- @formatter:on -->

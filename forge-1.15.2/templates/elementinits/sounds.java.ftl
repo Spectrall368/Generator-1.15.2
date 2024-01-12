@@ -29,13 +29,9 @@
 -->
 
 <#-- @formatter:off -->
-
-<#include "../mcitems.ftl">
-
 /*
  *    MCreator note: This file will be REGENERATED on each build.
  */
-
 package ${package}.init;
 
 import net.minecraft.util.SoundEvent;
@@ -55,5 +51,4 @@ import net.minecraft.util.SoundEvent;
 			event.getRegistry().register(sound.getValue().setRegistryName(sound.getKey()));
 	}
 }
-
 <#-- @formatter:on -->

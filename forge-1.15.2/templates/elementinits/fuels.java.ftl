@@ -1,7 +1,7 @@
 <#--
  # MCreator (https://mcreator.net/)
  # Copyright (C) 2012-2020, Pylo
- # Copyright (C) 2020-2023, Pylo, opensource contributors
+ # Copyright (C) 2020-2022, Pylo, opensource contributors
  #
  # This program is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
@@ -29,21 +29,30 @@
 -->
 
 <#-- @formatter:off -->
-
+<#include "../mcitems.ftl">
+<#include "../procedures.java.ftl">
 /*
- *    MCreator note: This file will be REGENERATED on each build.
+ *	MCreator note: This file will be REGENERATED on each build.
  */
-
 package ${package}.init;
 
-public class ${JavaModName}Enchantments {
+@Mod.EventBusSubscriber public class ${JavaModName}Fuels {
 
-	public static final DeferredRegister<Enchantment> REGISTRY = new DeferredRegister<>(ForgeRegistries.ENCHANTMENTS, ${JavaModName}.MODID);
-
-	<#list enchantments as enchantment>
-	public static final RegistryObject<Enchantment> ${enchantment.getModElement().getRegistryNameUpper()} =
-		REGISTRY.register("${enchantment.getModElement().getRegistryName()}", () -> new ${enchantment.getModElement().getName()}Enchantment());
-	</#list>
-
+	@SubscribeEvent
+	public static void furnaceFuelBurnTimeEvent(FurnaceFuelBurnTimeEvent event) {
+		<#compress>
+		ItemStack itemstack = event.getItemStack();
+		<#list itemextensions?filter(e -> e.enableFuel) as extension>
+			if (itemstack.getItem() == ${mappedMCItemToItem(extension.item)}
+			<#if hasProcedure(extension.fuelSuccessCondition)>&& <@procedureOBJToConditionCode extension.fuelSuccessCondition/></#if>)
+				<#if hasProcedure(extension.fuelPower)>
+					event.setBurnTime((int) <@procedureOBJToNumberCode extension.fuelPower/>);
+				<#else>
+					event.setBurnTime(${extension.fuelPower.getFixedValue()});
+				</#if>
+			<#sep>else
+		</#list>
+		</#compress>
+	}
 }
 <#-- @formatter:on -->

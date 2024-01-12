@@ -36,13 +36,13 @@
 
 package ${package}.init;
 
-public class ${JavaModName}Enchantments {
+public class ${JavaModName}ParticleTypes {
 
-	public static final DeferredRegister<Enchantment> REGISTRY = new DeferredRegister<>(ForgeRegistries.ENCHANTMENTS, ${JavaModName}.MODID);
+	public static final DeferredRegister<ParticleType<?>> REGISTRY = new DeferredRegister<>(ForgeRegistries.PARTICLE_TYPES, ${JavaModName}.MODID);
 
-	<#list enchantments as enchantment>
-	public static final RegistryObject<Enchantment> ${enchantment.getModElement().getRegistryNameUpper()} =
-		REGISTRY.register("${enchantment.getModElement().getRegistryName()}", () -> new ${enchantment.getModElement().getName()}Enchantment());
+	<#list particles as particle>
+	public static final RegistryObject<BasicParticleType> ${particle.getModElement().getRegistryNameUpper()} =
+			REGISTRY.register("${particle.getModElement().getRegistryName()}", () -> new BasicParticleType(${particle.alwaysShow}));
 	</#list>
 
 }

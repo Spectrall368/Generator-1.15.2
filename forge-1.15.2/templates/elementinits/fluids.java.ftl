@@ -29,21 +29,20 @@
 -->
 
 <#-- @formatter:off -->
-
 /*
- *    MCreator note: This file will be REGENERATED on each build.
+ * MCreator note: This file will be REGENERATED on each build.
  */
-
 package ${package}.init;
 
-public class ${JavaModName}Enchantments {
+public class ${JavaModName}Fluids {
 
-	public static final DeferredRegister<Enchantment> REGISTRY = new DeferredRegister<>(ForgeRegistries.ENCHANTMENTS, ${JavaModName}.MODID);
+	public static final DeferredRegister<Fluid> REGISTRY = new DeferredRegister<>(ForgeRegistries.FLUIDS, ${JavaModName}.MODID);
 
-	<#list enchantments as enchantment>
-	public static final RegistryObject<Enchantment> ${enchantment.getModElement().getRegistryNameUpper()} =
-		REGISTRY.register("${enchantment.getModElement().getRegistryName()}", () -> new ${enchantment.getModElement().getName()}Enchantment());
+	<#list fluids as fluid>
+	public static final RegistryObject<Fluid> ${fluid.getModElement().getRegistryNameUpper()} =
+		REGISTRY.register("${fluid.getModElement().getRegistryName()}", () -> new ${fluid.getModElement().getName()}Fluid.Source(${fluid.getModElement().getName()}Fluid.PROPERTIES));
+	public static final RegistryObject<Fluid> FLOWING_${fluid.getModElement().getRegistryNameUpper()} =
+		REGISTRY.register("flowing_${fluid.getModElement().getRegistryName()}", () -> new ${fluid.getModElement().getName()}Fluid.Flowing(${fluid.getModElement().getName()}Fluid.PROPERTIES));
 	</#list>
-
 }
 <#-- @formatter:on -->

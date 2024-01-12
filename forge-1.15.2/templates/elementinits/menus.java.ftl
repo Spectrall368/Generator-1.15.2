@@ -29,21 +29,29 @@
 -->
 
 <#-- @formatter:off -->
-
 /*
  *    MCreator note: This file will be REGENERATED on each build.
  */
-
 package ${package}.init;
 
-public class ${JavaModName}Enchantments {
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD) public class ${JavaModName}Menus {
 
-	public static final DeferredRegister<Enchantment> REGISTRY = new DeferredRegister<>(ForgeRegistries.ENCHANTMENTS, ${JavaModName}.MODID);
+    private static final List<ContainerType<?>> REGISTRY = new ArrayList<>();
 
-	<#list enchantments as enchantment>
-	public static final RegistryObject<Enchantment> ${enchantment.getModElement().getRegistryNameUpper()} =
-		REGISTRY.register("${enchantment.getModElement().getRegistryName()}", () -> new ${enchantment.getModElement().getName()}Enchantment());
-	</#list>
+    <#list guis as gui>
+    public static final ContainerType<${gui.getModElement().getName()}Menu> ${gui.getModElement().getRegistryNameUpper()}
+		= register("${gui.getModElement().getRegistryName()}", (id, inv, extraData) -> new ${gui.getModElement().getName()}Menu(id, inv, extraData));
+    </#list>
 
+    private static <T extends Container> ContainerType<T> register(String registryname, IContainerFactory<T> containerFactory) {
+		ContainerType<T> menuType = new ContainerType<T>(containerFactory);
+		menuType.setRegistryName(registryname);
+		REGISTRY.add(menuType);
+    	return menuType;
+    }
+
+	@SubscribeEvent public static void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
+		event.getRegistry().registerAll(REGISTRY.toArray(new ContainerType[0]));
+	}
 }
 <#-- @formatter:on -->
