@@ -15,7 +15,7 @@ if (${input$entity} instanceof ServerPlayerEntity && !((ServerPlayerEntity) ${in
 	if (nextWorld != null) {
 		ObfuscationReflectionHelper.setPrivateValue(ServerPlayerEntity.class, ((ServerPlayerEntity) ${input$entity}), true, "field_184851_cj");
 		((ServerPlayerEntity) ${input$entity}).connection.sendPacket(new SChangeGameStatePacket(4, 0));
-		((ServerPlayerEntity) ${input$entity}).teleport(nextWorld, ((ServerPlayerEntity) ${input$entity}).posX, ((ServerPlayerEntity) ${input$entity}).posY, ((ServerPlayerEntity) ${input$entity}).posZ, ((ServerPlayerEntity) ${input$entity}).rotationYaw, ((ServerPlayerEntity) ${input$entity}).rotationPitch);
+		((ServerPlayerEntity) ${input$entity}).teleport(nextWorld, ((ServerPlayerEntity) ${input$entity}).getPosX(), ((ServerPlayerEntity) ${input$entity}).getPosY(), ((ServerPlayerEntity) ${input$entity}).getPosZ(), ((ServerPlayerEntity) ${input$entity}).rotationYaw, ((ServerPlayerEntity) ${input$entity}).rotationPitch);
 		((ServerPlayerEntity) ${input$entity}).connection.sendPacket(new SPlayerAbilitiesPacket(((ServerPlayerEntity) ${input$entity}).abilities));
 		for(EffectInstance effectinstance : ((ServerPlayerEntity) ${input$entity}).getActivePotionEffects())
 			((ServerPlayerEntity) ${input$entity}).connection.sendPacket(new SPlayEntityEffectPacket(((ServerPlayerEntity) ${input$entity}).getEntityId(), effectinstance));
