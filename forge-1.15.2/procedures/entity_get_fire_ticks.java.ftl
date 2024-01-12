@@ -1,1 +1,1 @@
-(${input$entity}.getFireTimer())
+/*@int*/(${input$entity}.func_223314_ad())
