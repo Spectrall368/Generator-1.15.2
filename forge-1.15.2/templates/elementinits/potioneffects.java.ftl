@@ -29,16 +29,14 @@
 -->
 
 <#-- @formatter:off -->
-
 /*
  *	MCreator note: This file will be REGENERATED on each build.
  */
-
 package ${package}.init;
 
 public class ${JavaModName}PotionEffects {
 
-	public static final DeferredRegister<Effect> REGISTRY = new DeferredRegister<>(ForgeRegistries.POTIONS, ${JavaModName}.MODID);
+	public static final DeferredRegister<Effect> REGISTRY = DeferredRegister.create(ForgeRegistries.POTIONS, ${JavaModName}.MODID);
 
 	<#list potioneffects as effect>
 	public static final RegistryObject<Effect> ${effect.getModElement().getRegistryNameUpper()} =
