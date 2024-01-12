@@ -1,1 +1,0 @@
-if (${input$entity} instanceof PlayerEntity) ObfuscationReflectionHelper.setPrivateValue(FoodStats.class, ((PlayerEntity) ${input$entity}).getFoodStats(), ${opt.toFloat(input$amount)}, "field_75125_b");
