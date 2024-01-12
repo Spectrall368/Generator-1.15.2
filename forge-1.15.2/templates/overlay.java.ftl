@@ -30,7 +30,6 @@
 <#-- @formatter:off -->
 <#include "tokens.ftl">
 <#include "procedures.java.ftl">
-
 <#assign hasTextures = data.baseTexture?has_content>
 <#list data.components as component>
 	<#if component.getClass().getSimpleName() == "Image">
@@ -38,8 +37,7 @@
 		<#break>
 	</#if>
 </#list>
-
-package ${package}.gui.overlay;
+package ${package}.client.screens;
 
 @Mod.EventBusSubscriber public class ${name}Overlay {
 
@@ -51,7 +49,7 @@ package ${package}.gui.overlay;
 			int w = event.getWindow().getScaledWidth();
 			int h = event.getWindow().getScaledHeight();
 	<#else>
-	public void eventHandler(GuiScreenEvent.DrawScreenEvent.Post event) {
+	public static void eventHandler(GuiScreenEvent.DrawScreenEvent.Post event) {
 		if (event.getGui() instanceof ${generator.map(data.overlayTarget, "screens")}) {
 			int w = event.getGui().width;
 			int h = event.getGui().height;
@@ -80,11 +78,11 @@ package ${package}.gui.overlay;
 
 			<#if hasTextures>
 				RenderSystem.disableDepthTest();
-      			RenderSystem.depthMask(false);
-      			RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+				RenderSystem.depthMask(false);
+				RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
 						GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-      			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-      			RenderSystem.disableAlphaTest();
+				RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+				RenderSystem.disableAlphaTest();
 			</#if>
 
 			if (<@procedureOBJToConditionCode data.displayCondition/>) {
@@ -110,18 +108,16 @@ package ${package}.gui.overlay;
 							${component.getWidth(w.getWorkspace())}, ${component.getHeight(w.getWorkspace())});
 						<#if hasProcedure(component.displayCondition)>}</#if>
 	                </#if>
-	            </#list>
+	            		</#list>
 			}
 
 			<#if hasTextures>
 				RenderSystem.depthMask(true);
-      			RenderSystem.enableDepthTest();
-      			RenderSystem.enableAlphaTest();
-      			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+				RenderSystem.enableDepthTest();
+				RenderSystem.enableAlphaTest();
+				RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 			</#if>
-
 		}
 	}
-
 }
 <#-- @formatter:on -->
