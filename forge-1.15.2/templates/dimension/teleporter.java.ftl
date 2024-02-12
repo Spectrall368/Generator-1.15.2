@@ -42,7 +42,7 @@ public static final TicketType<BlockPos> CUSTOM_PORTAL = TicketType.create("${re
 	}
 }
 
-public static class TeleporterDimensionMod implements ITeleporter {
+public static class ${name}Teleporter implements ITeleporter {
 
 	private Vec3d lastPortalVec;
 	private Direction teleportDirection;
@@ -50,7 +50,7 @@ public static class TeleporterDimensionMod implements ITeleporter {
 	protected final ServerWorld world;
 	protected final Random random;
 
-	public TeleporterDimensionMod(ServerWorld worldServer, Vec3d lastPortalVec, Direction teleportDirection) {
+	public ${name}Teleporter(ServerWorld worldServer, Vec3d lastPortalVec, Direction teleportDirection) {
 		this.world = worldServer;
 		this.random = new Random(worldServer.getSeed());
 
@@ -59,7 +59,7 @@ public static class TeleporterDimensionMod implements ITeleporter {
 	}
 
 	${mcc.getMethod("net.minecraft.world.Teleporter", "placeInExistingPortal", "BlockPos", "Vec3d", "Direction", "double", "double", "boolean")
-				   .replace("NetherPortalBlock.createPatternHelper", name + "Dimension.CustomPortalBlock.createPatternHelper")
+				   .replace("NetherPortalBlock.createPatternHelper", name + "Dimension." + name + "PortalBlock.createPatternHelper")
 				   .replace("PointOfInterestType.NETHER_PORTAL", "poi")
 				   .replace("TicketType.PORTAL", "CUSTOM_PORTAL")
 				   .replace("Blocks.NETHER_PORTAL", "portal")}
@@ -111,9 +111,7 @@ public static class TeleporterDimensionMod implements ITeleporter {
 				entityNew.setMotion(vec3d);
 				serverworld1.addFromAnotherDimension(entityNew);
 			}
-
 			return entityNew;
 		}
 	}
-
 }
