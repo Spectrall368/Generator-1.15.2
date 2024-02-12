@@ -703,7 +703,6 @@ public class ${name}Block extends
 					<#elseif data.tintType == "Sky">
 						Minecraft.getInstance().world.getBiome(pos).getSkyColor() : 8562943;
 					<#else>
-					<#else>
 						Minecraft.getInstance().world.getBiome(pos).getWaterFogColor() : 329011;
 					</#if>
 				</#if>
