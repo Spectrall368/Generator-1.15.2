@@ -28,12 +28,12 @@
 -->
 
 <#-- @formatter:off -->
-<#include "mcitems.ftl">
-<#include "procedures.java.ftl">
-
+<#include "../mcitems.ftl">
+<#include "../procedures.java.ftl">
 package ${package}.world.dimension;
 
 import net.minecraft.block.material.Material;
+import net.minecraft.util.SoundEvent;
 
 @${JavaModName}Elements.ModElement.Tag public class ${name}Dimension extends ${JavaModName}Elements.ModElement{
 
@@ -42,7 +42,7 @@ import net.minecraft.block.material.Material;
 
 	<#if data.enablePortal>
 	@ObjectHolder("${modid}:${registryname}_portal")
-	public static final CustomPortalBlock portal = null;
+	public static final ${name}PortalBlock portal = null;
 	</#if>
 
 	public static DimensionType type = null;
@@ -57,14 +57,13 @@ import net.minecraft.block.material.Material;
 	}
 
 	@SubscribeEvent public void registerDimension(RegistryEvent.Register<ModDimension> event) {
-		event.getRegistry().register(new CustomModDimension().setRegistryName("${registryname}"));
+		event.getRegistry().register(new ${name}ModDimension().setRegistryName("${registryname}"));
 	}
 
 	@SubscribeEvent public void onRegisterDimensionsEvent(RegisterDimensionsEvent event) {
 		if (DimensionType.byName(new ResourceLocation("${modid}:${registryname}")) == null) {
 			DimensionManager.registerDimension(new ResourceLocation("${modid}:${registryname}"), dimension, null, ${data.hasSkyLight});
 		}
-
 		type = DimensionType.byName(new ResourceLocation("${modid}:${registryname}"));
 	}
 
@@ -80,32 +79,25 @@ import net.minecraft.block.material.Material;
 
 	<#if data.enablePortal>
 		@Override public void initElements() {
-			elements.blocks.add(() -> new CustomPortalBlock());
-			elements.items.add(() -> new ${name}Item().setRegistryName("${registryname}"));
+			elements.blocks.add(() -> new ${name}PortalBlock());
 		}
 
-		@Override @OnlyIn(Dist.CLIENT) public void clientLoad(FMLClientSetupEvent event) {
-			RenderTypeLookup.setRenderLayer(portal, RenderType.getTranslucent());
-		}
-
-		<#include "dimension/blockportal.java.ftl">
-		<#include "dimension/teleporter.java.ftl">
+		<#include "blockportal.java.ftl">
+		<#include "teleporter.java.ftl">
 	</#if>
 
-	public static class CustomModDimension extends ModDimension {
+	public static class ${name}ModDimension extends ModDimension {
 
-		@Override
-		public BiFunction<World, DimensionType, ? extends Dimension> getFactory() {
-			return CustomDimension::new;
+		@Override public BiFunction<World, DimensionType, ? extends Dimension> getFactory() {
+			return ${name}MyDimension::new;
 		}
-
 	}
 
-	public static class CustomDimension extends Dimension {
+	public static class ${name}MyDimension extends Dimension {
 
-		private BiomeProviderCustom biomeProviderCustom = null;
+		private ${name}BiomeProvider biome${name}Provider = null;
 
-		public CustomDimension(World world, DimensionType type) {
+		public ${name}MyDimension(World world, DimensionType type) {
 			super(world, type, <#if data.isDark>0<#else>0.5f</#if>);
 			this.nether = <#if data.worldGenType == "Nether like gen">true<#else>false</#if>;
 		}
@@ -114,7 +106,7 @@ import net.minecraft.block.material.Material;
 		@Override public void calculateInitialWeather() {
 		}
 
-    	@Override public void updateWeather(Runnable defaultWeather) {
+    		@Override public void updateWeather(Runnable defaultWeather) {
 		}
 
 		@Override public boolean canDoLightning(Chunk chunk) {
@@ -124,28 +116,28 @@ import net.minecraft.block.material.Material;
 		@Override public boolean canDoRainSnowIce(Chunk chunk) {
 			return false;
 		}
-        </#if>
+        	</#if>
 
 		@Override @OnlyIn(Dist.CLIENT) public Vec3d getFogColor(float celestialAngle, float partialTicks) {
-			<#if data.airColor?has_content>
+		<#if data.airColor?has_content>
 			return new Vec3d(${data.airColor.getRed()/255},${data.airColor.getGreen()/255},${data.airColor.getBlue()/255});
-			<#else>
+		<#else>
 			float f = MathHelper.clamp(MathHelper.cos(celestialAngle * ((float)Math.PI * 2)) * 2 + 0.5f, 0, 1);
-      		float f1 = 0.7529412f;
-      		float f2 = 0.84705883f;
-      		float f3 = 1;
-      		f1 = f1 * (f * 0.94F + 0.06F);
-      		f2 = f2 * (f * 0.94F + 0.06F);
-      		f3 = f3 * (f * 0.91F + 0.09F);
-      		return new Vec3d(f1, f2, f3);
-			</#if>
+      			float f1 = 0.7529412f;
+      			float f2 = 0.84705883f;
+      			float f3 = 1;
+      			f1 = f1 * (f * 0.94F + 0.06F);
+      			f2 = f2 * (f * 0.94F + 0.06F);
+      			f3 = f3 * (f * 0.91F + 0.09F);
+      			return new Vec3d(f1, f2, f3);
+		</#if>
 		}
 
 		@Override public ChunkGenerator<?> createChunkGenerator() {
-			if(this.biomeProviderCustom == null) {
-				this.biomeProviderCustom = new BiomeProviderCustom(this.world);
+			if(this.biome${name}Provider == null) {
+				this.biome${name}Provider = new ${name}BiomeProvider(this.world);
 			}
-			return new ChunkProviderModded(this.world, this.biomeProviderCustom);
+			return new ChunkProviderModded(this.world, this.biome${name}Provider);
 		}
 
 		@Override public boolean isSurfaceWorld() {
@@ -161,7 +153,7 @@ import net.minecraft.block.material.Material;
 		}
 
 		@Override public SleepResult canSleepAt(PlayerEntity player, BlockPos pos){
-        	return SleepResult.${data.sleepResult};
+        		return SleepResult.${data.sleepResult};
 		}
 
 		@Nullable public BlockPos findSpawn(ChunkPos chunkPos, boolean checkValid) {
@@ -173,11 +165,10 @@ import net.minecraft.block.material.Material;
    		}
 
 		@Override public boolean doesWaterVaporize() {
-      		return ${data.doesWaterVaporize};
+      			return ${data.doesWaterVaporize};
    		}
 
 		@Override ${mcc.getMethod("net.minecraft.world.dimension.OverworldDimension", "calculateCelestialAngle", "long", "float")}
-
 	}
 
 	<#if hasProcedure(data.onPlayerLeavesDimension) || hasProcedure(data.onPlayerEntersDimension)>
@@ -203,15 +194,13 @@ import net.minecraft.block.material.Material;
 	</#if>
 
 	<#if data.worldGenType == "Normal world gen">
-        <#include "dimension/cp_normal.java.ftl">
-    <#elseif data.worldGenType == "Nether like gen">
-        <#include "dimension/cp_nether.java.ftl">
-    <#elseif data.worldGenType == "End like gen">
-        <#include "dimension/cp_end.java.ftl">
-    </#if>
+	        <#include "cp_normal.java.ftl">
+    	<#elseif data.worldGenType == "Nether like gen">
+	        <#include "cp_nether.java.ftl">
+    	<#elseif data.worldGenType == "End like gen">
+	        <#include "cp_end.java.ftl">
+    	</#if>
 
-	<#include "dimension/biomegen.java.ftl">
-
+	<#include "biomegen.java.ftl">
 }
-
 <#-- @formatter:on -->
