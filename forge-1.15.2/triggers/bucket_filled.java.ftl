@@ -9,7 +9,7 @@
 			"world": "event.getWorld()",
 			"itemstack": "event.getFilledBucket()",
 			"originalitemstack": "event.getEmptyBucket()",
-			"entity": "event.getEntity()",
+			"entity": "event.getPlayer()",
 			"event": "event"
 			}/>
 		</#compress></#assign>
