@@ -17,9 +17,9 @@
 @Override public boolean onEntitySwing(ItemStack itemstack, LivingEntity entity) {
 	boolean retval = super.onEntitySwing(itemstack, entity);
 	<@procedureCode procedure, {
-		"x": "entity.posX",
-		"y": "entity.posY",
-		"z": "entity.posZ",
+		"x": "entity.getPosX()",
+		"y": "entity.getPosY()",
+		"z": "entity.getPosZ()",
 		"world": "entity.world",
 		"entity": "entity",
 		"itemstack": "itemstack"
@@ -34,9 +34,9 @@
 @Override public void onCreated(ItemStack itemstack, World world, PlayerEntity entity) {
 	super.onCreated(itemstack, world, entity);
 	<@procedureCode data.onCrafted, {
-		"x": "entity.posX",
-		"y": "entity.posY",
-		"z": "entity.posZ",
+		"x": "entity.getPosX()",
+		"y": "entity.getPosY()",
+		"z": "entity.getPosZ()",
 		"world": "world",
 		"entity": "entity",
 		"itemstack": "itemstack"
@@ -50,9 +50,9 @@
 @Override public void onPlayerStoppedUsing(ItemStack itemstack, World world, LivingEntity entity, int time) {
 	super.onPlayerStoppedUsing(itemstack,world,entity,time);
 	<@procedureCode data.onStoppedUsing, {
-		"x": "entity.posX",
-		"y": "entity.posY",
-		"z": "entity.posZ",
+		"x": "entity.getPosX()",
+		"y": "entity.getPosY()",
+		"z": "entity.getPosZ()",
 		"world": "world",
 		"entity": "entity",
 		"itemstack": "itemstack",
@@ -66,15 +66,15 @@
 <#if hasProcedure(procedure) || hurtStack>
 @Override public boolean hitEntity(ItemStack itemstack, LivingEntity entity, LivingEntity sourceentity) {
 	<#if hurtStack>
-		itemstack.damageItem(2, entity, i -> i.sendBreakAnimation(EquipmentSlotType.MAINHAND));
+		itemstack.damageItem(2, sourceentity, i -> i.sendBreakAnimation(EquipmentSlotType.MAINHAND));
 	<#else>
 		boolean retval = super.hitEntity(itemstack, entity, sourceentity);
 	</#if>
 	<#if hasProcedure(procedure)>
 		<@procedureCode procedure, {
-			"x": "entity.posX",
-			"y": "entity.posY",
-			"z": "entity.posZ",
+			"x": "entity.getPosX()",
+			"y": "entity.getPosY()",
+			"z": "entity.getPosZ()",
 			"world": "entity.world",
 			"entity": "entity",
 			"sourceentity": "sourceentity",
@@ -96,9 +96,9 @@
 	</#if>
 	<#if hasProcedure(procedure)>
 		<@procedureCode procedure, {
-			"x": "pos.posX",
-			"y": "pos.posY",
-			"z": "pos.posZ",
+			"x": "pos.getPosX()",
+			"y": "pos.getPosY()",
+			"z": "pos.getPosZ()",
 			"world": "world",
 			"entity": "entity",
 			"itemstack": "itemstack",
@@ -115,9 +115,9 @@
 @Override public ActionResult<ItemStack> onItemRightClick(World world, PlayerEntity entity, Hand hand) {
 	ActionResult<ItemStack> ar = super.onItemRightClick(world, entity, hand);
 	<@procedureCode procedure, {
-		"x": "entity.posX",
-		"y": "entity.posY",
-		"z": "entity.posZ",
+		"x": "entity.getPosX()",
+		"y": "entity.getPosY()",
+		"z": "entity.getPosZ()",
 		"world": "world",
 		"entity": "entity",
 		"itemstack": "ar.getResult()"
@@ -134,9 +134,9 @@
 	<#if hasProcedure(inUseProcedure)>
 	if (selected)
 		<@procedureCode inUseProcedure, {
-			"x": "entity.posX",
-			"y": "entity.posY",
-			"z": "entity.posZ",
+			"x": "entity.getPosX()",
+			"y": "entity.getPosY()",
+			"z": "entity.getPosZ()",
 			"world": "world",
 			"entity": "entity",
 			"itemstack": "itemstack",
@@ -145,9 +145,9 @@
 	</#if>
 	<#if hasProcedure(inInvProcedure)>
 		<@procedureCode inInvProcedure, {
-			"x": "entity.posX",
-			"y": "entity.posY",
-			"z": "entity.posZ",
+			"x": "entity.getPosX()",
+			"y": "entity.getPosY()",
+			"z": "entity.getPosZ()",
 			"world": "world",
 			"entity": "entity",
 			"itemstack": "itemstack",
@@ -162,9 +162,9 @@
 <#if hasProcedure(procedure)>
 @Override public boolean onDroppedByPlayer(ItemStack itemstack, PlayerEntity entity) {
 	<@procedureCode procedure, {
-		"x": "entity.posX",
-		"y": "entity.posY",
-		"z": "entity.posZ",
+		"x": "entity.getPosX()",
+		"y": "entity.getPosY()",
+		"z": "entity.getPosZ()",
 		"world": "entity.world",
 		"entity": "entity",
 		"itemstack": "itemstack"
@@ -202,9 +202,9 @@
 		Entity entity = Minecraft.getInstance().player;
 		</#if>
 		return <@procedureCode procedure, {
-			"x": "entity.posX",
-			"y": "entity.posY",
-			"z": "entity.posZ",
+			"x": "entity.getPosX()",
+			"y": "entity.getPosY()",
+			"z": "entity.getPosZ()",
 			"entity": "entity",
 			"world": "entity.world",
 			"itemstack": "itemstack"
@@ -221,9 +221,9 @@
 @Override public void onArmorTick(ItemStack itemstack, World world, PlayerEntity entity) {
 	super.onArmorTick(itemstack, world, entity);
 	<@procedureCode procedure, {
-		"x": "entity.posX",
-		"y": "entity.posY",
-		"z": "entity.posZ",
+		"x": "entity.getPosX()",
+		"y": "entity.getPosY()",
+		"z": "entity.getPosZ()",
 		"world": "world",
 		"entity": "entity",
 		"itemstack": "itemstack"
@@ -409,7 +409,7 @@
 
 <#macro onBlockTick procedure="" scheduleTick=false tickRate=0>
 <#if hasProcedure(procedure)>
-@Override public void tick(BlockState blockstate, World world, BlockPos pos, Random random) {
+@Override public void tick(BlockState blockstate, ServerWorld world, BlockPos pos, Random random) {
 	super.tick(blockstate, world, pos, random);
 	<@procedureCode procedure, {
 	"x": "pos.getX()",
