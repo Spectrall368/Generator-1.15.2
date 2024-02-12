@@ -408,7 +408,7 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 
 		<#if data.guiBoundTo?has_content && data.guiBoundTo != "<NONE>">
 			<#if data.ridable>
-				if (sourceentity.isSecondaryUseActive()) {
+				if (sourceentity.isSneaking()) {
 			</#if>
 				if(sourceentity instanceof ServerPlayerEntity) {
 					NetworkHooks.openGui((ServerPlayerEntity) sourceentity, new INamedContainerProvider() {
