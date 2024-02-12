@@ -46,8 +46,8 @@ public class ${name}Block extends FlowingFluidBlock {
 	}
 
 	@Override @OnlyIn(Dist.CLIENT) public void clientLoad(FMLClientSetupEvent event) {
-    RenderTypeLookup.setRenderLayer(${JavaModName}Fluids.${data.getModElement().getRegistryNameUpper()}.get(), RenderType.getTranslucent());
-  }
+		RenderTypeLookup.setRenderLayer(${JavaModName}Fluids.${data.getModElement().getRegistryNameUpper()}.get(), RenderType.getTranslucent());
+	}
 
 	<#if data.flammability != 0>
 	@Override public int getFlammability(BlockState state, IBlockReader world, BlockPos pos, Direction face) {
