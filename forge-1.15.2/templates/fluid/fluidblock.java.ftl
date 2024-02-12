@@ -32,6 +32,8 @@
 <#include "../triggers.java.ftl">
 package ${package}.block;
 
+import net.minecraft.block.material.Material;
+
 public class ${name}Block extends FlowingFluidBlock {
 	public ${name}Block() {
 		super(() -> (FlowingFluid) ${JavaModName}Fluids.${data.getModElement().getRegistryNameUpper()}.get(),
