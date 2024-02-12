@@ -45,7 +45,7 @@ public class ${name}Block extends FlowingFluidBlock {
 		);
 	}
 
-	@Override @OnlyIn(Dist.CLIENT) public static void clientLoad(FMLClientSetupEvent event) {
+	@SubscribeEvent @OnlyIn(Dist.CLIENT) public static void clientLoad(FMLClientSetupEvent event) {
 		RenderTypeLookup.setRenderLayer(${JavaModName}Fluids.${data.getModElement().getRegistryNameUpper()}.get(), RenderType.getTranslucent());
 	}
 
