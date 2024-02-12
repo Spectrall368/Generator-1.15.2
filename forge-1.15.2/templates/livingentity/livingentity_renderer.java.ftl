@@ -163,7 +163,6 @@ package ${package}.client.renderer;
 			renderer.addBox("", x, y, z, dx, dy, dz, delta, texU, texV);
 		}
 		</#if>
-
 	</#if>
 }
 <#macro renderConditions>
