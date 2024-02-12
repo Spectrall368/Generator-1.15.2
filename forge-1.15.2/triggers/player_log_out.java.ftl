@@ -1,13 +1,15 @@
-@Mod.EventBusSubscriber private static class GlobalTrigger {
+<#include "procedures.java.ftl">
+@Mod.EventBusSubscriber public class ${name}Procedure {
 	@SubscribeEvent public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-		Entity entity = event.getPlayer();
-		Map<String, Object> dependencies = new HashMap<>();
-		dependencies.put("x",entity.getPosX());
-		dependencies.put("y",entity.getPosY());
-		dependencies.put("z",entity.getPosZ());
-		dependencies.put("world",entity.world);
-		dependencies.put("entity",entity);
-		dependencies.put("event",event);
-		executeProcedure(dependencies);
+		<#assign dependenciesCode><#compress>
+			<@procedureDependenciesCode dependencies, {
+			"x": "event.getEntity().posX",
+			"y": "event.getEntity().posY",
+			"z": "event.getEntity().posZ",
+			"world": "event.getEntity().world",
+			"entity": "event.getEntity()",
+			"event": "event"
+			}/>
+		</#compress></#assign>
+		execute(event<#if dependenciesCode?has_content>,</#if>${dependenciesCode});
 	}
-}
