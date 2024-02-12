@@ -190,7 +190,7 @@ public class ${name}Block extends
 
 	<@addSpecialInformation data.specialInfo, true/>
 
-	@OnlyIn(Dist.CLIENT) @Override public static void clientLoad(FMLClientSetupEvent event) {
+	@SubscribeEvent @OnlyIn(Dist.CLIENT) public static void clientLoad(FMLClientSetupEvent event) {
 	<#if data.transparencyType != "SOLID">
 		<#if data.transparencyType == "CUTOUT">
 		RenderTypeLookup.setRenderLayer(${JavaModName}Blocks.${data.getModElement().getRegistryNameUpper()}.get(), RenderType.getCutout());
