@@ -37,6 +37,7 @@
 package ${package}.block;
 
 import net.minecraft.util.SoundEvent;
+import net.minecraft.block.material.Material;
 
 public class ${name}Block extends
 	<#if data.hasGravity>
