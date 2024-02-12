@@ -105,7 +105,7 @@ package ${package}.world.features.plants;
 						}
       					}
       					return generated > 0;
-					<#elseif data.plantType == "double" || data.plantType == "normal">
+					<#else>
 					return super.place(world, generator, random, pos, config);
 					</#if>
 				}
