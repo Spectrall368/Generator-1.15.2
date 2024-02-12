@@ -1,6 +1,7 @@
 <#--
  # MCreator (https://mcreator.net/)
- # Copyright (C) 2020 Pylo and contributors
+ # Copyright (C) 2012-2020, Pylo
+ # Copyright (C) 2020-2023, Pylo, opensource contributors
  # 
  # This program is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
@@ -27,38 +28,44 @@
  # exception.
 -->
 
-public static class CustomPortalBlock extends NetherPortalBlock {
+public static class ${name}PortalBlock extends NetherPortalBlock {
 
-	public CustomPortalBlock() {
+	public ${name}PortalBlock() {
 		super(Block.Properties.create(Material.PORTAL).doesNotBlockMovement().tickRandomly()
-				.hardnessAndResistance(-1.0F).sound(SoundType.GLASS).lightValue(${data.portalLuminance}).noDrops());
-		setRegistryName("${registryname}_portal");
+				.hardnessAndResistance(-1.0F).sound(SoundType.GLASS).lightValue(${data.portalLuminance}).noDrops());setRegistryName("${registryname}_portal");
 	}
 
-	@Override public void tick(BlockState blockstate, ServerWorld world, BlockPos pos, Random random) {
-		<#if hasProcedure(data.onPortalTickUpdate)>
-			int x = pos.getX();
-			int y = pos.getY();
-			int z = pos.getZ();
-			<@procedureOBJToCode data.onPortalTickUpdate/>
-		</#if>
+	@OnlyIn(Dist.CLIENT) @Override public void clientLoad(FMLClientSetupEvent event) {
+		RenderTypeLookup.setRenderLayer(portal, RenderType.getTranslucent());
 	}
+
+	<#if hasProcedure(data.onPortalTickUpdate)>
+	@Override public void tick(BlockState blockstate, ServerWorld world, BlockPos pos, Random random) {
+		<@procedureCode data.onPortalTickUpdate, {
+			"x": "pos.getX()",
+			"y": "pos.getY()",
+			"z": "pos.getZ()",
+			"world": "world",
+			"blockstate": "blockstate"
+		}/>
+	}
+	</#if>
 
 	public void portalSpawn(World world, BlockPos pos) {
-		CustomPortalBlock.Size portalsize = this.isValid(world, pos);
+		${name}PortalBlock.Size portalsize = this.isValid(world, pos);
 		if (portalsize != null)
 			portalsize.placePortalBlocks();
 	}
 
 	${mcc.getMethod("net.minecraft.block.NetherPortalBlock", "isPortal", "IWorld", "BlockPos")
-		 .replace("NetherPortalBlock.", "CustomPortalBlock.")
+		 .replace("NetherPortalBlock.", name + "PortalBlock.")
 		 .replace("isPortal", "isValid")}
 
 	${mcc.getMethod("net.minecraft.block.NetherPortalBlock", "createPatternHelper", "IWorld", "BlockPos")
-	               .replace("NetherPortalBlock.", "CustomPortalBlock.")}
+	               .replace("NetherPortalBlock.", name + "PortalBlock.")
 
 	@Override ${mcc.getMethod("net.minecraft.block.NetherPortalBlock", "updatePostPlacement", "BlockState", "Direction", "BlockState", "IWorld", "BlockPos", "BlockPos")
-				   .replace("NetherPortalBlock.", "CustomPortalBlock.")}
+				   .replace("NetherPortalBlock.", name + "PortalBlock.")}
 
 	@OnlyIn(Dist.CLIENT) @Override public void animateTick(BlockState state, World world, BlockPos pos, Random random) {
 		for (int i = 0; i < 4; i++) {
@@ -83,15 +90,13 @@ public static class CustomPortalBlock extends NetherPortalBlock {
 		<#if data.portalSound.toString()?has_content>
 		if (random.nextInt(110) == 0)
 			world.playSound(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
-					(net.minecraft.util.SoundEvent) ForgeRegistries.SOUND_EVENTS
-							.getValue(new ResourceLocation(("${data.portalSound}"))), SoundCategory.BLOCKS, 0.5f,
-					random.nextFloat() * 0.4F + 0.8F, false);
-        </#if>
+					ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(("${data.portalSound}"))), SoundCategory.BLOCKS, 0.5f,
+					random.nextFloat() * 0.4f + 0.8f, false);
+        	</#if>
 	}
 
 	@Override public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
-		if (!entity.isPassenger() && !entity.isBeingRidden() && entity.isNonBoss()
-				&& !entity.world.isRemote && <@procedureOBJToConditionCode data.portalUseCondition/>) {
+		if (!entity.isPassenger() && !entity.isBeingRidden() && entity.isNonBoss() && !entity.world.isRemote && <@procedureOBJToConditionCode data.portalUseCondition/>) {
 			if (entity.timeUntilPortal > 0) {
 				entity.timeUntilPortal = entity.getPortalCooldown();
 			} else if (entity.dimension != type) {
@@ -108,17 +113,13 @@ public static class CustomPortalBlock extends NetherPortalBlock {
 		entity.changeDimension(destinationType, getTeleporterForDimension(entity, pos, entity.getServer().getWorld(destinationType)));
 	}
 
-		@OnlyIn(Dist.CLIENT) public static void registerRenderLayer() {
-			RenderTypeLookup.setRenderLayer(portal, RenderType.getTranslucent());
-		}
-
-	private TeleporterDimensionMod getTeleporterForDimension(Entity entity, BlockPos pos, ServerWorld nextWorld) {
-		BlockPattern.PatternHelper bph = ${name}Dimension.CustomPortalBlock.createPatternHelper(entity.world, pos);
+	private ${name}Teleporter getTeleporterForDimension(Entity entity, BlockPos pos, ServerWorld nextWorld) {
+		BlockPattern.PatternHelper bph = ${name}Dimension.${name}PortalBlock.createPatternHelper(entity.world, pos);
 		double d0 = bph.getForwards().getAxis() == Direction.Axis.X ? (double) bph.getFrontTopLeft().getZ() : (double) bph.getFrontTopLeft().getX();
 		double d1 = bph.getForwards().getAxis() == Direction.Axis.X ? entity.getPosZ() : entity.getPosX();
 		d1 = Math.abs(MathHelper.pct(d1 - (double) (bph.getForwards().rotateY().getAxisDirection() == Direction.AxisDirection.NEGATIVE ? 1 : 0), d0, d0 - (double) bph.getWidth()));
 		double d2 = MathHelper.pct(entity.getPosY() - 1, (double) bph.getFrontTopLeft().getY(), (double) (bph.getFrontTopLeft().getY() - bph.getHeight()));
-		return new TeleporterDimensionMod(nextWorld, new Vec3d(d1, d2, 0), bph.getForwards());
+		return new ${name}Teleporter(nextWorld, new Vec3d(d1, d2, 0), bph.getForwards());
 	}
 
 	public static class Size ${mcc.getInnerClassBody("net.minecraft.block.NetherPortalBlock", "Size")
