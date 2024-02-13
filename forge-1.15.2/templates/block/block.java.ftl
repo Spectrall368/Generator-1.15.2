@@ -597,8 +597,8 @@ public class ${name}Block extends
 	<@onBlockPlacedBy data.onBlockPlayedBy/>
 
 	<#if hasProcedure(data.onRightClicked) || data.shouldOpenGUIOnRightClick()>
-	@Override public boolean onBlockActivated(BlockState blockstate, World world, BlockPos pos, PlayerEntity entity, Hand hand, BlockRayTraceResult hit) {
-    super.onBlockActivated(blockstate, world, pos, entity, hand, hit);
+	@Override public ActionResultType onBlockActivated(BlockState blockstate, World world, BlockPos pos, PlayerEntity entity, Hand hand, BlockRayTraceResult hit) {
+    		super.onBlockActivated(blockstate, world, pos, entity, hand, hit);
 		<#if data.shouldOpenGUIOnRightClick()>
 		if(entity instanceof ServerPlayerEntity) {
 			NetworkHooks.openGui((ServerPlayerEntity) entity, new INamedContainerProvider() {
@@ -628,9 +628,9 @@ public class ${name}Block extends
 		</#if>
 
 		<#if data.shouldOpenGUIOnRightClick() || !hasReturnValueOf(data.onRightClicked, "actionresulttype")>
-		return true;
+		return ActionResultType.SUCCESS;
 		<#else>
-		return false;
+		return result;
 		</#if>
 	}
 	</#if>
