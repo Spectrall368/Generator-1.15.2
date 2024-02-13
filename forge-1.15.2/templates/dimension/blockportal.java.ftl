@@ -35,7 +35,7 @@ public static class ${name}PortalBlock extends NetherPortalBlock {
 				.hardnessAndResistance(-1.0F).sound(SoundType.GLASS).lightValue(${data.portalLuminance}).noDrops());setRegistryName("${registryname}_portal");
 	}
 
-	@OnlyIn(Dist.CLIENT) @Override public void clientLoad(FMLClientSetupEvent event) {
+	@SubscribeEvent @OnlyIn(Dist.CLIENT) public void clientLoad(FMLClientSetupEvent event) {
 		RenderTypeLookup.setRenderLayer(portal, RenderType.getTranslucent());
 	}
 
