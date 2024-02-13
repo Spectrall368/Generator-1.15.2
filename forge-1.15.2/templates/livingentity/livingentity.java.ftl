@@ -98,7 +98,7 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
         </#if>
 
 		<#if data.flyingMob>
-		this.moveController = new FlyingMovementController(this);
+		this.moveController = new FlyingMovementController(this, 10, true);
 		<#elseif data.waterMob>
 		this.setPathPriority(PathNodeType.WATER, 0);
 		this.moveController = new MovementController(this) {
