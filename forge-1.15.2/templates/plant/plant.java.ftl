@@ -265,7 +265,7 @@ public class ${name}Block extends <#if data.plantType == "normal">Flower<#elseif
 	<@onBlockTick data.onTickUpdate, false, 0/>
 
 	<#if data.plantType == "growapable">
-	@Override public void tick(BlockState blockstate, World world, BlockPos blockpos, Random random) {
+	@Override public void tick(BlockState blockstate, ServerWorld world, BlockPos blockpos, Random random) {
 		if (!blockstate.isValidPosition(world, blockpos)) {
 			   world.destroyBlock(blockpos, true);
 		} else if (world.isAirBlock(blockpos.up())) {
