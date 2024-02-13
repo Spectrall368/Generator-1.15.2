@@ -36,7 +36,7 @@
 package ${package}.block;
 
 import net.minecraft.sounds.SoundEvent;
-import net.minecraftforge.common.property.Properties;
+import net.minecraft.block.material.Material;
 
 public class ${name}Block extends <#if data.plantType == "normal">Flower<#elseif data.plantType == "growapable">SugarCane<#elseif data.plantType == "double">DoublePlant</#if>Block {
 	public ${name}Block() {
