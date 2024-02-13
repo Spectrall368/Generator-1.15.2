@@ -34,7 +34,7 @@ package ${package}.world.features.treedecorators;
 
 import net.minecraft.block.material.Material;
 
-public class ${name}TreeFeature extends AbstractTreeFeature<NoFeatureConfig> {
+public class ${name}TreeFeature extends AbstractTreeFeature<BaseTreeFeatureConfig> {
 
 		public ${name}TreeFeature() {
 		  super(BaseTreeFeatureConfig::deserialize);
