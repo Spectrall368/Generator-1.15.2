@@ -62,7 +62,7 @@ public static class ${name}PortalBlock extends NetherPortalBlock {
 		 .replace("isPortal", "isValid")}
 
 	${mcc.getMethod("net.minecraft.block.NetherPortalBlock", "createPatternHelper", "IWorld", "BlockPos")
-	               .replace("NetherPortalBlock.", name + "PortalBlock.")
+	               .replace("NetherPortalBlock.", name + "PortalBlock.")}
 
 	@Override ${mcc.getMethod("net.minecraft.block.NetherPortalBlock", "updatePostPlacement", "BlockState", "Direction", "BlockState", "IWorld", "BlockPos", "BlockPos")
 				   .replace("NetherPortalBlock.", name + "PortalBlock.")}
