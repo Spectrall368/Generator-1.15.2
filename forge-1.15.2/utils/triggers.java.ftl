@@ -66,7 +66,7 @@
 <#if hasProcedure(procedure) || hurtStack>
 @Override public boolean hitEntity(ItemStack itemstack, LivingEntity entity, LivingEntity sourceentity) {
 	<#if hurtStack>
-		itemstack.damageItem(2, sourceentity, i -> i.sendBreakAnimation(EquipmentSlotType.MAINHAND));
+		itemstack.damageItem(2, entity, i -> i.sendBreakAnimation(EquipmentSlotType.MAINHAND));
 	<#else>
 		boolean retval = super.hitEntity(itemstack, entity, sourceentity);
 	</#if>
@@ -177,19 +177,17 @@
 <#macro onItemUsedOnBlock procedure="">
 <#if hasProcedure(procedure)>
 @Override public ActionResultType onItemUseFirst(ItemStack stack, ItemUseContext context) {
-	ActionResultType retval = super.onItemUseFirst(stack, context);
-	<@procedureCode procedure, {
+	super.onItemUseFirst(stack, context);
+	<@procedureCodeWithOptResult procedure, "actionresulttype", "ActionResultType.SUCCESS", {
 		"world": "context.getWorld()",
 		"x": "context.getPos().getX()",
 		"y": "context.getPos().getY()",
 		"z": "context.getPos().getZ()",
-		"pos": "context.getPos()",
 		"blockstate": "context.getWorld().getBlockState(context.getPos())",
 		"entity": "context.getPlayer()",
 		"direction": "context.getFace()",
 		"itemstack": "context.getItem()"
 	}/>
-		return retval;
 }
 </#if>
 </#macro>
@@ -285,7 +283,7 @@
 @Override public void onBlockAdded(BlockState blockstate, World world, BlockPos pos, BlockState oldState, boolean moving) {
 	super.onBlockAdded(blockstate, world, pos, oldState, moving);
 	<#if scheduleTick>
-	world.getPendingBlockTicks().scheduleTick(pos, this, ${tickRate});
+		world.getPendingBlockTicks().scheduleTick(pos, this, ${tickRate});
 	</#if>
 	<#if hasProcedure(procedure)>
 		<@procedureCode procedure, {
@@ -427,9 +425,9 @@
 
 <#macro onBlockRightClicked procedure="">
 <#if hasProcedure(procedure)>
-@Override public boolean onBlockActivated(BlockState blockstate, World world, BlockPos pos, PlayerEntity entity, Hand hand, BlockRayTraceResult hit) {
-	boolean retval = super.onBlockActivated(blockstate, world, pos, entity, hand, hit);
-	<@procedureCode procedure, {
+@Override public ActionResultType onBlockActivated(BlockState blockstate, World world, BlockPos pos, PlayerEntity entity, Hand hand, BlockRayTraceResult hit) {
+	super.use(blockstate, world, pos, entity, hand, hit);
+	<@procedureCodeWithOptResult procedure, "actionresulttype", "ActionResultType.SUCCESS", {
 	"x": "pos.getX()",
 	"y": "pos.getY()",
 	"z": "pos.getZ()",
