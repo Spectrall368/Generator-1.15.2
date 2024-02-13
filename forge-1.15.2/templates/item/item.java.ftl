@@ -150,9 +150,9 @@ public class ${name}Item extends Item {
 	@Override public ActionResult<ItemStack> onItemRightClick(World world, PlayerEntity entity, Hand hand) {
 		ActionResult<ItemStack> ar = super.onItemRightClick(world, entity, hand);
 		ItemStack itemstack = ar.getResult();
-		double x = entity.posX;
-		double y = entity.posY;
-		double z = entity.posZ;
+		double x = entity.getPosX();
+		double y = entity.getPosY();
+		double z = entity.getPosZ();
 
 		<#if data.hasInventory()>
 		if(entity instanceof ServerPlayerEntity) {
