@@ -628,9 +628,9 @@ public class ${name}Block extends
 		</#if>
 
 		<#if data.shouldOpenGUIOnRightClick() || !hasReturnValueOf(data.onRightClicked, "actionresulttype")>
-		return ActionResultType.SUCCESS;
+		return true;
 		<#else>
-		return result;
+		return false;
 		</#if>
 	}
 	</#if>
