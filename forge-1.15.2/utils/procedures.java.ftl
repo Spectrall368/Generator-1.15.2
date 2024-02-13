@@ -99,5 +99,4 @@
 <#function hasReturnValueOf object="" type="">
     <#return hasProcedure(object) && (object.getReturnValueType(generator.getWorkspace()) == type)>
 </#function>
-
 <#-- @formatter:on -->
