@@ -1,7 +1,7 @@
 <#--
  # MCreator (https://mcreator.net/)
  # Copyright (C) 2012-2020, Pylo
- # Copyright (C) 2020-2023, Pylo, opensource contributors
+ # Copyright (C) 2020-2024, Pylo, opensource contributors
  #
  # This program is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
@@ -35,11 +35,12 @@ package ${package}.item;
 public class ${name}Item extends BucketItem {
 
 	public ${name}Item() {
-		super(${JavaModName}Fluids.${data.getModElement().getRegistryNameUpper()},
-			new Item.Properties().containerItem(Items.BUCKET).maxStackSize(1).rarity(Rarity.${data.rarity})
-			<#if data.creativeTab?has_content>.group(${data.creativeTab})<#else>.group(ItemGroup.MISC)</#if>);
+		super(${JavaModName}Fluids.${REGISTRYNAME},
+			new Item.Properties().containerItem(Items.BUCKET).maxStackSize(1).group(<@CreativeTabs data.creativeTabs/>)
+			<#if data.rarity != "COMMON">.rarity(Rarity.${data.rarity})</#if>
+		);
 	}
 
-	<@addSpecialInformation data.specialInfo/>
+	<@addSpecialInformation data.specialInformation, "item." + modid + "." + registryname + "_bucket"/>
 }
 <#-- @formatter:on -->

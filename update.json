@@ -1,8 +1,8 @@
 {
   "generator-1.15.2": {
-    "latest": "1.6.6",
+    "latest": "2.0",
 	"changes": [
-		"Bug Fix"
+		"MCreator 2025.2 Port!"
 	]
   }
 }

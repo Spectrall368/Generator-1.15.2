@@ -2,11 +2,11 @@ _default:
   - ZombieEntity
   - EntityType.ZOMBIE
   - zombie
-_mcreator_prefix: "CUSTOM:"
 _mcreator_map_template:
   - "@NAMEEntity"
-  - "@JavaModNameEntities.@REGISTRYNAME"
+  - "@JavaModNameEntities.@REGISTRYNAME.get()"
   - "@modid:@registryname"
+_bypass_prefix: "#"
 EntityAgeable: AgeableEntity
 EntityAmbientCreature: AmbientEntity
 EntityAnimal: AnimalEntity
@@ -99,14 +99,14 @@ EntityEndermite:
   - EndermiteEntity
   - EntityType.ENDERMITE
   - endermite
-EntityEvokerFangs:
-  - EvokerFangsEntity
-  - EntityType.EVOKER_FANGS
-  - evoker_fangs
 EntityEvoker:
   - EvokerEntity
   - EntityType.EVOKER
   - evoker
+EntityEvokerFangs:
+  - EvokerFangsEntity
+  - EntityType.EVOKER_FANGS
+  - evoker_fangs
 EntityXPOrb:
   - ExperienceOrbEntity
   - EntityType.EXPERIENCE_ORB
@@ -140,8 +140,8 @@ EntityGuardian:
   - GuardianEntity
   - EntityType.GUARDIAN
   - guardian
-EntityHanging: HangingEntity
 EntityGolem: GolemEntity
+EntityHanging: HangingEntity
 EntityHorse:
   - HorseEntity
   - EntityType.HORSE
@@ -154,6 +154,10 @@ EntityIllusionIllager:
   - IllusionerEntity
   - EntityType.ILLUSIONER
   - illusioner
+EntityIronGolem:
+  - IronGolemEntity
+  - EntityType.IRON_GOLEM
+  - iron_golem
 EntityItem:
   - ItemEntity
   - EntityType.ITEM
@@ -370,10 +374,6 @@ EntityVillager:
   - VillagerEntity
   - EntityType.VILLAGER
   - villager
-EntityIronGolem:
-  - IronGolemEntity
-  - EntityType.IRON_GOLEM
-  - iron_golem
 EntityVindicator:
   - VindicatorEntity
   - EntityType.VINDICATOR

@@ -29,9 +29,11 @@
 -->
 
 <#-- @formatter:off -->
+
 /*
  *    MCreator note: This file will be REGENERATED on each build.
  */
+
 package ${package}.init;
 
 public class ${JavaModName}BlockEntities {
@@ -39,12 +41,15 @@ public class ${JavaModName}BlockEntities {
 	public static final DeferredRegister<TileEntityType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, ${JavaModName}.MODID);
 
 	<#list blockentities as blockentity>
-	public static final RegistryObject<TileEntityType<?>> ${blockentity.getModElement().getRegistryNameUpper()} =
+	public static final RegistryObject<TileEntityType<${blockentity.getModElement().getName()}BlockEntity>> ${blockentity.getModElement().getRegistryNameUpper()} =
 		register("${blockentity.getModElement().getRegistryName()}", ${JavaModName}Blocks.${blockentity.getModElement().getRegistryNameUpper()},
 			${blockentity.getModElement().getName()}BlockEntity::new);
-    </#list>
+	</#list>
 
-	private static RegistryObject<TileEntityType<?>> register(String registryname, RegistryObject<Block> block, Supplier<? extends TileEntity> supplier) {
+	// Start of user code block custom block entities
+	// End of user code block custom block entities
+
+	private static <T extends TileEntity> RegistryObject<TileEntityType<T>> register(String registryname, RegistryObject<Block> block, Supplier<? extends T> supplier) {
 		return REGISTRY.register(registryname, () -> TileEntityType.Builder.create(supplier, block.get()).build(null));
 	}
 }

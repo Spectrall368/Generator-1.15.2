@@ -1,7 +1,7 @@
 <#--
  # MCreator (https://mcreator.net/)
  # Copyright (C) 2012-2020, Pylo
- # Copyright (C) 2020-2023, Pylo, opensource contributors
+ # Copyright (C) 2020-2024, Pylo, opensource contributors
  # 
  # This program is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ package ${package}.entity;
 @OnlyIn(value = Dist.CLIENT, _interface = IRendersAsItem.class) public class ${name}EntityProjectile extends AbstractArrowEntity implements IRendersAsItem {
 
 	public ${name}EntityProjectile(FMLPlayMessages.SpawnEntity packet, World world) {
-		super(${JavaModName}Entities.${data.getModElement().getRegistryNameUpper()}_PROJECTILE, world);
+		super(${JavaModName}Entities.${REGISTRYNAME}_PROJECTILE.get(), world);
 	}
 
 	public ${name}EntityProjectile(EntityType<? extends ${name}EntityProjectile> type, World world) {

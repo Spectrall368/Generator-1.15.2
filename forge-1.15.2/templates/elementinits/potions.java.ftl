@@ -1,7 +1,7 @@
 <#--
  # MCreator (https://mcreator.net/)
  # Copyright (C) 2012-2020, Pylo
- # Copyright (C) 2020-2023, Pylo, opensource contributors
+ # Copyright (C) 2020-2024, Pylo, opensource contributors
  #
  # This program is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ public class ${JavaModName}Potions {
 	<#list potions as potion>
 		public static final RegistryObject<Potion> ${potion.getModElement().getRegistryNameUpper()} = REGISTRY.register("${potion.getModElement().getRegistryName()}", () -> new Potion(
 			<#list potion.effects as effect>
-			new EffectInstance(${effect.effect}, ${effect.duration}, ${effect.amplifier}, ${effect.ambient}, ${effect.showParticles})<#sep>,
+			new EffectInstance(${effect.effect}, ${effect.getDuration()}, ${effect.amplifier}, ${effect.ambient}, ${effect.showParticles})<#sep>,
 			</#list>));
 	</#list>
 }

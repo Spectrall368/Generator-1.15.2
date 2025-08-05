@@ -1,16 +1,59 @@
 {
-    "parent": "item/generated",
+    <#if parent?? && parent.hasGUITexture?? && parent.hasGUITexture()><#assign guiTexture = parent.guiTexture><#elseif data.guiTexture??><#assign guiTexture = data.guiTexture></#if>
+    <#if guiTexture?has_content>
+    "loader": "forge:separate-perspective",
+    "gui_light": "front",
+    "base": { <@modelDefinition/> },
+    "perspectives": {
+        "gui": {
+            "parent": "item/generated",
+            "textures": {
+                "layer0": "${guiTexture.format("%s:item/%s")}"
+            }
+        },
+        "fixed": {
+            "parent": "item/generated",
+            "textures": {
+                "layer0": "${guiTexture.format("%s:item/%s")}"
+            }
+        },
+        "ground": {
+            "parent": "item/generated",
+            "textures": {
+                "layer0": "${guiTexture.format("%s:item/%s")}"
+            }
+        }
+    }
+    <#else>
+    <@modelDefinition/>
+    </#if>
+    <#macro modelDefinition>
+    <#assign hasJavaModel = data.hasCustomJAVAModel?? && data.hasCustomJAVAModel()>
+    <#if hasJavaModel>
+    "gui_light": "front",
+    </#if>
+    "parent": "<#if hasJavaModel>builtin/entity<#else>item/generated</#if>",
     "textures": {
-        <#if var_item?? && var_item=="helmet">
-            "layer0": "${modid}:items/${data.textureHelmet}"
-        <#elseif var_item?? && var_item=="body">
-            "layer0": "${modid}:items/${data.textureBody}"
-        <#elseif var_item?? && var_item=="leggings">
-            "layer0": "${modid}:items/${data.textureLeggings}"
-        <#elseif var_item?? && var_item=="boots">
-            "layer0": "${modid}:items/${data.textureBoots}"
+        <#if var_item??>
+            "layer0": "${data.getItemTextureFor(var_item).format("%s:item/%s")}"
         <#else>
-            "layer0": "${modid}:items/${data.texture}"
+            "layer0": "${data.texture.format("%s:item/%s")}"
         </#if>
     }
+    </#macro>
+    <#if data.getModels?? && data.getModels()?has_content>,
+    "overrides": [
+        <#list data.getModels() as model>
+        {
+            "predicate": {
+                <#list model.stateMap.keySet() as property>
+                    <#assign value = model.stateMap.get(property)>
+                    "${generator.map(property.getPrefixedName(registryname + "_"), "itemproperties")}": ${value?is_boolean?then(value?then("1", "0"), value)}<#sep>,
+                </#list>
+            },
+            "model": "${modid}:item/${registryname}_${model?index}"
+        }<#sep>,
+        </#list>
+    ]
+    </#if>
 }

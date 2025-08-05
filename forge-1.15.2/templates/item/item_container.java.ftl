@@ -1,7 +1,7 @@
 <#--
  # MCreator (https://mcreator.net/)
  # Copyright (C) 2012-2020, Pylo
- # Copyright (C) 2020-2023, Pylo, opensource contributors
+ # Copyright (C) 2020-2024, Pylo, opensource contributors
  #
  # This program is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
@@ -31,14 +31,14 @@
 <#-- @formatter:off -->
 package ${package}.item.inventory;
 
-import javax.annotation.Nullable;
+<#compress>
+@Mod.EventBusSubscriber public class ${name}InventoryCapability implements ICapabilitySerializable<CompoundNBT> {
 
-@Mod.EventBusSubscriber(Dist.CLIENT) public class ${name}InventoryCapability implements ICapabilitySerializable<CompoundNBT> {
-
-	@SubscribeEvent @OnlyIn(Dist.CLIENT) public static void onItemDropped(ItemTossEvent event) {
-		if(event.getEntityItem().getItem().getItem() == ${JavaModName}Items.${data.getModElement().getRegistryNameUpper()}.get()) {
-			if (Minecraft.getInstance().currentScreen instanceof ${data.guiBoundTo}Screen) {
-				Minecraft.getInstance().player.closeScreen();
+	@SubscribeEvent public static void onItemDropped(ItemTossEvent event) {
+		if (event.getEntityItem().getItem().getItem() == ${JavaModName}Items.${REGISTRYNAME}.get()) {
+			PlayerEntity player = event.getPlayer();
+			if (player.openContainer instanceof ${data.guiBoundTo}Menu)
+				player.closeScreen();
 			}
 		}
 	}
@@ -60,12 +60,14 @@ import javax.annotation.Nullable;
 	private ItemStackHandler createItemHandler() {
 		return new ItemStackHandler(${data.inventorySize}) {
 
+			<#if data.inventoryStackSize != 99>
 			@Override public int getSlotLimit(int slot) {
 				return ${data.inventoryStackSize};
 			}
+			</#if>
 
 			@Override public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-				return stack.getItem() != ${JavaModName}Items.${data.getModElement().getRegistryNameUpper()}.get();
+				return stack.getItem() != ${JavaModName}Items.${REGISTRYNAME}.get();
 			}
 
 			@Override public void setSize(int size) {
@@ -77,4 +79,5 @@ import javax.annotation.Nullable;
 		return inventory.orElseThrow(RuntimeException::new);
 	}
 }
+</#compress>
 <#-- @formatter:on -->

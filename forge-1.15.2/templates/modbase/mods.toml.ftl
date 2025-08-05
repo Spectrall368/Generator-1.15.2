@@ -1,45 +1,39 @@
 modLoader="javafml"
 loaderVersion="[31,)"
-license="${settings.getLicense()}"
+license="${JavaConventions.escapeStringForJava(settings.getLicense())}"
 
 [[mods]]
 modId="${settings.getModID()}"
 version="${settings.getCleanVersion()}"
-displayName="${settings.getModName()}"
+displayName="${JavaConventions.escapeStringForJava(settings.getModName())}"
 <#if settings.getUpdateURL()?has_content>
-updateJSONURL="${settings.getUpdateURL()}"
+updateJSONURL="${JavaConventions.escapeStringForJava(settings.getUpdateURL())}"
 </#if>
 <#if settings.getWebsiteURL()?has_content>
-displayURL="${settings.getWebsiteURL()}"
+displayURL="${JavaConventions.escapeStringForJava(settings.getWebsiteURL())}"
 </#if>
 <#if settings.getModPicture()?has_content>
 logoFile="logo.png"
 </#if>
 <#if settings.getCredits()?has_content>
-credits="${settings.getCredits()}"
+credits="${JavaConventions.escapeStringForJava(settings.getCredits())}"
 </#if>
 <#if settings.getAuthor()?has_content>
-authors="${settings.getAuthor()}"
+authors="${JavaConventions.escapeStringForJava(settings.getAuthor())}"
 </#if>
 <#if settings.getDescription()?has_content>
-description="${settings.getDescription()}"
+description="${JavaConventions.escapeStringForJava(settings.getDescription())}"
 </#if>
+
+# Start of user code block mod configuration
+# End of user code block mod configuration
 
 [[dependencies.${settings.getModID()}]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.15.2]"
-    ordering="NONE"
+    versionRange="[${generator.getGeneratorMinecraftVersion()}]"
+    ordering="AFTER"
     side="<#if settings.isServerSideOnly()>SERVER<#else>BOTH</#if>"
-
-<#if !settings.isDisableForgeVersionCheck()>
-[[dependencies.${settings.getModID()}]]
-    modId="forge"
-    mandatory=true
-    versionRange="[${generator.getGeneratorBuildFileVersion()}]"
-    ordering="NONE"
-    side="BOTH"
-</#if>
 
 <#list settings.getRequiredMods() as e>
 [[dependencies.${settings.getModID()}]]
@@ -67,3 +61,6 @@ description="${settings.getDescription()}"
     ordering="NONE"
     side="BOTH"
 </#list>
+
+# Start of user code block dependencies configuration
+# End of user code block dependencies configuration

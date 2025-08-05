@@ -5,7 +5,7 @@
 <#else>
 	<#assign conditions = ["", ""]>
 </#if>
-this.goalSelector.addGoal(${customBlockIndex+1}, new Goal() {
+this.goalSelector.addGoal(${cbi+1}, new Goal() {
 	{
 		this.setMutexFlags(EnumSet.of(Goal.Flag.MOVE));
 	}
@@ -13,7 +13,7 @@ this.goalSelector.addGoal(${customBlockIndex+1}, new Goal() {
 	public boolean shouldExecute() {
 		if (${name}Entity.this.getAttackTarget() != null && !${name}Entity.this.getMoveHelper().isUpdating()) {
 			<#if hasProcedure(conditions[0])>
-                        double x = ${name}Entity.this.getPosX();
+			double x = ${name}Entity.this.getPosX();
 			double y = ${name}Entity.this.getPosY();
 			double z = ${name}Entity.this.getPosZ();
 			Entity entity = ${name}Entity.this;

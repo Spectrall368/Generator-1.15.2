@@ -51,11 +51,11 @@
     </#if>
 </#macro>
 
-<#macro procedureOBJToConditionCode object="">
+<#macro procedureOBJToConditionCode object="" defaultValue=true invertCondition=false>
     <#if hasProcedure(object)>
-        <@procedureToRetvalCode name=object.getName() dependencies=object.getDependencies(generator.getWorkspace()) />
+        <#if invertCondition>!</#if><@procedureToRetvalCode name=object.getName() dependencies=object.getDependencies(generator.getWorkspace()) />
     <#else>
-        true
+        ${defaultValue?c}
     </#if>
 </#macro>
 
@@ -93,9 +93,8 @@
 </#macro>
 
 <#function hasProcedure object="">
-    <#return object?? && object?has_content && object.getName()?has_content && object.getName() != "null">
+    <#return object?? && object?has_content && object.getName()?has_content && object.getName() != "null" && w.hasModElement(object.getName())>
 </#function>
-
 <#function hasReturnValueOf object="" type="">
     <#return hasProcedure(object) && (object.getReturnValueType(generator.getWorkspace()) == type)>
 </#function>
