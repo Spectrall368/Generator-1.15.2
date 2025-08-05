@@ -1,4 +1,3 @@
-_mcreator_prefix: "CUSTOM:"
 _bypass_prefix:
   - "TAG:"
   - "POTION:"
@@ -10,7 +9,7 @@ Blocks.AIR:
   - "air"
 Blocks.STONE:
   - Blocks.STONE
-  - "#minecraft:stone"
+  - "#forge:stone"
 Blocks.STONE#0:
   - Blocks.STONE
   - "stone"
@@ -43,7 +42,7 @@ Blocks.MYCELIUM:
   - "mycelium"
 Blocks.DIRT:
   - Blocks.DIRT
-  - "#minecraft:dirt"
+  - "#forge:dirt"
 Blocks.DIRT#0:
   - Blocks.DIRT
   - "dirt"
@@ -119,15 +118,9 @@ Blocks.SAND#1:
 Blocks.GRAVEL:
   - Blocks.GRAVEL
   - "gravel"
-Blocks.FLOWING_WATER:
-  - Blocks.WATER
-  - "water"
 Blocks.WATER:
   - Blocks.WATER
   - "water"
-Blocks.FLOWING_LAVA:
-  - Blocks.LAVA
-  - "lava"
 Blocks.LAVA:
   - Blocks.LAVA
   - "lava"
@@ -144,9 +137,6 @@ Blocks.IRON_ORE:
   - Blocks.IRON_ORE
   - "iron_ore"
 Blocks.REDSTONE_ORE:
-  - Blocks.REDSTONE_ORE
-  - "redstone_ore"
-Blocks.LIT_REDSTONE_ORE:
   - Blocks.REDSTONE_ORE
   - "redstone_ore"
 Blocks.GOLD_ORE:
@@ -218,9 +208,6 @@ Blocks.LOG#2:
 Blocks.LOG#3:
   - Blocks.JUNGLE_LOG
   - "jungle_log"
-Blocks.LOG2:
-  - Blocks.ACACIA_LOG
-  - "#minecraft:logs"
 Blocks.LOG2#0:
   - Blocks.ACACIA_LOG
   - "acacia_log"
@@ -242,9 +229,6 @@ Blocks.LEAVES#2:
 Blocks.LEAVES#3:
   - Blocks.JUNGLE_LEAVES
   - "jungle_leaves"
-Blocks.LEAVES2:
-  - Blocks.ACACIA_LEAVES
-  - "#minecraft:leaves"
 Blocks.LEAVES2#0:
   - Blocks.ACACIA_LEAVES
   - "acacia_leaves"
@@ -262,7 +246,7 @@ Blocks.SPONGE#1:
   - "wet_sponge"
 Blocks.SANDSTONE:
   - Blocks.SANDSTONE
-  - "#minecraft:sandstone"
+  - "#forge:sandstone"
 Blocks.SANDSTONE#0:
   - Blocks.SANDSTONE
   - "sandstone"
@@ -274,7 +258,7 @@ Blocks.SANDSTONE#2:
   - "cut_sandstone"
 Blocks.RED_SANDSTONE:
   - Blocks.RED_SANDSTONE
-  - "#minecraft:sandstone"
+  - "#forge:sandstone"
 Blocks.RED_SANDSTONE#0:
   - Blocks.RED_SANDSTONE
   - "red_sandstone"
@@ -299,19 +283,10 @@ Blocks.DETECTOR_RAIL:
 Blocks.ACTIVATOR_RAIL:
   - Blocks.ACTIVATOR_RAIL
   - "activator_rail"
-Blocks.BED:
-  - Blocks.WHITE_BED
-  - "white_bed"
 Blocks.WEB:
   - Blocks.COBWEB
   - "cobweb"
 Blocks.DEADBUSH:
-  - Blocks.DEAD_BUSH
-  - "dead_bush"
-Blocks.TALLGRASS:
-  - Blocks.GRASS
-  - "grass"
-Blocks.TALLGRASS#0:
   - Blocks.DEAD_BUSH
   - "dead_bush"
 Blocks.TALLGRASS#1:
@@ -545,13 +520,7 @@ Blocks.TRIPWIRE:
 Blocks.DAYLIGHT_DETECTOR:
   - Blocks.DAYLIGHT_DETECTOR
   - "daylight_detector"
-Blocks.DAYLIGHT_DETECTOR_INVERTED:
-  - Blocks.DAYLIGHT_DETECTOR
-  - "daylight_detector"
 Blocks.REDSTONE_TORCH:
-  - Blocks.REDSTONE_TORCH
-  - "redstone_torch"
-Blocks.UNLIT_REDSTONE_TORCH:
   - Blocks.REDSTONE_TORCH
   - "redstone_torch"
 Blocks.REDSTONE_WIRE:
@@ -560,19 +529,10 @@ Blocks.REDSTONE_WIRE:
 Blocks.UNPOWERED_REPEATER:
   - Blocks.REPEATER
   - "repeater"
-Blocks.POWERED_REPEATER:
-  - Blocks.REPEATER
-  - "repeater"
 Blocks.UNPOWERED_COMPARATOR:
   - Blocks.COMPARATOR
   - "comparator"
-Blocks.POWERED_COMPARATOR:
-  - Blocks.COMPARATOR
-  - "comparator"
 Blocks.REDSTONE_LAMP:
-  - Blocks.REDSTONE_LAMP
-  - "redstone_lamp"
-Blocks.LIT_REDSTONE_LAMP:
   - Blocks.REDSTONE_LAMP
   - "redstone_lamp"
 Blocks.DISPENSER:
@@ -759,9 +719,6 @@ Blocks.PURPUR_PILLAR:
   - Blocks.PURPUR_PILLAR
   - "purpur_pillar"
 Blocks.PURPUR_SLAB:
-  - Blocks.PURPUR_SLAB
-  - "purpur_slab"
-Blocks.PURPUR_DOUBLE_SLAB:
   - Blocks.PURPUR_SLAB
   - "purpur_slab"
 Blocks.BEETROOTS:
@@ -1064,9 +1021,6 @@ Blocks.RED_GLAZED_TERRACOTTA:
 Blocks.BLACK_GLAZED_TERRACOTTA:
   - Blocks.BLACK_GLAZED_TERRACOTTA
   - "black_glazed_terracotta"
-Blocks.CONCRETE_POWDER:
-  - Blocks.WHITE_CONCRETE_POWDER
-  - "white_concrete_powder"
 Blocks.CONCRETE_POWDER#0:
   - Blocks.WHITE_CONCRETE_POWDER
   - "white_concrete_powder"
@@ -1115,9 +1069,6 @@ Blocks.CONCRETE_POWDER#14:
 Blocks.CONCRETE_POWDER#15:
   - Blocks.BLACK_CONCRETE_POWDER
   - "black_concrete_powder"
-Blocks.CONCRETE:
-  - Blocks.WHITE_CONCRETE
-  - "white_concrete"
 Blocks.CONCRETE#0:
   - Blocks.WHITE_CONCRETE
   - "white_concrete"
@@ -1168,7 +1119,7 @@ Blocks.CONCRETE#15:
   - "black_concrete"
 Blocks.CARPET:
   - Blocks.WHITE_CARPET
-  - "#minecraft:wool_carpets"
+  - "#minecraft:carpets"
 Blocks.CARPET#0:
   - Blocks.WHITE_CARPET
   - "white_carpet"
@@ -1401,18 +1352,6 @@ Blocks.STRUCTURE_VOID:
   - Blocks.STRUCTURE_VOID
   - "structure_void"
 Blocks.STRUCTURE_BLOCK:
-  - Blocks.STRUCTURE_BLOCK
-  - "structure_block"
-Blocks.STRUCTURE_BLOCK#1:
-  - Blocks.STRUCTURE_BLOCK
-  - "structure_block"
-Blocks.STRUCTURE_BLOCK#2:
-  - Blocks.STRUCTURE_BLOCK
-  - "structure_block"
-Blocks.STRUCTURE_BLOCK#3:
-  - Blocks.STRUCTURE_BLOCK
-  - "structure_block"
-Blocks.STRUCTURE_BLOCK#4:
   - Blocks.STRUCTURE_BLOCK
   - "structure_block"
 Blocks.NORMAL_STONE_STAIRS:
@@ -2249,9 +2188,6 @@ Items.DYE#18:
 Items.DYE#19:
   - Items.WHITE_DYE
   - "white_dye"
-Items.COAL:
-  - Items.COAL
-  - "#minecraft:coals"
 Items.COAL#0:
   - Items.COAL
   - "coal"
@@ -2741,9 +2677,6 @@ Items.MELON:
 Items.MELON_SEEDS:
   - Items.MELON_SEEDS
   - "melon_seeds"
-Items.FISH:
-  - Items.COD
-  - "#minecraft:fishes"
 Items.FISH#0:
   - Items.COD
   - "cod"
@@ -2756,9 +2689,6 @@ Items.FISH#2:
 Items.FISH#3:
   - Items.PUFFERFISH
   - "pufferfish"
-Items.COOKED_FISH:
-  - Items.COOKED_COD
-  - "#minecraft:fishes"
 Items.COOKED_FISH#0:
   - Items.COOKED_COD
   - "cooked_cod"
@@ -2879,9 +2809,6 @@ Items.CAULDRON:
 Items.SPECKLED_MELON:
   - Items.GLISTERING_MELON_SLICE
   - "glistering_melon_slice"
-Items.SPAWN_EGG:
-  - Items.CREEPER_SPAWN_EGG
-  - "#forge:eggs"
 Items.SPAWN_EGG#50:
   - Items.CREEPER_SPAWN_EGG
   - "creeper_spawn_egg"
@@ -3230,3 +3157,9 @@ Items.HONEYCOMB:
 Items.HONEY_BOTTLE:
   - Items.HONEY_BOTTLE
   - "honey_bottle"
+Items.TORCH:
+  - Items.TORCH
+  - "torch"
+Items.REDSTONE_TORCH:
+  - Items.REDSTONE_TORCH
+  - "redstone_torch"

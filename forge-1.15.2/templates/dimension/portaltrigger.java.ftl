@@ -30,13 +30,19 @@
 
 <#-- @formatter:off -->
 <#include "../procedures.java.ftl">
+<#include "../triggers.java.ftl">
 package ${package}.item;
 
 public class ${name}Item extends Item {
 
 	public ${name}Item() {
-		super(new Item.Properties().group(${data.igniterTab}).maxDamage(64));
+		super(new Item.Properties().group(<@CreativeTabs data.creativeTabs/>)
+			<#if data.igniterRarity != "COMMON">.rarity(Rarity.${data.igniterRarity})</#if>
+			.maxDamage(64)
+		);
 	}
+
+	<@addSpecialInformation data.specialInformation, "item." + modid + "." + registryname/>
 
 	@Override public ActionResultType onItemUse(ItemUseContext context) {
 		PlayerEntity entity = context.getPlayer();
@@ -52,7 +58,7 @@ public class ${name}Item extends Item {
 			boolean success = false;
 
 			if (world.isAirBlock(pos) && <@procedureOBJToConditionCode data.portalMakeCondition/>) {
-				${name}Dimension.portal.portalSpawn(world, pos);
+				${JavaModName}Blocks.${REGISTRYNAME}_PORTAL.get().portalSpawn(world, pos);
 				itemstack.damageItem(1, entity, c -> c.sendBreakAnimation(context.getHand()));
 				success = true;
 			}

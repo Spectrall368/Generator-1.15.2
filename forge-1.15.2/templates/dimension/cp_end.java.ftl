@@ -27,19 +27,23 @@
  # exception.
 -->
 
-public static class ChunkProviderModded extends EndChunkGenerator {
+public static class ChunkProvider${name} extends EndChunkGenerator {
 
-	public ChunkProviderModded(IWorld world, BiomeProvider provider) {
+	public ChunkProvider${name}(IWorld world, BiomeProvider provider) {
 		super(world, provider, new EndGenerationSettings() {
-			public BlockState getDefaultBlock() {
+			@Override public BlockState getDefaultBlock() {
 				return ${mappedBlockToBlockStateCode(data.mainFillerBlock)};
 			}
-
-			public BlockState getDefaultFluid() {
+			@Override public BlockState getDefaultFluid() {
 				return ${mappedBlockToBlockStateCode(data.fluidBlock)};
 			}
 		});
 		this.randomSeed.skip(3946);
 	}
 
+   <#if data.seaLevel != 0>
+   @Override public int getSeaLevel() {
+      return ${data.seaLevel};
+   }
+   </#if>
 }

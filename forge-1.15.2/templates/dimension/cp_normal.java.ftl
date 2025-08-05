@@ -27,22 +27,25 @@
  # exception.
 -->
 
-public static class ChunkProviderModded extends OverworldChunkGenerator {
+public static class ChunkProvider${name} extends OverworldChunkGenerator {
 
-	public ChunkProviderModded(IWorld world, BiomeProvider provider) {
+	public ChunkProvider${name}(IWorld world, BiomeProvider provider) {
 		super(world, provider, new OverworldGenSettings() {
-			public BlockState getDefaultBlock() {
+			@Override public BlockState getDefaultBlock() {
 				return ${mappedBlockToBlockStateCode(data.mainFillerBlock)};
 			}
-
-			public BlockState getDefaultFluid() {
+			@Override public BlockState getDefaultFluid() {
 				return ${mappedBlockToBlockStateCode(data.fluidBlock)};
 			}
 		});
 		this.randomSeed.skip(5349);
 	}
 
-	@Override public void spawnMobs(ServerWorld worldIn, boolean spawnHostileMobs, boolean spawnPeacefulMobs) {
-	}
+   <#if data.seaLevel != 63>
+   @Override public int getSeaLevel() {
+      return ${data.seaLevel};
+   }
+   </#if>
 
+	@Override public void spawnMobs(ServerWorld worldIn, boolean spawnHostileMobs, boolean spawnPeacefulMobs) {}
 }

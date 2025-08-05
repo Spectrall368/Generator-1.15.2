@@ -27,15 +27,14 @@
  # exception.
 -->
 
-public static class ChunkProviderModded extends NetherChunkGenerator {
+public static class ChunkProvider${name} extends NetherChunkGenerator {
 
-	public ChunkProviderModded(World world, BiomeProvider provider) {
+	public ChunkProvider${name}(World world, BiomeProvider provider) {
 		super(world, provider, new NetherGenSettings() {
-			public BlockState getDefaultBlock() {
+			@Override public BlockState getDefaultBlock() {
 				return ${mappedBlockToBlockStateCode(data.mainFillerBlock)};
 			}
-
-			public BlockState getDefaultFluid() {
+			@Override public BlockState getDefaultFluid() {
 				return ${mappedBlockToBlockStateCode(data.fluidBlock)};
 			}
 		});
@@ -46,4 +45,9 @@ public static class ChunkProviderModded extends NetherChunkGenerator {
 		return this.world.getBiome(pos).getSpawns(creatureType);
 	}
 
+   <#if data.seaLevel != 32>
+   @Override public int getSeaLevel() {
+      return ${data.seaLevel};
+   }
+   </#if>
 }

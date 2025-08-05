@@ -31,7 +31,7 @@
 <#-- @formatter:off -->
 /*
  *    MCreator note: This file will be REGENERATED on each build.
- */
+*/
 package ${package}.init;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD) public class ${JavaModName}GameRules {
@@ -39,11 +39,11 @@ package ${package}.init;
 	<#list gamerules as gamerule>
 		<#if gamerule.type == "Number">
 	public static final GameRules.RuleKey<GameRules.IntegerValue> ${gamerule.getModElement().getRegistryNameUpper()} =
-				GameRules.register("${gamerule.getModElement().getRegistryName()}",
+				GameRules.register("${StringUtils.lowercaseFirstLetter(gamerule.getModElement().getName())}",
 				GameRules.IntegerValue.create(${gamerule.defaultValueNumber}));
 		<#else>
 	public static final GameRules.RuleKey<GameRules.BooleanValue> ${gamerule.getModElement().getRegistryNameUpper()} =
-				GameRules.register("${gamerule.getModElement().getRegistryName()}",
+				GameRules.register("${StringUtils.lowercaseFirstLetter(gamerule.getModElement().getName())}",
 				GameRules.BooleanValue.create(${gamerule.defaultValueLogic}));
 		</#if>
 	</#list>

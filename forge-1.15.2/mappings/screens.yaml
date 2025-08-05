@@ -42,6 +42,7 @@ MultiplayerWarning: MultiplayerWarningScreen
 OptimizeWorld: OptimizeWorldScreen
 Options: OptionsScreen
 OptionsSounds: OptionsSoundsScreen
+Pack: ResourcePacksScreen
 ReadBook: ReadBookScreen
 ServerList: ServerListScreen
 Settings: SettingsScreen
@@ -68,4 +69,11 @@ Merchant: MerchantScreen
 ShulkerBox: ShulkerBoxScreen
 Smoker: SmokerScreen
 Stonecutter: StonecutterScreen
-Pack: ResourcePacksScreen
+AccessibilityOptions: AccessibilityScreen
+Win: WinGameScreen
+Realms: RealmsScreen
+AbstractCommandBlock: AbstractCommandBlockScreen
+AbstractContainer: ContainerScreen
+AbstractEditSign: EditSignScreen
+AbstractFurnace: AbstractFurnaceScreen
+DisconnectedRealms: DisconnectedScreen

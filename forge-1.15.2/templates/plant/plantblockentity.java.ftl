@@ -1,7 +1,7 @@
 <#--
  # MCreator (https://mcreator.net/)
  # Copyright (C) 2012-2020, Pylo
- # Copyright (C) 2020-2023, Pylo, opensource contributors
+ # Copyright (C) 2020-2024, Pylo, opensource contributors
  #
  # This program is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ package ${package}.block.entity;
 public class ${name}BlockEntity extends TileEntity {
 
 	public ${name}BlockEntity() {
-		super(${JavaModName}BlockEntities.${data.getModElement().getRegistryNameUpper()}.get());
+		super(${JavaModName}BlockEntities.${REGISTRYNAME}.get());
 	}
 
 	@Override public SUpdateTileEntityPacket getUpdatePacket() {
