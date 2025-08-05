@@ -1,7 +1,7 @@
 <#--
  # MCreator (https://mcreator.net/)
  # Copyright (C) 2012-2020, Pylo
- # Copyright (C) 2020-2023, Pylo, opensource contributors
+ # Copyright (C) 2020-2025, Pylo, opensource contributors
  #
  # This program is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
@@ -34,16 +34,24 @@
 package ${package}.potion;
 
 <#compress>
-public class ${name}PotionEffect extends Effect {
+public class ${name}MobEffect extends Effect {
 
-	public ${name}PotionEffect() {
-		super(EffectType.<#if data.isBad>HARMFUL<#elseif data.isBenefitical>BENEFICIAL<#else>NEUTRAL</#if>, ${data.color.getRGB()});
+	public ${name}MobEffect() {
+		super(EffectType.${data.mobEffectCategory}, ${data.color.getRGB()});
+		<#list data.modifiers as modifier>
+		this.addAttributesModifier(${modifier.attribute}, "${w.getUUID(registryname + "_" + modifier?index)}", ${modifier.amount},
+				AttributeModifier.Operation.${getAttributeOperation(modifier.operation)});
+		</#list>
 		}
 
-	<#if data.isBenefitical>
-		@Override public boolean isBeneficial() {
-			return true;
-		}
+	<#if data.isCuredbyHoney>
+	@Override public List<ItemStack> getCurativeItems() {
+		ArrayList<ItemStack> cures = new ArrayList<ItemStack>();
+		cures.add(new ItemStack(Items.MILK_BUCKET));
+		cures.add(new ItemStack(Items.TOTEM_OF_UNDYING));
+		cures.add(new ItemStack(Items.HONEY_BOTTLE));
+		return cures;
+	}
 	</#if>
 
 	<#if data.isInstant>
@@ -52,28 +60,15 @@ public class ${name}PotionEffect extends Effect {
 		}
 	</#if>
 
-	<#if hasProcedure(data.onStarted)>
+	<#if hasProcedure(data.onStarted) || (data.onAddedSound?has_content && data.onAddedSound.getMappedValue()?has_content)>
 		<#if data.isInstant>
 			@Override public void affectEntity(Entity source, Entity indirectSource, LivingEntity entity, int amplifier, double health) {
-			<@procedureCode data.onStarted, {
-				"x": "entity.getPosX()",
-				"y": "entity.getPosY()",
-				"z": "entity.getPosZ()",
-				"world": "entity.world",
-				"entity": "entity",
-				"amplifier": "amplifier"
-			}/>
+                <@startedContext/>
 			}
 		<#else>
-			@Override public void applyAttributesModifiersToEntity(LivingEntity entity, AbstractAttributeMap attributeMapIn, int amplifier) {
-			<@procedureCode data.onStarted, {
-				"x": "entity.getPosX()",
-				"y": "entity.getPosY()",
-				"z": "entity.getPosZ()",
-				"world": "entity.world",
-				"entity": "entity",
-				"amplifier": "amplifier"
-			}/>
+			@Override public void applyAttributesModifiersToEntity(LivingEntity entity, AbstractAttributeMap attributeMap, int amplifier) {
+				super.applyAttributesModifiersToEntity(entity, attributeMap, amplifier);
+                <@startedContext/>
 			}
 		</#if>
 	</#if>
@@ -92,8 +87,8 @@ public class ${name}PotionEffect extends Effect {
 	</#if>
 
 	<#if hasProcedure(data.onExpired)>
-		@Override public void removeAttributesModifiersFromEntity(LivingEntity entity, AbstractAttributeMap attributeMapIn, int amplifier) {
-			super.removeAttributesModifiersFromEntity(entity, attributeMapIn, amplifier);
+		@Override public void removeAttributesModifiersFromEntity(LivingEntity entity, AbstractAttributeMap attributeMap, int amplifier) {
+			super.removeAttributesModifiersFromEntity(entity, attributeMap, amplifier);
 		<@procedureCode data.onExpired, {
 			"x": "entity.getPosX()",
 			"y": "entity.getPosY()",
@@ -133,3 +128,27 @@ public class ${name}PotionEffect extends Effect {
 }
 </#compress>
 <#-- @formatter:on -->
+<#function getAttributeOperation operation>
+	<#if operation == "ADD_VALUE">
+		<#return "ADDITION">
+	<#elseif operation == "ADD_MULTIPLIED_BASE">
+		<#return "MULTIPLY_BASE">
+	<#else>
+		<#return "MULTIPLY_TOTAL">
+	</#if>
+</#function>
+<#macro startedContext>
+<#if data.onAddedSound?has_content && data.onAddedSound.getMappedValue()?has_content>
+    entity.world.playSound(null, entity.getPosX(), entity.getPosY(), entity.getPosZ(), ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation("${data.onAddedSound}")), entity.getSoundCategory(), 1.0F, 1.0F);
+</#if>
+<#if hasProcedure(data.onStarted)>
+    <@procedureCode data.onStarted, {
+        "x": "entity.getPosX()",
+        "y": "entity.getPosY()",
+        "z": "entity.getPosZ()",
+        "world": "entity.world",
+        "entity": "entity",
+        "amplifier": "amplifier"
+    }/>
+</#if>
+</#macro>

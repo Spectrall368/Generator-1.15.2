@@ -1,7 +1,7 @@
 <#--
  # MCreator (https://mcreator.net/)
  # Copyright (C) 2012-2020, Pylo
- # Copyright (C) 2020-2023, Pylo, opensource contributors
+ # Copyright (C) 2020-2024, Pylo, opensource contributors
  #
  # This program is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
@@ -30,28 +30,42 @@
 
 <#-- @formatter:off -->
 /*
- *    MCreator note: This file will be REGENERATED on each build.
+ *	MCreator note: This file will be REGENERATED on each build.
  */
 package ${package}.init;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD) public class ${JavaModName}Menus {
+public class ${JavaModName}Menus {
 
-    private static final List<ContainerType<?>> REGISTRY = new ArrayList<>();
+	public static final DeferredRegister<ContainerType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.CONTAINERS, ${JavaModName}.MODID);
 
-    <#list guis as gui>
-    public static final ContainerType<${gui.getModElement().getName()}Menu> ${gui.getModElement().getRegistryNameUpper()}
-		= register("${gui.getModElement().getRegistryName()}", (id, inv, extraData) -> new ${gui.getModElement().getName()}Menu(id, inv, extraData));
-    </#list>
+	<#list guis as gui>
+	public static final RegistryObject<ContainerType<${gui.getModElement().getName()}Menu>> ${gui.getModElement().getRegistryNameUpper()}
+		= REGISTRY.register("${gui.getModElement().getRegistryName()}", () -> IForgeContainerType.create(${gui.getModElement().getName()}Menu::new));
+	</#list>
 
-    private static <T extends Container> ContainerType<T> register(String registryname, IContainerFactory<T> containerFactory) {
-		ContainerType<T> menuType = new ContainerType<T>(containerFactory);
-		menuType.setRegistryName(registryname);
-		REGISTRY.add(menuType);
-    	return menuType;
-    }
+	public interface MenuAccessor {
+		Map<String, Object> getMenuState();
 
-	@SubscribeEvent public static void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
-		event.getRegistry().registerAll(REGISTRY.toArray(new ContainerType[0]));
+		Map<Integer, Slot> getSlots();
+
+		default void sendMenuStateUpdate(PlayerEntity player, int elementType, String name, Object elementState, boolean needClientUpdate) {
+			getMenuState().put(elementType + ":" + name, elementState);
+			if (player instanceof ServerPlayerEntity) {
+				${JavaModName}.PACKET_HANDLER.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player), new MenuStateUpdateMessage(elementType, name, elementState));
+			} else if (player.world.isRemote) {
+				if (Minecraft.getInstance().currentScreen instanceof ${JavaModName}Screens.ScreenAccessor && needClientUpdate)
+					((${JavaModName}Screens.ScreenAccessor) Minecraft.getInstance().currentScreen).updateMenuState(elementType, name, elementState);
+				${JavaModName}.PACKET_HANDLER.sendToServer(new MenuStateUpdateMessage(elementType, name, elementState));
+			}
+		}
+
+		default <T> T getMenuState(int elementType, String name, T defaultValue) {
+			try {
+				return (T) getMenuState().getOrDefault(elementType + ":" + name, defaultValue);
+			} catch (ClassCastException e) {
+				return defaultValue;
+			}
+		}
 	}
 }
 <#-- @formatter:on -->

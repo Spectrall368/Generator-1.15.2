@@ -1,7 +1,7 @@
 <#--
  # MCreator (https://mcreator.net/)
  # Copyright (C) 2012-2020, Pylo
- # Copyright (C) 2020-2023, Pylo, opensource contributors
+ # Copyright (C) 2020-2024, Pylo, opensource contributors
  #
  # This program is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
@@ -30,15 +30,17 @@
 
 <#-- @formatter:off -->
 package ${package}.block.entity;
+<#include "../procedures.java.ftl">
 
+<#compress>
 public class ${name}BlockEntity extends LockableLootTileEntity implements ISidedInventory {
 
-	private NonNullList<ItemStack> stacks = NonNullList.<ItemStack>withSize(${data.inventorySize}, ItemStack.EMPTY);
+	private NonNullList<ItemStack> stacks = NonNullList.withSize(${data.inventorySize}, ItemStack.EMPTY);
 
 	private final LazyOptional<? extends IItemHandler>[] handlers = SidedInvWrapper.create(this, Direction.values());
 
 	public ${name}BlockEntity() {
-		super(${JavaModName}BlockEntities.${data.getModElement().getRegistryNameUpper()}.get());
+		super(${JavaModName}BlockEntities.${REGISTRYNAME}.get());
 	}
 
 	@Override public void read(CompoundNBT compound) {
@@ -75,7 +77,7 @@ public class ${name}BlockEntity extends LockableLootTileEntity implements ISided
 		compound.put("fluidTank", CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.writeNBT(fluidTank, null));
 		</#if>
 
-		return compound;
+   		return compound;
 	}
 
 	@Override public SUpdateTileEntityPacket getUpdatePacket() {
@@ -101,12 +103,14 @@ public class ${name}BlockEntity extends LockableLootTileEntity implements ISided
 		return new StringTextComponent("${registryname}");
 	}
 
+	<#if data.inventoryStackSize != 99>
 	@Override public int getInventoryStackLimit() {
 		return ${data.inventoryStackSize};
 	}
+	</#if>
 
 	@Override public Container createMenu(int id, PlayerInventory inventory) {
-		<#if !data.guiBoundTo?has_content || data.guiBoundTo == "<NONE>" || !(data.guiBoundTo)?has_content>
+		<#if !data.guiBoundTo?has_content>
 		return ChestContainer.createGeneric9X3(id, inventory, this);
 		<#else>
 		return new ${data.guiBoundTo}Menu(id, inventory, new PacketBuffer(Unpooled.buffer()).writeBlockPos(this.getPos()));
@@ -138,16 +142,31 @@ public class ${name}BlockEntity extends LockableLootTileEntity implements ISided
 		return IntStream.range(0, this.getSizeInventory()).toArray();
 	}
 
-	@Override public boolean canInsertItem(int index, ItemStack stack, @Nullable Direction direction) {
-		return this.isItemValidForSlot(index, stack);
+	@Override public boolean canInsertItem(int index, ItemStack itemstack, @Nullable Direction direction) {
+		return this.isItemValidForSlot(index, itemstack)
+		<#if hasProcedure(data.inventoryAutomationPlaceCondition)>&&
+			<@procedureCode data.inventoryAutomationPlaceCondition, {
+				"index": "index",
+				"itemstack": "itemstack",
+				"direction": "direction"
+			}, false/>
+		</#if>;
 	}
 
-	@Override public boolean canExtractItem(int index, ItemStack stack, Direction direction) {
+	@Override public boolean canExtractItem(int index, ItemStack itemstack, Direction direction) {
 		<#list data.inventoryInSlotIDs as id>
 		if (index == ${id})
 			return false;
-        </#list>
-		return true;
+		</#list>
+		<#if hasProcedure(data.inventoryAutomationTakeCondition)>
+			return <@procedureCode data.inventoryAutomationTakeCondition, {
+				"index": "index",
+				"itemstack": "itemstack",
+				"direction": "direction"
+			}, false/>;
+		<#else>
+			return true;
+		</#if>
 	}
 	<#-- END: ISidedInventory -->
 
@@ -177,13 +196,8 @@ public class ${name}BlockEntity extends LockableLootTileEntity implements ISided
         <#if data.fluidRestrictions?has_content>
 		private final FluidTank fluidTank = new FluidTank(${data.fluidCapacity}, fs -> {
 			<#list data.fluidRestrictions as fluidRestriction>
-                <#if fluidRestriction.getUnmappedValue().startsWith("CUSTOM:")>
-					if(fs.getFluid() ==
-					${JavaModName}Fluids.<#if fluidRestriction.getUnmappedValue().endsWith(":Flowing")>FLOWING_</#if>${generator.getRegistryNameForModElement(fluidRestriction.getUnmappedValue()?remove_beginning("CUSTOM:")?remove_ending(":Flowing"))?upper_case}.get()) return true;
-                <#else>
-				if(fs.getFluid() == Fluids.${fluidRestriction}) return true;
-                </#if>
-            </#list>
+				if (fs.getFluid() == ${fluidRestriction}) return true;
+            		</#list>
 
 			return false;
 		}) {
@@ -227,4 +241,5 @@ public class ${name}BlockEntity extends LockableLootTileEntity implements ISided
 			handler.invalidate();
 	}
 }
+</#compress>
 <#-- @formatter:on -->

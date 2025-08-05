@@ -65,7 +65,7 @@ public class ${name}FluidAttributes extends FluidAttributes {
 		<#elseif data.tintType == "Sky">
 			Minecraft.getInstance().world.getBiome(pos).getSkyColor()
 		<#else>
-			Minecraft.getInstance().world.getBiome(pos).value().getWaterFogColor()
+			Minecraft.getInstance().world.getBiome(pos).getWaterFogColor()
 		</#if> | 0xFF000000;
 	}
 	</#if>

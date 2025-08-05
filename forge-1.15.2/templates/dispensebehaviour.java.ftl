@@ -1,7 +1,7 @@
 <#--
  # MCreator (https://mcreator.net/)
  # Copyright (C) 2012-2020, Pylo
- # Copyright (C) 2020-2023, Pylo, opensource contributors
+ # Copyright (C) 2020-2024, Pylo, opensource contributors
  #
  # This program is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
@@ -35,37 +35,37 @@ package ${package}.item.extension;
 
 <#compress>
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD) public class ${name}ItemExtension {
-		@SubscribeEvent public static void init(FMLCommonSetupEvent event) {
-			DispenserBlock.registerDispenseBehavior(${mappedMCItemToItem(data.item)}, new OptionalDispenseBehavior() {
-				public ItemStack dispenseStack(IBlockSource blockSource, ItemStack stack) {
-					<#assign hasSuccessCondition = hasProcedure(data.dispenseSuccessCondition)>
-					ItemStack itemstack = stack.copy();
-					World world = blockSource.getWorld();
-					Direction direction = blockSource.getBlockState().get(DispenserBlock.FACING);
-					int x = blockSource.getBlockPos().getX();
-					int y = blockSource.getBlockPos().getY();
-					int z = blockSource.getBlockPos().getZ();
+	@SubscribeEvent public static void init(FMLCommonSetupEvent event) {
+		DispenserBlock.registerDispenseBehavior(${mappedMCItemToItem(data.item)}, new OptionalDispenseBehavior() {
+			public ItemStack dispenseStack(IBlockSource blockSource, ItemStack stack) {
+				<#assign hasSuccessCondition = hasProcedure(data.dispenseSuccessCondition)>
+				ItemStack itemstack = stack.copy();
+				World world = blockSource.getWorld();
+				Direction direction = blockSource.getBlockState().get(DispenserBlock.FACING);
+				int x = blockSource.getBlockPos().getX();
+				int y = blockSource.getBlockPos().getY();
+				int z = blockSource.getBlockPos().getZ();
 
-					<#if hasSuccessCondition>
-						this.successful(<@procedureOBJToConditionCode data.dispenseSuccessCondition/>);
-					</#if>
+				<#if hasSuccessCondition>
+					this.successful(<@procedureOBJToConditionCode data.dispenseSuccessCondition/>);
+				</#if>
 
-					<#if hasProcedure(data.dispenseResultItemstack)>
-						boolean success = this.successful;
-						<#if hasReturnValueOf(data.dispenseResultItemstack, "itemstack")>
-							return <@procedureOBJToItemstackCode data.dispenseResultItemstack, false/>;
-						<#else>
-							<@procedureOBJToCode data.dispenseResultItemstack/>
-							<#if hasSuccessCondition>if(success)</#if>
-							itemstack.shrink(1);
-							return itemstack;
-						</#if>
+				<#if hasProcedure(data.dispenseResultItemstack)>
+					boolean success = this.successful;
+					<#if hasReturnValueOf(data.dispenseResultItemstack, "itemstack")>
+						return <@procedureOBJToItemstackCode data.dispenseResultItemstack, false/>;
 					<#else>
-						<#if hasSuccessCondition>if(this.successful)</#if>
+						<@procedureOBJToCode data.dispenseResultItemstack/>
+						<#if hasSuccessCondition>if(success)</#if>
 						itemstack.shrink(1);
 						return itemstack;
 					</#if>
-				}
-			});
-		}
+				<#else>
+					<#if hasSuccessCondition>if(this.successful)</#if>
+					itemstack.shrink(1);
+					return itemstack;
+				</#if>
+			}
+		});
+	}
 }</#compress>

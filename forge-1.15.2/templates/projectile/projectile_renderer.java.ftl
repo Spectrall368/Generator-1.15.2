@@ -29,30 +29,33 @@
 -->
 
 <#-- @formatter:off -->
-package ${package}.init;
-/*
- *    MCreator note: This file will be REGENERATED on each build.
- */
-<#assign spawn_overworld = biomes?filter(biome -> biome.spawnBiome)>
+package ${package}.client.renderer;
 
-<#if spawn_overworld?has_content>
-@Mod.EventBusSubscriber
-</#if>
-public class ${JavaModName}Biomes {
+public class ${name}Renderer extends EntityRenderer<${name}Entity> {
 
-	public static final DeferredRegister<Biome> REGISTRY = DeferredRegister.create(ForgeRegistries.BIOMES, ${JavaModName}.MODID);
+	private static final ResourceLocation texture = new ResourceLocation("${modid}:textures/entities/${data.customModelTexture}");
 
-    <#list biomes as biome>
-    public static final RegistryObject<Biome> ${biome.getModElement().getRegistryNameUpper()}
-        = REGISTRY.register("${biome.getModElement().getRegistryName()}", ${biome.getModElement().getName()}Biome::createBiome);
-    </#list>
+	private final ${data.entityModel} model;
 
-    <#if spawn_overworld?has_content>
-    @SubscribeEvent public static void init(FMLCommonSetupEvent event) {
-        <#list spawn_overworld as biome>
-            ${biome.getModElement().getName()}Biome.init();
-        </#list>
-    }
-    </#if>
+	public ${name}Renderer(EntityRendererManager context) {
+		super(context);
+		model = new ${data.entityModel}();
+	}
+
+	@Override public void render(${name}Entity entityIn, float entityYaw, float partialTicks, MatrixStack poseStack, IRenderTypeBuffer bufferIn, int packedLightIn) {
+		IVertexBuilder vb = bufferIn.getBuffer(RenderType.getEntityCutout(this.getEntityTexture(entityIn)));
+		poseStack.push();
+		poseStack.rotate(Vector3f.YP.rotationDegrees(MathHelper.lerp(partialTicks, entityIn.prevRotationYaw, entityIn.rotationYaw) - 90));
+		poseStack.rotate(Vector3f.ZP.rotationDegrees(90 + MathHelper.lerp(partialTicks, entityIn.prevRotationPitch, entityIn.rotationPitch)));
+		model.setRotationAngles(entityIn, 0, 0, entityIn.ticksExisted + partialTicks, entityIn.rotationYaw, entityIn.rotationPitch);
+		model.render(poseStack, vb, packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+		poseStack.pop();
+
+		super.render(entityIn, entityYaw, partialTicks, poseStack, bufferIn, packedLightIn);
+	}
+
+	@Override public ResourceLocation getEntityTexture(${name}Entity entity) {
+		return texture;
+	}
 }
 <#-- @formatter:on -->

@@ -29,17 +29,17 @@ import ${package}.${JavaModName};
 
 		<#if w.hasVariablesOfScope("PLAYER_LIFETIME") || w.hasVariablesOfScope("PLAYER_PERSISTENT")>
 		@SubscribeEvent public static void onPlayerLoggedInSyncPlayerVariables(PlayerEvent.PlayerLoggedInEvent event) {
-			if (!event.getPlayer().world.isRemote)
+			if (!event.getPlayer().world.isRemote())
 				((PlayerVariables) event.getPlayer().getCapability(PLAYER_VARIABLES_CAPABILITY, null).orElse(new PlayerVariables())).syncPlayerVariables(event.getPlayer());
 		}
 
 		@SubscribeEvent public static void onPlayerRespawnedSyncPlayerVariables(PlayerEvent.PlayerRespawnEvent event) {
-			if (!event.getPlayer().world.isRemote)
+			if (!event.getPlayer().world.isRemote())
 				((PlayerVariables) event.getPlayer().getCapability(PLAYER_VARIABLES_CAPABILITY, null).orElse(new PlayerVariables())).syncPlayerVariables(event.getPlayer());
 		}
 
 		@SubscribeEvent public static void onPlayerChangedDimensionSyncPlayerVariables(PlayerEvent.PlayerChangedDimensionEvent event) {
-			if (!event.getPlayer().world.isRemote)
+			if (!event.getPlayer().world.isRemote())
 				((PlayerVariables) event.getPlayer().getCapability(PLAYER_VARIABLES_CAPABILITY, null).orElse(new PlayerVariables())).syncPlayerVariables(event.getPlayer());
 		}
 
@@ -65,7 +65,7 @@ import ${package}.${JavaModName};
 
 		<#if w.hasVariablesOfScope("GLOBAL_WORLD") || w.hasVariablesOfScope("GLOBAL_MAP")>
 		@SubscribeEvent public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-			if (!event.getPlayer().world.isRemote) {
+			if (!event.getPlayer().world.isRemote()) {
 				WorldSavedData mapdata = MapVariables.get(event.getPlayer().world);
 				WorldSavedData worlddata = WorldVariables.get(event.getPlayer().world);
 				if(mapdata != null)
@@ -76,7 +76,7 @@ import ${package}.${JavaModName};
 		}
 
 		@SubscribeEvent public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
-			if (!event.getPlayer().world.isRemote) {
+			if (!event.getPlayer().world.isRemote()) {
 				WorldSavedData worlddata = WorldVariables.get(event.getPlayer().world);
 				if(worlddata != null)
 					${JavaModName}.PACKET_HANDLER.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) event.getPlayer()), new SavedDataSyncMessage(1, worlddata));
@@ -125,7 +125,7 @@ import ${package}.${JavaModName};
 		public void syncData(IWorld world) {
 			this.markDirty();
 
-			if (!world.getWorld().isRemote)
+			if (!world.getWorld().isRemote())
 				${JavaModName}.PACKET_HANDLER.send(PacketDistributor.DIMENSION.with(world.getWorld().dimension::getType), new SavedDataSyncMessage(1, this));
 		}
 
@@ -179,7 +179,7 @@ import ${package}.${JavaModName};
 		public void syncData(IWorld world) {
 			this.markDirty();
 
-			if (!world.getWorld().isRemote)
+			if (!world.getWorld().isRemote())
 				${JavaModName}.PACKET_HANDLER.send(PacketDistributor.ALL.noArg(), new SavedDataSyncMessage(0, this));
 		}
 
@@ -252,7 +252,7 @@ import ${package}.${JavaModName};
 
 		private final PlayerVariables playerVariables = new PlayerVariables();
 
-		private final LazyOptional<PlayerVariables> instance = LazyOptional.of(PLAYER_VARIABLES_CAPABILITY::getDefaultInstance);
+		private final LazyOptional<PlayerVariables> instance = LazyOptional.of(() -> playerVariables);
 
 		@Override public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
 			return cap == PLAYER_VARIABLES_CAPABILITY ? instance.cast() : LazyOptional.empty();
