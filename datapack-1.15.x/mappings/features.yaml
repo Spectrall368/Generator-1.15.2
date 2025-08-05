@@ -1,0 +1,74 @@
+_default:
+  - NoOpFeature
+  - NoFeatureConfig
+feature_no_op:
+  - NoOpFeature
+  - NoFeatureConfig
+feature_lake:
+  - LakesFeature
+  - BlockStateFeatureConfig
+feature_simple_block:
+  - Feature<BlockStateFeatureConfig>
+  - BlockStateFeatureConfig
+feature_block_pile:
+  - BlockPileFeature
+  - BlockStateProvidingFeatureConfig
+feature_huge_brown_mushroom:
+  - BigBrownMushroomFeature
+  - BigMushroomFeatureConfig
+feature_huge_red_mushroom:
+  - BigRedMushroomFeature
+  - BigMushroomFeatureConfig
+feature_coral_claw:
+  - CoralClawFeature
+  - NoFeatureConfig
+feature_coral_mushroom:
+  - CoralMushroomFeature
+  - NoFeatureConfig
+feature_coral_tree:
+  - CoralTreeFeature
+  - NoFeatureConfig
+feature_forest_rock:
+  - BlockBlobFeature
+  - BlockStateFeatureConfig
+feature_replace_sphere:
+  - SphereReplaceFeature
+  - SphereReplaceConfig
+feature_seagrass:
+  - SeaGrassFeature
+  - ProbabilityConfig
+feature_bamboo:
+  - BambooFeature
+  - ProbabilityConfig
+feature_random_patch_simple:
+  - RandomPatchFeature
+  - BlockClusterFeatureConfig
+feature_random_patch:
+  - RandomPatchFeature
+  - BlockClusterFeatureConfig
+feature_ore:
+  - OreFeature
+  - OreFeatureConfig
+feature_replace_single_block:
+  - ReplaceBlockFeature
+  - ReplaceBlockConfig
+feature_simple_random_selector:
+  - SingleRandomFeatureConfig
+  - SingleRandomFeature
+feature_spring:
+  - SpringFeature
+  - LiquidsConfig
+feature_tree_simple:
+  - TreeFeature
+  - BaseTreeFeatureConfig
+feature_tree_spruce:
+  - TreeFeature
+  - BaseTreeFeatureConfig
+feature_tree_pine:
+  - TreeFeature
+  - BaseTreeFeatureConfig
+
+# Custom NBT-based feature, not present in vanilla
+feature_custom_structure:
+  - StructureModFeature
+  - StructureModFeatureConfiguration
