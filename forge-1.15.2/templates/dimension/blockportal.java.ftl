@@ -28,28 +28,34 @@
  # exception.
 -->
 
-public static class ${name}PortalBlock extends NetherPortalBlock {
+<#-- @formatter:off -->
+<#include "../procedures.java.ftl">
+<#include "../mcitems.ftl">
+package ${package}.block;
+
+public class ${name}PortalBlock extends NetherPortalBlock {
 
 	public ${name}PortalBlock() {
 		super(Block.Properties.create(Material.PORTAL).doesNotBlockMovement().tickRandomly()
-				.hardnessAndResistance(-1.0F).sound(SoundType.GLASS).lightValue(${data.portalLuminance}).noDrops());setRegistryName("${registryname}_portal");
+				.hardnessAndResistance(-1.0F).sound(SoundType.GLASS).lightValue(${data.portalLuminance}).noDrops());
 	}
 
-	@SubscribeEvent @OnlyIn(Dist.CLIENT) public void clientLoad(FMLClientSetupEvent event) {
-		RenderTypeLookup.setRenderLayer(portal, RenderType.getTranslucent());
+	@OnlyIn(Dist.CLIENT) public static void registerRenderLayer() {
+		RenderTypeLookup.setRenderLayer(${JavaModName}Blocks.${REGISTRYNAME}_PORTAL.get(), RenderType.getCutout());
 	}
 
-	<#if hasProcedure(data.onPortalTickUpdate)>
-	@Override public void tick(BlockState blockstate, ServerWorld world, BlockPos pos, Random random) {
-		<@procedureCode data.onPortalTickUpdate, {
-			"x": "pos.getX()",
-			"y": "pos.getY()",
-			"z": "pos.getZ()",
-			"world": "world",
-			"blockstate": "blockstate"
-		}/>
+	@Override public void randomTick(BlockState blockstate, World world, BlockPos pos, Random random) {
+		<#-- Do not call super to prevent ZOMBIFIED_PIGLINs from spawning -->
+		<#if hasProcedure(data.onPortalTickUpdate)>
+			<@procedureCode data.onPortalTickUpdate, {
+				"x": "pos.getX()",
+				"y": "pos.getY()",
+				"z": "pos.getZ()",
+				"world": "world",
+				"blockstate": "blockstate"
+			}/>
+		</#if>
 	}
-	</#if>
 
 	public void portalSpawn(World world, BlockPos pos) {
 		${name}PortalBlock.Size portalsize = this.isValid(world, pos);
@@ -61,7 +67,7 @@ public static class ${name}PortalBlock extends NetherPortalBlock {
 		 .replace("NetherPortalBlock.", name + "PortalBlock.")
 		 .replace("isPortal", "isValid")}
 
-	${mcc.getMethod("net.minecraft.block.NetherPortalBlock", "createPatternHelper", "IWorld", "BlockPos")
+	@Override ${mcc.getMethod("net.minecraft.block.NetherPortalBlock", "createPatternHelper", "IWorld", "BlockPos")
 	               .replace("NetherPortalBlock.", name + "PortalBlock.")}
 
 	@Override ${mcc.getMethod("net.minecraft.block.NetherPortalBlock", "updatePostPlacement", "BlockState", "Direction", "BlockState", "IWorld", "BlockPos", "BlockPos")
@@ -89,23 +95,28 @@ public static class ${name}PortalBlock extends NetherPortalBlock {
 
 		<#if data.portalSound.toString()?has_content>
 		if (random.nextInt(110) == 0)
-			world.playSound(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
-					ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(("${data.portalSound}"))), SoundCategory.BLOCKS, 0.5f,
-					random.nextFloat() * 0.4f + 0.8f, false);
+			world.playSound(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation("${data.portalSound}")), SoundCategory.BLOCKS, 0.5f, random.nextFloat() * 0.4f + 0.8f, false);
         	</#if>
 	}
 
 	@Override public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
-		if (!entity.isPassenger() && !entity.isBeingRidden() && entity.isNonBoss() && !entity.world.isRemote && <@procedureOBJToConditionCode data.portalUseCondition/>) {
+		if (<#if hasProcedure(data.portalUseCondition)><@procedureCode data.portalUseCondition, {
+        		"x": "pos.getX()",
+        		"y": "pos.getY()",
+        		"z": "pos.getZ()",
+        		"entity": "entity",
+        		"world": "world"
+        		}, false/> && </#if>!entity.isPassenger() && !entity.isBeingRidden() && entity.isNonBoss() && !entity.world.isRemote()) {
 			if (entity.timeUntilPortal > 0) {
 				entity.timeUntilPortal = entity.getPortalCooldown();
-			} else if (entity.dimension != type) {
+			} else if (entity.dimension != DimensionType.byName(new ResourceLocation("${modid}:${registryname}"))) {
 				entity.timeUntilPortal = entity.getPortalCooldown();
-				teleportToDimension(entity, pos, type);
+				teleportToDimension(entity, pos, DimensionType.byName(new ResourceLocation("${modid}:${registryname}")));
 			} else {
 				entity.timeUntilPortal = entity.getPortalCooldown();
 				teleportToDimension(entity, pos, DimensionType.OVERWORLD);
 			}
+
 		}
 	}
 
@@ -114,7 +125,7 @@ public static class ${name}PortalBlock extends NetherPortalBlock {
 	}
 
 	private ${name}Teleporter getTeleporterForDimension(Entity entity, BlockPos pos, ServerWorld nextWorld) {
-		BlockPattern.PatternHelper bph = ${name}Dimension.${name}PortalBlock.createPatternHelper(entity.world, pos);
+		BlockPattern.PatternHelper bph = ${JavaModName}Blocks.${REGISTRYNAME}_PORTAL.get().createPatternHelper(entity.world, pos);
 		double d0 = bph.getForwards().getAxis() == Direction.Axis.X ? (double) bph.getFrontTopLeft().getZ() : (double) bph.getFrontTopLeft().getX();
 		double d1 = bph.getForwards().getAxis() == Direction.Axis.X ? entity.getPosZ() : entity.getPosX();
 		d1 = Math.abs(MathHelper.pct(d1 - (double) (bph.getForwards().rotateY().getAxisDirection() == Direction.AxisDirection.NEGATIVE ? 1 : 0), d0, d0 - (double) bph.getWidth()));
@@ -124,10 +135,10 @@ public static class ${name}PortalBlock extends NetherPortalBlock {
 
 	public static class Size ${mcc.getInnerClassBody("net.minecraft.block.NetherPortalBlock", "Size")
 					.replace("Blocks.OBSIDIAN", mappedBlockToBlock(data.portalFrame)?string)
-					.replace("Blocks.NETHER_PORTAL", "portal")
+					.replace("Blocks.NETHER_PORTAL", JavaModName + "Blocks." + registryname?upper_case + "_PORTAL.get()")
 					.replace("this.world.getBlockState(blockpos.down()).isPortalFrame(this.world, blockpos.down())",
 						"(this.world.getBlockState(blockpos.down()).getBlock() == " + mappedBlockToBlock(data.portalFrame) + ")")
 					.replace("this.world.getBlockState(framePos).isPortalFrame(this.world, framePos)",
 						"(this.world.getBlockState(framePos).getBlock() == " + mappedBlockToBlock(data.portalFrame) + ")")}
-
 }
+<#-- @formatter:on -->

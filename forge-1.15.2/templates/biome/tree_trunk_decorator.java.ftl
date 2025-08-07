@@ -32,8 +32,6 @@
 package ${package}.world.features.treedecorators;
 <#include "../mcitems.ftl">
 
-import net.minecraft.block.material.Material;
-
 public class ${name}TreeFeature extends AbstractTreeFeature<BaseTreeFeatureConfig> {
 
 		public ${name}TreeFeature() {

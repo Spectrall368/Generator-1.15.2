@@ -2,29 +2,29 @@
  # MCreator (https://mcreator.net/)
  # Copyright (C) 2012-2020, Pylo
  # Copyright (C) 2020-2023, Pylo, opensource contributors
- # 
+ #
  # This program is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
  # the Free Software Foundation, either version 3 of the License, or
  # (at your option) any later version.
- # 
+ #
  # This program is distributed in the hope that it will be useful,
  # but WITHOUT ANY WARRANTY; without even the implied warranty of
  # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  # GNU General Public License for more details.
- # 
+ #
  # You should have received a copy of the GNU General Public License
  # along with this program.  If not, see <https://www.gnu.org/licenses/>.
- # 
+ #
  # Additional permission for code generator templates (*.ftl files)
- # 
- # As a special exception, you may create a larger work that contains part or 
- # all of the MCreator code generator templates (*.ftl files) and distribute 
- # that work under terms of your choice, so long as that work isn't itself a 
- # template for code generation. Alternatively, if you modify or redistribute 
- # the template itself, you may (at your option) remove this special exception, 
- # which will cause the template and the resulting code generator output files 
- # to be licensed under the GNU General Public License without this special 
+ #
+ # As a special exception, you may create a larger work that contains part or
+ # all of the MCreator code generator templates (*.ftl files) and distribute
+ # that work under terms of your choice, so long as that work isn't itself a
+ # template for code generation. Alternatively, if you modify or redistribute
+ # the template itself, you may (at your option) remove this special exception,
+ # which will cause the template and the resulting code generator output files
+ # to be licensed under the GNU General Public License without this special
  # exception.
 -->
 
@@ -36,7 +36,7 @@ package ${package}.item;
 
 <#compress>
 <#if data.toolType == "Pickaxe" || data.toolType == "Axe" || data.toolType == "Sword" || data.toolType == "Spade"
-		|| data.toolType == "Hoe" || data.toolType == "Shears" || data.toolType == "MultiTool">
+		|| data.toolType == "Hoe" || data.toolType == "Shears" || data.toolType == "Shield" || data.toolType == "MultiTool">
 public class ${name}Item extends ${data.toolType?replace("Spade", "Shovel")?replace("MultiTool", "Tiered")}Item {
 	public ${name}Item () {
 		super(<#if data.toolType == "Pickaxe" || data.toolType == "Axe" || data.toolType == "Sword"
@@ -61,7 +61,17 @@ public class ${name}Item extends ${data.toolType?replace("Spade", "Shovel")?repl
 				}
 
 				public int getHarvestLevel() {
-					return ${data.harvestLevel};
+					<#if data.blockDropsTier == "WOOD" || data.blockDropsTier == "GOLD">
+					return 0;
+					<#elseif data.blockDropsTier == "STONE">
+					return 1;
+					<#elseif data.blockDropsTier == "IRON">
+					return 2;
+					<#elseif data.blockDropsTier == "DIAMOND">
+					return 3;
+					<#else>
+					return 4;
+					</#if>
 				}
 
 				public int getEnchantability() {
@@ -69,15 +79,7 @@ public class ${name}Item extends ${data.toolType?replace("Spade", "Shovel")?repl
 				}
 
 				public Ingredient getRepairMaterial() {
-					<#if data.repairItems?has_content>
-					return Ingredient.fromStacks(
-						<#list data.repairItems as repairItem>
-						${mappedMCItemToItemStackCode(repairItem,1)}<#sep>,
-						</#list>
-					);
-					<#else>
-					return Ingredient.EMPTY;
-					</#if>
+					return ${mappedMCItemsToIngredient(data.repairItems)};
 				}
 			},
 
@@ -86,13 +88,34 @@ public class ${name}Item extends ${data.toolType?replace("Spade", "Shovel")?repl
 			</#if>
 
 				new Item.Properties()
-			 	.group(${data.creativeTab})
-		<#elseif data.toolType=="Shears">
-			new ShearsItem(Item.Properties()
-				.group(${data.creativeTab})
-				.maxDamage(${data.usageCount}))
+				.group(<@CreativeTabs data.creativeTabs/>)
+				<#if data.stayInGridWhenCrafting && data.usageCount != 0>
+				.setNoRepair()
+				</#if>
+		<#elseif data.toolType == "Shears" || data.toolType == "Shield">
+			new Item.Properties()
+				.group(<@CreativeTabs data.creativeTabs/>)
+				.maxDamage(${data.usageCount})
+				<#if data.stayInGridWhenCrafting && data.usageCount != 0>
+				.setNoRepair()
+				</#if>
 		</#if>);
 	}
+
+	<#if hasProcedure(data.additionalDropCondition)>
+	@Override public boolean canHarvestBlock(ItemStack itemstack, BlockState blockstate) {
+		return super.canHarvestBlock(itemstack, blockstate) && <@procedureCode data.additionalDropCondition, {
+			"itemstack": "itemstack",
+			"blockstate": "blockstate"
+		}, false/>;
+	}
+	</#if>
+
+	<#if data.toolType == "Shield" && data.repairItems?has_content>
+	@Override public boolean getIsRepairable(ItemStack itemstack, ItemStack repairitem) {
+		return ${mappedMCItemsToIngredient(data.repairItems)}.test(repairitem);
+	}
+	</#if>
 
 	<#if data.toolType=="Shears">
 		@Override public int getItemEnchantability() {
@@ -102,23 +125,41 @@ public class ${name}Item extends ${data.toolType?replace("Spade", "Shovel")?repl
 		@Override public float getDestroySpeed(ItemStack stack, BlockState blockstate) {
 			return ${data.efficiency}f;
 		}
-
 	<#elseif data.toolType=="MultiTool">
 		@Override public boolean canHarvestBlock(BlockState blockstate) {
-		      return ${data.harvestLevel} >= state.getHarvestLevel();
-		   }
+			<#if hasProcedure(data.additionalDropCondition)>
+				if(!<@procedureCode data.additionalDropCondition, {
+					"itemstack": "this.getDefaultInstance()",
+					"blockstate": "blockstate"
+				}, false/>) return false;
+			</#if>
+			return <#if data.blockDropsTier == "WOOD" || data.blockDropsTier == "GOLD">
+			0
+			<#elseif data.blockDropsTier == "STONE">
+			1
+			<#elseif data.blockDropsTier == "IRON">
+			2
+			<#elseif data.blockDropsTier == "DIAMOND">
+			3
+			<#else>
+			4
+			</#if> >= state.getHarvestLevel();
+		}
 
 		@Override public float getDestroySpeed(ItemStack itemstack, BlockState blockstate) {
 			return ${data.efficiency}f;
 		}
 
 		@Override public Multimap<String, AttributeModifier> getAttributeModifiers(EquipmentSlotType equipmentSlot) {
-			Multimap<String, AttributeModifier> multimap = super.getAttributeModifiers(equipmentSlot);
-				if (equipmentSlot == EquipmentSlotType.MAINHAND) {
-		         		multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Tool modifier", ${data.damageVsEntity - 1}f, AttributeModifier.Operation.ADDITION));
-		         		multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(ATTACK_SPEED_MODIFIER, "Tool modifier", ${data.attackSpeed - 4}, AttributeModifier.Operation.ADDITION));
-		      		}
-			return multimap;
+			if (equipmentSlot == EquipmentSlotType.MAINHAND) {
+				ImmutableMultimap.Builder<String, AttributeModifier> builder = ImmutableMultimap.builder();
+				builder.putAll(super.getAttributeModifiers(equipmentSlot));
+				builder.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Tool modifier", ${data.damageVsEntity - 1}f, AttributeModifier.Operation.ADDITION));
+				builder.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(ATTACK_SPEED_MODIFIER, "Tool modifier", ${data.attackSpeed - 4}, AttributeModifier.Operation.ADDITION));
+				return builder.build();
+			}
+
+			return super.getAttributeModifiers(equipmentSlot);
 		}
 	</#if>
 
@@ -142,23 +183,24 @@ public class ${name}Item extends Item {
 
 	public ${name}Item() {
 		super(new Item.Properties()
-			.group(${data.creativeTab})
+			.group(<@CreativeTabs data.creativeTabs/>)
 			.maxDamage(${data.usageCount})
+			<#if data.stayInGridWhenCrafting && data.usageCount != 0>
+			.setNoRepair()
+			</#if>
 		);
 	}
 
 	@Override public float getDestroySpeed(ItemStack itemstack, BlockState blockstate) {
-	<#list data.blocksAffected as restrictionBlock>
-        	if (blockstate.getBlock() == ${mappedBlockToBlock(restrictionBlock)})
-                 	return ${data.efficiency}f;
-        </#list>
-		return 1;
+	    <#assign hasDefaultTag = data.blocksAffected?has_content && replaceInList(data.blocksAffected, "minecraft:stone_ore_replaceables", "stone_ore_replaceables")?seq_contains("TAG:stone_ore_replaceables")>
+	    <#if hasDefaultTag>Block blockAt = blockstate.getBlock();</#if>
+		return <#if data.blocksAffected?has_content><#if hasDefaultTag>blockAt == Blocks.STONE || blockAt == Blocks.GRANITE || blockAt == Blocks.DIORITE || blockAt == Blocks.ANDESITE <#if (data.blocksAffected?size > 1)>|| </#if></#if><#if !hasDefaultTag || (data.blocksAffected?size > 1)>${containsAnyOfBlocks(removeFromList(removeFromList(data.blocksAffected, "TAG:stone_ore_replaceables"), "TAG:minecraft:stone_ore_replaceables"), "blockstate")}</#if> ? ${data.efficiency}f : </#if>1;
 	}
 
 	<@onBlockDestroyedWith data.onBlockDestroyedWithTool, true/>
 
 	<@onEntityHitWith data.onEntityHitWith, true/>
-	
+
 	<@onRightClickedInAir data.onRightClickedInAir/>
 
 	@Override public int getItemEnchantability() {
@@ -166,12 +208,15 @@ public class ${name}Item extends Item {
 	}
 
 	@Override public Multimap<String, AttributeModifier> getAttributeModifiers(EquipmentSlotType equipmentSlot) {
-		Multimap<String, AttributeModifier> multimap = super.getAttributeModifiers(equipmentSlot);
 		if (equipmentSlot == EquipmentSlotType.MAINHAND) {
-			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Tool modifier", ${data.damageVsEntity - 1}f, AttributeModifier.Operation.ADDITION));
-			multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(ATTACK_SPEED_MODIFIER, "Tool modifier", ${data.attackSpeed - 4}, AttributeModifier.Operation.ADDITION));
+			ImmutableMultimap.Builder<String, AttributeModifier> builder = ImmutableMultimap.builder();
+			builder.putAll(super.getAttributeModifiers(equipmentSlot));
+			builder.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Tool modifier", ${data.damageVsEntity - 1}f, AttributeModifier.Operation.ADDITION));
+			builder.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(ATTACK_SPEED_MODIFIER, "Tool modifier", ${data.attackSpeed - 4}, AttributeModifier.Operation.ADDITION));
+			return builder.build();
 		}
-		return multimap;
+
+		return super.getAttributeModifiers(equipmentSlot);
 	}
 
 	<@commonMethods/>
@@ -181,19 +226,17 @@ public class ${name}Item extends FishingRodItem {
 
 	public ${name}Item() {
 		super(new Item.Properties()
-			.group(${data.creativeTab})
+			.group(<@CreativeTabs data.creativeTabs/>)
 			.maxDamage(${data.usageCount})
+			<#if data.stayInGridWhenCrafting && data.usageCount != 0>
+			.setNoRepair()
+			</#if>
 		);
 	}
 
 	<#if data.repairItems?has_content>
-	@Override public boolean getIsRepairable(ItemStack itemstack, ItemStack repairitem) {
-                Item repairItem = repair.getItem();
-                return
-                <#list data.repairItems as repairItem>
-                	repairItem == ${mappedMCItemToItem(repairItem)}
-                	<#if repairItem?has_next>||</#if>
-                </#list>;
+    	@Override public boolean getIsRepairable(ItemStack itemstack, ItemStack repairitem) {
+		return ${mappedMCItemsToIngredient(data.repairItems)}.test(repairitem);
 	}
 	</#if>
 
@@ -207,8 +250,8 @@ public class ${name}Item extends FishingRodItem {
 
 	<#if hasProcedure(data.onRightClickedInAir)>
 	@Override public ActionResult<ItemStack> onItemRightClick(World world, PlayerEntity entity, Hand hand) {
-		ActionResult<ItemStack> retval = super.onItemRightClick(world, entity, hand);
-		ItemStack itemstack = retval.getResult();
+		super.onItemRightClick(world, entity, hand);
+		ItemStack itemstack = entity.getHeldItem(hand);
 		<@procedureCode data.onRightClickedInAir, {
 			"x": "entity.getPosX()",
 			"y": "entity.getPosY()",
@@ -218,7 +261,7 @@ public class ${name}Item extends FishingRodItem {
 			"itemstack": "itemstack"
 		}/>
 
-		return retval;
+		return world.isRemote() ? ActionResult.resultSuccess(itemstack) : ActionResult.resultConsume(itemstack);
 	}
 	</#if>
 
@@ -241,24 +284,14 @@ public class ${name}Item extends FishingRodItem {
 				}
 				return retval;
 			}
-
-			@Override public boolean isRepairable(ItemStack itemstack) {
-				return false;
-			}
 		<#else>
 			@Override public ItemStack getContainerItem(ItemStack itemstack) {
 				return new ItemStack(this);
 			}
-
-			<#if data.usageCount != 0>
-				@Override public boolean isRepairable(ItemStack itemstack) {
-					return false;
-				}
-			</#if>
 		</#if>
 	</#if>
 
-	<@addSpecialInformation data.specialInfo/>
+	<@addSpecialInformation data.specialInformation, "item." + modid + "." + registryname/>
 
 	<@onItemUsedOnBlock data.onRightClickedOnBlock/>
 
@@ -266,12 +299,24 @@ public class ${name}Item extends FishingRodItem {
 
 	<@onEntitySwing data.onEntitySwing/>
 
-	<@onStoppedUsing data.onStoppedUsing/>
-
 	<@onItemTick data.onItemInUseTick, data.onItemInInventoryTick/>
 
-	<#if data.hasGlow>
 	<@hasGlow data.glowCondition/>
-	</#if>
 </#macro>
 <#-- @formatter:on -->
+<#function removeFromList list value>
+    <#local filteredList = []>
+    <#list list as item>
+        <#if item != value>
+            <#local filteredList = filteredList + [item]>
+        </#if>
+    </#list>
+    <#return filteredList>
+</#function>
+<#function replaceInList list oldValue newValue>
+    <#local replacedList = []>
+    <#list list as item>
+        <#local replacedList = replacedList + [item?replace(oldValue, newValue)]>
+    </#list>
+    <#return replacedList>
+</#function>

@@ -436,4 +436,4 @@ tags:
   - tag: BLOCKS:minecraft:climbable
     condition: isLadder
 
-field_exclusions: [animations, sensitiveToVibration, vibrationSensitivityRadius, vibrationalEvents, canReceiveVibrationCondition, onReceivedVibration]
+field_exclusions: [immuneToFire, animations, sensitiveToVibration, vibrationSensitivityRadius, vibrationalEvents, canReceiveVibrationCondition, onReceivedVibration]

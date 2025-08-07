@@ -1,7 +1,7 @@
 <#--
  # MCreator (https://mcreator.net/)
  # Copyright (C) 2012-2020, Pylo
- # Copyright (C) 2020-2024, Pylo, opensource contributors
+ # Copyright (C) 2020-2023, Pylo, opensource contributors
  #
  # This program is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
@@ -30,20 +30,16 @@
 
 <#-- @formatter:off -->
 /*
- *	MCreator note: This file will be REGENERATED on each build.
+ *    MCreator note: This file will be REGENERATED on each build.
  */
 package ${package}.init;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT) public class ${JavaModName}Screens {
+public class ${JavaModName}Dimensions {
 
-	@SubscribeEvent public static void clientLoad(FMLClientSetupEvent event) {
-		<#list guis as gui>
-			ScreenManager.registerFactory(${JavaModName}Menus.${gui.getModElement().getRegistryNameUpper()}.get(), ${gui.getModElement().getName()}Screen::new);
-		</#list>
-	}
+	public static final DeferredRegister<ModDimension> REGISTRY = new DeferredRegister<>(ForgeRegistries.MOD_DIMENSIONS, ${JavaModName}.MODID);
 
-	public interface ScreenAccessor {
-		void updateMenuState(int elementType, String name, Object elementState);
-	}
+	<#list dimensions as dimension>
+		public static final RegistryObject<ModDimension> ${dimension.getModElement().getRegistryNameUpper()} = REGISTRY.register("${dimension.getModElement().getRegistryName()}", () -> new ${dimension.getModElement().getName()}Dimension.${dimension.getModElement().getName()}ModDimension());
+	</#list>
 }
 <#-- @formatter:on -->

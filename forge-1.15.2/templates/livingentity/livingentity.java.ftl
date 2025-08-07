@@ -1,7 +1,7 @@
 <#--
  # MCreator (https://mcreator.net/)
  # Copyright (C) 2012-2020, Pylo
- # Copyright (C) 2020-2023, Pylo, opensource contributors
+ # Copyright (C) 2020-2024, Pylo, opensource contributors
  # 
  # This program is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
@@ -31,52 +31,77 @@
 <#-- @formatter:off -->
 <#include "../mcitems.ftl">
 <#include "../procedures.java.ftl">
-<#include "../particles.java.ftl">
 package ${package}.entity;
 
-import net.minecraft.block.material.Material;
-import net.minecraft.util.SoundEvent;
-
+import net.minecraft.network.datasync.DataParameter;
+<#assign interfaces = []>
 <#assign extendsClass = "Creature">
-
-<#if data.aiBase != "(none)" >
+<#if data.aiBase != "(none)">
 	<#assign extendsClass = data.aiBase>
 <#else>
-	<#assign extendsClass = data.mobBehaviourType.replace("Mob", "Monster")>
+	<#assign extendsClass = data.mobBehaviourType?replace("Mob", "Monster")?replace("Raider", "AbstractRaider")>
 </#if>
-
 <#if data.breedable>
 	<#assign extendsClass = "Animal">
 </#if>
-
 <#if (data.tameable && data.breedable)>
 	<#assign extendsClass = "Tameable">
 </#if>
+<#if data.ranged>
+	<#assign interfaces += ["IRangedAttackMob"]>
+</#if>
 
-<#if data.spawnThisMob>@Mod.EventBusSubscriber</#if>
-public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implements IRangedAttackMob</#if> {
+public class ${name}Entity extends ${extendsClass}Entity <#if interfaces?size gt 0>implements ${interfaces?join(",")}</#if> {
+
+	<#if data.spawnThisMob>
+	private static final Set<ResourceLocation> GENERATE_BIOMES =
+	<#if data.restrictionBiomes?has_content>
+	ImmutableSet.of(
+		<#list w.filterBrokenReferences(data.restrictionBiomes) as restrictionBiome>
+		    <#assign expandedBiomes = expandBiomeTag(restrictionBiome)>
+		    <#list expandedBiomes as expandedBiome>
+			new ResourceLocation("${expandedBiome}")<#sep>,
+		    </#list><#sep>,
+        </#list>
+        );
+        <#else>
+        null;
+        </#if>
+	</#if>
+
+	<#list data.entityDataEntries as entry>
+		<#if entry.value().getClass().getSimpleName() == "Integer">
+			public static final DataParameter<Integer> DATA_${entry.property().getName()} = EntityDataManager.createKey(${name}Entity.class, DataSerializers.VARINT);
+		<#elseif entry.value().getClass().getSimpleName() == "Boolean">
+			public static final DataParameter<Boolean> DATA_${entry.property().getName()} = EntityDataManager.createKey(${name}Entity.class, DataSerializers.BOOLEAN);
+		<#elseif entry.value().getClass().getSimpleName() == "String">
+			public static final DataParameter<String> DATA_${entry.property().getName()} = EntityDataManager.createKey(${name}Entity.class, DataSerializers.STRING);
+		</#if>
+	</#list>
+
 	<#if data.isBoss>
 	private final ServerBossInfo bossInfo = new ServerBossInfo(this.getDisplayName(),
 		BossInfo.Color.${data.bossBarColor}, BossInfo.Overlay.${data.bossBarType});
 	</#if>
 
 	public ${name}Entity(FMLPlayMessages.SpawnEntity packet, World world) {
-    	this(${JavaModName}Entities.${data.getModElement().getRegistryNameUpper()}, world);
+    	this(${JavaModName}Entities.${REGISTRYNAME}.get(), world);
     }
 
 	public ${name}Entity(EntityType<${name}Entity> type, World world) {
     	super(type, world);
+		stepHeight = ${data.stepHeight}f;
 		experienceValue = ${data.xpAmount};
 		setNoAI(${(!data.hasAI)});
 
-		<#if data.mobLabel?has_content >
+		<#if data.mobLabel?has_content>
         	setCustomName(new StringTextComponent("${data.mobLabel}"));
         	setCustomNameVisible(true);
-        	</#if>
+        </#if>
 
 		<#if !data.doesDespawnWhenIdle>
 			enablePersistence();
-        	</#if>
+        </#if>
 
 	<#if !data.equipmentMainHand.isEmpty()>
         this.setItemStackToSlot(EquipmentSlotType.MAINHAND, ${mappedMCItemToItemStackCode(data.equipmentMainHand, 1)});
@@ -121,7 +146,7 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 					if (${name}Entity.this.isInWater()) {
 						${name}Entity.this.setAIMoveSpeed((float) ${name}Entity.this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue());
 
-						float f2 = - (float) (MathHelper.atan2(dy, (float) Math.sqrt(dx * dx + dz * dz)) * (180 / Math.PI));
+						float f2 = - (float) (MathHelper.atan2(dy, (float) MathHelper.sqrt(dx * dx + dz * dz)) * (180 / Math.PI));
 						f2 = MathHelper.clamp(MathHelper.wrapDegrees(f2), -85, 85);
 						${name}Entity.this.rotationPitch = this.limitAngle(${name}Entity.this.rotationPitch, f2, 5);
 						float f3 = MathHelper.cos(${name}Entity.this.rotationPitch * (float) (Math.PI / 180.0));
@@ -139,11 +164,24 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 			}
 		};
 		</#if>
+
+		<#if data.boundingBoxScale?? && data.boundingBoxScale.getFixedValue() != 1 && !hasProcedure(data.boundingBoxScale)>
+		recalculateSize();
+		</#if>
 	}
 
 	@Override public IPacket<?> createSpawnPacket() {
 		return NetworkHooks.getEntitySpawningPacket(this);
 	}
+
+	<#if data.entityDataEntries?has_content>
+	@Override protected void registerData() {
+		super.registerData();
+		<#list data.entityDataEntries as entry>
+			this.dataManager.register(DATA_${entry.property().getName()}, ${entry.value()?is_string?then("\"" + entry.value() + "\"", entry.value())});
+		</#list>
+	}
+	</#if>
 
 	<#if data.flyingMob>
 	@Override protected PathNavigator createNavigator(World world) {
@@ -166,11 +204,14 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 		super.registerGoals();
 
 		<#if aicode??>
+			<#if aiblocks?seq_contains("doors_open") || aiblocks?seq_contains("doors_close")>
+				this.getNavigator().getNodeProcessor().setCanOpenDoors(true);
+			</#if>
             ${aicode}
         </#if>
 
         <#if data.ranged>
-            this.goalSelector.addGoal(1, new RangedAttackGoal(this, 1.25, 20, 10) {
+            this.goalSelector.addGoal(1, new RangedAttackGoal(this, 1.25, ${data.rangedAttackInterval}, ${data.rangedAttackRadius}f) {
 				@Override public boolean shouldContinueExecuting() {
 					return this.shouldExecute();
 				}
@@ -182,6 +223,8 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 	@Override public CreatureAttribute getCreatureAttribute() {
 		return CreatureAttribute.${data.mobCreatureType};
 	}
+
+	${extra_templates_code}
 
 	<#if !data.doesDespawnWhenIdle>
 	@Override public boolean canDespawn(double distanceToClosestPlayer) {
@@ -208,7 +251,7 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 	<#if !data.mobDrop.isEmpty()>
     	protected void dropSpecialItems(DamageSource source, int looting, boolean recentlyHitIn) {
         	super.dropSpecialItems(source, looting, recentlyHitIn);
-       		this.entityDropItem(${mappedMCItemToItemStackCode(data.mobDrop, 1)});
+        	this.entityDropItem(${mappedMCItemToItemStackCode(data.mobDrop, 1)});
    	}
 	</#if>
 
@@ -232,6 +275,16 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 		return ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation("${data.deathSound}"));
 	}
 
+	<#if data.mobBehaviourType == "Raider">
+	@Override public SoundEvent getRaidLossSound() {
+		<#if data.raidCelebrationSound?has_content && data.raidCelebrationSound.getMappedValue()?has_content>
+		return ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation("${data.raidCelebrationSound}"));
+		<#else>
+		return null;
+		</#if>
+	}
+	</#if>
+
 	<#if hasProcedure(data.onStruckByLightning)>
 	@Override public void onStruckByLightning(LightningBoltEntity lightningBolt) {
 		super.onStruckByLightning(lightningBolt);
@@ -253,82 +306,88 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 				"y": "this.getPosY()",
 				"z": "this.getPosZ()",
 				"entity": "this",
-				"world": "this.world"
+				"world": "this.world",
+				"damagesource": "source"
 			}/>
 		</#if>
 
-		<#if data.flyingMob >
+		<#if data.flyingMob>
 			return false;
 		<#else>
 			return super.onLivingFall(l, d);
 		</#if>
 	}
-    	</#if>
+    </#if>
 
 	<#if hasProcedure(data.whenMobIsHurt) || data.immuneToArrows || data.immuneToFallDamage
 		|| data.immuneToCactus || data.immuneToDrowning || data.immuneToLightning || data.immuneToPotions
 		|| data.immuneToPlayer || data.immuneToExplosion || data.immuneToTrident || data.immuneToAnvil
 		|| data.immuneToDragonBreath || data.immuneToWither>
-	@Override public boolean attackEntityFrom(DamageSource source, float amount) {
+	@Override public boolean attackEntityFrom(DamageSource damagesource, float amount) {
 		<#if hasProcedure(data.whenMobIsHurt)>
-			<@procedureCode data.whenMobIsHurt, {
-				"x": "this.getPosX()",
-				"y": "this.getPosY()",
-				"z": "this.getPosZ()",
-				"entity": "this",
-				"world": "this.world",
-				"sourceentity": "source.getTrueSource()"
-			}/>
+			double x = this.getPosX();
+			double y = this.getPosY();
+			double z = this.getPosZ();
+			World world = this.world;
+			Entity entity = this;
+			Entity sourceentity = damagesource.getTrueSource();
+			Entity immediatesourceentity = damagesource.getImmediateSource();
+			<#if hasReturnValueOf(data.whenMobIsHurt, "logic")>
+			if (<@procedureOBJToConditionCode data.whenMobIsHurt false true/>)
+				return false;
+			<#else>
+				<@procedureOBJToCode data.whenMobIsHurt/>
+			</#if>
 		</#if>
 		<#if data.immuneToArrows>
-			if (source.getImmediateSource() instanceof AbstractArrowEntity)
+			if (damagesource.getImmediateSource() instanceof AbstractArrowEntity)
 				return false;
 		</#if>
 		<#if data.immuneToPlayer>
-			if (source.getImmediateSource() instanceof PlayerEntity)
+			if (damagesource.getImmediateSource() instanceof PlayerEntity)
 				return false;
 		</#if>
 		<#if data.immuneToPotions>
-			if (source.getImmediateSource() instanceof PotionEntity || source.getImmediateSource() instanceof AreaEffectCloudEntity)
+			if (damagesource.getImmediateSource() instanceof PotionEntity || damagesource.getImmediateSource() instanceof AreaEffectCloudEntity)
 				return false;
 		</#if>
 		<#if data.immuneToFallDamage>
-			if (source == DamageSource.FALL)
+			if (damagesource == DamageSource.FALL)
 				return false;
 		</#if>
 		<#if data.immuneToCactus>
-			if (source == DamageSource.CACTUS)
+			if (damagesource == DamageSource.CACTUS)
 				return false;
 		</#if>
 		<#if data.immuneToDrowning>
-			if (source == DamageSource.DROWN)
+			if (damagesource == DamageSource.DROWN)
 				return false;
 		</#if>
 		<#if data.immuneToLightning>
-			if (source == DamageSource.LIGHTNING_BOLT)
+			if (damagesource == DamageSource.LIGHTNING_BOLT)
 				return false;
 		</#if>
 		<#if data.immuneToExplosion>
-			if (source.isExplosion())
+			if (damagesource.isExplosion())
 				return false;
 		</#if>
 		<#if data.immuneToTrident>
-			if (source.getDamageType().equals("trident"))
+			if (damagesource.getDamageType().equals("trident"))
 				return false;
 		</#if>
 		<#if data.immuneToAnvil>
-			if (source == DamageSource.ANVIL)
+			if (damagesource == DamageSource.ANVIL)
 				return false;
 		</#if>
 		<#if data.immuneToDragonBreath>
-			if (source == DamageSource.DRAGON_BREATH)
+			if (damagesource == DamageSource.DRAGON_BREATH)
 				return false;
 		</#if>
 		<#if data.immuneToWither>
-			if (source == DamageSource.WITHER || (source.getDamageType().equals("mob") && source.getImmediateSource() instanceof WitherSkullEntity))
+			if (damagesource == DamageSource.WITHER || damagesource.getDamageType().equals("witherSkull"))
 				return false;
 		</#if>
-		return super.attackEntityFrom(source, amount);
+		return super.attackEntityFrom(damagesource, amount);
 	}
     </#if>
 
@@ -346,14 +405,17 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 			"y": "this.getPosY()",
 			"z": "this.getPosZ()",
 			"sourceentity": "source.getTrueSource()",
+			"immediatesourceentity": "source.getImmediateSource()",
 			"entity": "this",
-			"world": "this.world"
+			"world": "this.world",
+			"damagesource": "source"
 		}/>
 	}
     </#if>
 
 	<#if hasProcedure(data.onInitialSpawn)>
-	@Override public ILivingEntityData onInitialSpawn(IWorld world, DifficultyInstance difficulty, SpawnReason reason, ILivingEntityData livingdata, CompoundNBT tag) {
+	@Override public ILivingEntityData onInitialSpawn(IWorld world, DifficultyInstance difficulty,
+			SpawnReason reason, @Nullable ILivingEntityData livingdata, @Nullable CompoundNBT tag) {
 		ILivingEntityData retval = super.onInitialSpawn(world, difficulty, reason, livingdata, tag);
 		<@procedureCode data.onInitialSpawn, {
 			"x": "this.getPosX()",
@@ -366,12 +428,14 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 	}
     </#if>
 
-	<#if data.guiBoundTo?has_content && data.guiBoundTo != "<NONE>">
-	private final ItemStackHandler inventory = new ItemStackHandler(${data.inventorySize}) {
+	<#if data.guiBoundTo?has_content>
+	private final ItemStackHandler inventory = new ItemStackHandler(${data.inventorySize})
+	<#if data.inventoryStackSize != 99>
 		@Override public int getSlotLimit(int slot) {
 			return ${data.inventoryStackSize};
 		}
-	};
+	}
+	</#if>;
 
 	private final CombinedInvWrapper combined = new CombinedInvWrapper(inventory, new EntityHandsInvWrapper(this), new EntityArmorInvWrapper(this));
 
@@ -391,28 +455,52 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 			}
 		}
 	}
+	</#if>
 
+	<#if data.entityDataEntries?has_content || data.guiBoundTo?has_content>
 	@Override public void writeAdditional(CompoundNBT compound) {
-    		super.writeAdditional(compound);
+		super.writeAdditional(compound);
+		<#list data.entityDataEntries as entry>
+			<#if entry.value().getClass().getSimpleName() == "Integer">
+			compound.putInt("Data${entry.property().getName()}", this.dataManager.get(DATA_${entry.property().getName()}));
+			<#elseif entry.value().getClass().getSimpleName() == "Boolean">
+			compound.putBoolean("Data${entry.property().getName()}", this.dataManager.get(DATA_${entry.property().getName()}));
+			<#elseif entry.value().getClass().getSimpleName() == "String">
+			compound.putString("Data${entry.property().getName()}", this.dataManager.get(DATA_${entry.property().getName()}));
+			</#if>
+		</#list>
+		<#if data.guiBoundTo?has_content>
 		compound.put("InventoryCustom", inventory.serializeNBT());
+		</#if>
 	}
 
 	@Override public void readAdditional(CompoundNBT compound) {
     		super.readAdditional(compound);
-		INBT inventoryCustom = compound.get("InventoryCustom");
-		if(inventoryCustom instanceof CompoundNBT)
-			inventory.deserializeNBT((CompoundNBT) inventoryCustom);
-    }
-    </#if>
+		<#list data.entityDataEntries as entry>
+			if (compound.contains("Data${entry.property().getName()}"))
+			<#if entry.value().getClass().getSimpleName() == "Integer">
+				this.dataManager.set(DATA_${entry.property().getName()}, compound.getInt("Data${entry.property().getName()}"));
+			<#elseif entry.value().getClass().getSimpleName() == "Boolean">
+				this.dataManager.set(DATA_${entry.property().getName()}, compound.getBoolean("Data${entry.property().getName()}"));
+			<#elseif entry.value().getClass().getSimpleName() == "String">
+				this.dataManager.set(DATA_${entry.property().getName()}, compound.getString("Data${entry.property().getName()}"));
+			</#if>
+		</#list>
+		<#if data.guiBoundTo?has_content>
+		if (compound.get("InventoryCustom") instanceof CompoundNBT)
+			inventory.deserializeNBT((CompoundNBT) compound.get("InventoryCustom"));
+		</#if>
+	}
+	</#if>
 
-	<#if hasProcedure(data.onRightClickedOn) || data.ridable || (data.tameable && data.breedable) || (data.guiBoundTo?has_content && data.guiBoundTo != "<NONE>")>
+	<#if hasProcedure(data.onRightClickedOn) || data.ridable || (data.tameable && data.breedable) || data.guiBoundTo?has_content>
 	@Override public boolean processInteract(PlayerEntity sourceentity, Hand hand) {
 		ItemStack itemstack = sourceentity.getHeldItem(hand);
-		boolean retval = this.world.isRemote;
+		boolean retval = this.world.isRemote();
 
-		<#if data.guiBoundTo?has_content && data.guiBoundTo != "<NONE>">
+		<#if data.guiBoundTo?has_content>
 			<#if data.ridable>
-				if (sourceentity.isSneaking()) {
+				if (sourceentity.isSecondaryUseActive()) {
 			</#if>
 				if(sourceentity instanceof ServerPlayerEntity) {
 					NetworkHooks.openGui((ServerPlayerEntity) sourceentity, new INamedContainerProvider() {
@@ -423,20 +511,20 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 
 						@Override public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
 							PacketBuffer packetBuffer = new PacketBuffer(Unpooled.buffer());
-							packetBuffer.writeBlockPos(sourceentity.blockPosition());
+							packetBuffer.writeBlockPos(sourceentity.getPosition());
 							packetBuffer.writeByte(0);
 							packetBuffer.writeVarInt(${name}Entity.this.getEntityId());
 							return new ${data.guiBoundTo}Menu(id, inventory, packetBuffer);
 						}
 
 					}, buf -> {
-						buf.writeBlockPos(sourceentity.blockPosition());
+						buf.writeBlockPos(sourceentity.getPosition());
 						buf.writeByte(0);
 						buf.writeVarInt(this.getEntityId());
 					});
 				}
 			<#if data.ridable>
-					return this.world.isRemote;
+					return this.world.isRemote();
 				}
 			</#if>
 		</#if>
@@ -445,19 +533,20 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 			Item item = itemstack.getItem();
 			if (itemstack.getItem() instanceof SpawnEggItem) {
 				retval = super.processInteract(sourceentity, hand);
-			} else if (this.world.isRemote) {
-				retval = this.isTamed() && this.isOwner(sourceentity) || this.isBreedingItem(itemstack) ? this.world.isRemote;
+			} else if (this.world.isRemote()) {
+				retval = (this.isTamed() && this.isOwner(sourceentity) || this.isBreedingItem(itemstack))
+						? this.world.isRemote();
 			} else {
 				if (this.isTamed()) {
 					if (this.isOwner(sourceentity)) {
 						if (item.isFood() && this.isBreedingItem(itemstack) && this.getHealth() < this.getMaxHealth()) {
 							this.consumeItemFromStack(sourceentity, itemstack);
 							this.heal((float)item.getFood().getHealing());
-							retval = this.world.isRemote;
+							retval = this.world.isRemote();
 						} else if (this.isBreedingItem(itemstack) && this.getHealth() < this.getMaxHealth()) {
 							this.consumeItemFromStack(sourceentity, itemstack);
 							this.heal(4);
-							retval = this.world.isRemote;
+							retval = this.world.isRemote();
 						} else {
 							retval = super.processInteract(sourceentity, hand);
 						}
@@ -472,7 +561,7 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 					}
 
 					this.enablePersistence();
-					retval = this.world.isRemote;
+					retval = this.world.isRemote();
 				} else {
 					retval = super.processInteract(sourceentity, hand);
 					if (retval)
@@ -494,7 +583,7 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 			Entity entity = this;
 			World world = this.world;
 			<#if hasReturnValueOf(data.onRightClickedOn, "actionresulttype")>
-				return <@procedureOBJToInteractionResultCode data.onRightClickedOn/> != ActionResultType.FAIL;
+				return <@procedureOBJToInteractionResultCode data.onRightClickedOn/>.isSuccessOrConsume();
 			<#else>
 				<@procedureOBJToCode data.onRightClickedOn/>
 				return retval;
@@ -514,21 +603,28 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 			"z": "this.getPosZ()",
 			"entity": "entity",
 			"sourceentity": "this",
-			"world": "this.world"
+			"immediatesourceentity": "entity.getLastDamageSource().getImmediateSource()",
+			"world": "this.world",
+			"damagesource": "entity.getLastDamageSource()"
 		}/>
 	}
     </#if>
 
-	<#if hasProcedure(data.onMobTickUpdate)>
+	<#if hasProcedure(data.onMobTickUpdate) || hasProcedure(data.boundingBoxScale)>
 	@Override public void baseTick() {
 		super.baseTick();
-		<@procedureCode data.onMobTickUpdate, {
-			"x": "this.getPosX()",
-			"y": "this.getPosY()",
-			"z": "this.getPosZ()",
-			"entity": "this",
-			"world": "this.world"
-		}/>
+		<#if hasProcedure(data.onMobTickUpdate)>
+			<@procedureCode data.onMobTickUpdate, {
+				"x": "this.getPosX()",
+				"y": "this.getPosY()",
+				"z": "this.getPosZ()",
+				"entity": "this",
+				"world": "this.world"
+			}/>
+		</#if>
+		<#if hasProcedure(data.boundingBoxScale)>
+			this.recalculateSize();
+		</#if>
 	}
     </#if>
 
@@ -550,7 +646,7 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 	    @Override public void attackEntityWithRangedAttack(LivingEntity target, float flval) {
 			<#if data.rangedItemType == "Default item">
 				<#if !data.rangedAttackItem.isEmpty()>
-				${name}EntityProjectile entityarrow = new ${name}EntityProjectile(${JavaModName}Entities.${data.getModElement().getRegistryNameUpper()}_PROJECTILE.get(), this, this.world);
+				${name}EntityProjectile entityarrow = new ${name}EntityProjectile(${JavaModName}Entities.${REGISTRYNAME}_PROJECTILE.get(), this, this.world);
 				<#else>
 				ArrowEntity entityarrow = new ArrowEntity(this.world, this);
 				</#if>
@@ -567,32 +663,42 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 
 	<#if data.breedable>
         @Override public AgeableEntity createChild(AgeableEntity ageable) {
-			${name}Entity retval = ${JavaModName}Entities.${data.getModElement().getRegistryNameUpper()}.create(this.world);
-			retval.onInitialSpawn(this.world, this.world.getDifficultyForLocation(new BlockPos(retval)), SpawnReason.BREEDING, null, null);
+			${name}Entity retval = ${JavaModName}Entities.${REGISTRYNAME}.get().create(this.world);
+			retval.onInitialSpawn(this.world, this.world.getDifficultyForLocation(retval.getPosition()), SpawnReason.BREEDING, null, null);
 			return retval;
 		}
 
 		@Override public boolean isBreedingItem(ItemStack stack) {
-			List<Item> breedingItem = new ArrayList<>();
-			<#list data.breedTriggerItems as breedTriggerItem>
-			breedingItem.add(${mappedMCItemToItem(breedTriggerItem)});
-			</#list>
-			return breedingItem.contains(stack.getItem());
+			return ${mappedMCItemsToIngredient(data.breedTriggerItems)}.test(stack);
 		}
     </#if>
 
 	<#if data.waterMob>
-	@Override public boolean canBreatheUnderwater() {
-    		return true;
-    	}
-
-	@Override public boolean isNotColliding(IWorldReader world) {
+    	@Override public boolean isNotColliding(IWorldReader world) {
 		return world.checkNoEntityCollision(this);
 	}
+	</#if>
 
-    	@Override public boolean isPushedByWater() {
-		return false;
-    	}
+	<#if data.breatheUnderwater?? && (hasProcedure(data.breatheUnderwater) || data.breatheUnderwater.getFixedValue())>
+	@Override public boolean canBreatheUnderwater() {
+		double x = this.getPosX();
+		double y = this.getPosY();
+		double z = this.getPosZ();
+		World world = this.world;
+		Entity entity = this;
+		return <@procedureOBJToConditionCode data.breatheUnderwater true false/>;
+	}
+	</#if>
+
+	<#if data.pushedByFluids?? && (hasProcedure(data.pushedByFluids) || !data.pushedByFluids.getFixedValue())>
+	@Override public boolean isPushedByWater() {
+		double x = this.getPosX();
+		double y = this.getPosY();
+		double z = this.getPosZ();
+		World world = this.world;
+		Entity entity = this;
+		return <@procedureOBJToConditionCode data.pushedByFluids false false/>;
+	}
 	</#if>
 
 	<#if data.disableCollisions>
@@ -603,6 +709,23 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
    	@Override protected void collideWithEntity(Entity entityIn) {}
 
    	@Override protected void collideWithNearbyEntities() {}
+	</#if>
+
+	<#if data.solidBoundingBox?? && (hasProcedure(data.solidBoundingBox) || data.solidBoundingBox.getFixedValue())>
+	@Override public boolean canCollide(Entity entity) {
+		return true;
+	}
+
+	@Override public AxisAlignedBB getCollisionBoundingBox() {
+		<#if hasProcedure(data.solidBoundingBox)>
+		Entity entity = this;
+		World world = entity.world;
+		double x = entity.getPosX();
+		double y = entity.getPosY();
+		double z = entity.getPosZ();
+		</#if>
+		return <@procedureOBJToConditionCode data.solidBoundingBox true false/> ? this.getBoundingBox() : null;
+	}
 	</#if>
 
 	<#if data.isBoss>
@@ -638,7 +761,6 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 				this.jumpMovementFactor = this.getAIMoveSpeed() * 0.15F;
 				this.renderYawOffset = entity.rotationYaw;
 				this.rotationYawHead = entity.rotationYaw;
-				this.stepHeight = 1.0F;
 
 				if (entity instanceof LivingEntity) {
 					this.setAIMoveSpeed((float) this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue());
@@ -667,7 +789,6 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 				this.limbSwing += this.limbSwingAmount;
 				return;
 			}
-			this.stepHeight = 0.5F;
 			this.jumpMovementFactor = 0.02F;
 			</#if>
 
@@ -675,76 +796,65 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 		}
     </#if>
 
+	<#if hasProcedure(data.boundingBoxScale) || (data.boundingBoxScale?? && data.boundingBoxScale.getFixedValue() != 1)>
+	@Override public EntitySize getSize(Pose pose) {
+		<#if hasProcedure(data.boundingBoxScale)>
+			Entity entity = this;
+			World world = this.world;
+			double x = this.getPosX();
+			double y = this.getPosY();
+			double z = this.getPosZ();
+			return super.getSize(pose).scale((float) <@procedureOBJToNumberCode data.boundingBoxScale/>);
+		<#else>
+			return super.getSize(pose).scale(${data.boundingBoxScale.getFixedValue()}f);
+		</#if>
+	}
+	</#if>
+
 	<#if data.flyingMob>
-	@Override protected void updateFallState(double y, boolean onGroundIn, BlockState state, BlockPos pos) {
-   	}
+	@Override protected void updateFallState(double y, boolean onGroundIn, BlockState state, BlockPos pos) {}
 
    	@Override public void setNoGravity(boolean ignored) {
 		super.setNoGravity(true);
 	}
     </#if>
 
-    <#if data.spawnParticles || data.flyingMob>
+    <#if data.flyingMob>
     public void livingTick() {
 		super.livingTick();
 
-		<#if data.flyingMob>
 		this.setNoGravity(true);
-		</#if>
-
-		<#if data.spawnParticles>
-		double x = this.getPosX();
-		double y = this.getPosY();
-		double z = this.getPosZ();
-		Random random = this.rand;
-		Entity entity = this;
-		World world = this.world;
-		<#if hasProcedure(data.particleCondition)>
-			if(<@procedureOBJToConditionCode data.particleCondition/>)
-		</#if>
-        <@particles data.particleSpawningShape data.particleToSpawn data.particleSpawningRadious data.particleAmount/>
-		</#if>
 	}
     </#if>
 
 	public static void init() {
-		FMLJavaModLoadingContext.get().getModEventBus().register(new ${name}Renderer.ModelRegisterHandler());
-
 		<#if data.spawnThisMob>
 		for (Biome biome : ForgeRegistries.BIOMES.getValues()) {
-			<#if data.restrictionBiomes?has_content>
-				boolean biomeCriteria = false;
-				<#list data.restrictionBiomes as restrictionBiome>
-					<#if restrictionBiome.canProperlyMap()>
-					if (ForgeRegistries.BIOMES.getKey(biome).equals(new ResourceLocation("${restrictionBiome}")))
-						biomeCriteria = true;
-					</#if>
-				</#list>
-				if (!biomeCriteria)
-					continue;
-			</#if>
+		<#if data.restrictionBiomes?has_content>
+            if (SPAWN_BIOMES.contains(ForgeRegistries.BIOMES.getKey(biome)))
+            </#if>
 
-			biome.getSpawns(${generator.map(data.mobSpawningType, "mobspawntypes")}).add(new Biome.SpawnListEntry(${JavaModName}Entities.${data.getModElement().getRegistryNameUpper()}, ${data.spawningProbability},
-							${data.minNumberOfMobsPerGroup}, ${data.maxNumberOfMobsPerGroup}));
+			biome.getSpawns(${generator.map(data.mobSpawningType, "mobspawntypes")}).add(new Biome.SpawnListEntry(${JavaModName}Entities.${REGISTRYNAME}.get(), ${data.spawningProbability},
+		        ${data.minNumberOfMobsPerGroup}, ${data.maxNumberOfMobsPerGroup}));
 		}
 
+
 			<#if data.mobSpawningType == "creature">
-			EntitySpawnPlacementRegistry.register(${JavaModName}Entities.${data.getModElement().getRegistryNameUpper()},
+			EntitySpawnPlacementRegistry.register(${JavaModName}Entities.${REGISTRYNAME}.get(),
 					EntitySpawnPlacementRegistry.PlacementType.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
-				<#if hasProcedure(data.spawningCondition)>
+					<#if hasProcedure(data.spawningCondition)>
 					(entityType, world, reason, pos, random) -> {
 						int x = pos.getX();
 						int y = pos.getY();
 						int z = pos.getZ();
 						return <@procedureOBJToConditionCode data.spawningCondition/>;
 					}
-				<#else>
-					(entityType, world, reason, pos, random) ->
-							(world.getBlockState(pos.down()).getMaterial() == Material.ORGANIC && world.getLightSubtracted(pos, 0) > 8)
-				</#if>
+					<#else>
+					(entityType, world, reason, pos, random) -> (world.getBlockState(pos.down()).getMaterial() == Material.ORGANIC && world.getLightSubtracted(pos, 0) > 8)
+					</#if>
 			);
 			<#elseif data.mobSpawningType == "ambient" || data.mobSpawningType == "misc">
-			EntitySpawnPlacementRegistry.register(${JavaModName}Entities.${data.getModElement().getRegistryNameUpper()},
+			EntitySpawnPlacementRegistry.register(${JavaModName}Entities.${REGISTRYNAME}.get(),
 					EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
 					<#if hasProcedure(data.spawningCondition)>
 					(entityType, world, reason, pos, random) -> {
@@ -757,8 +867,8 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 					MobEntity::canSpawnOn
 					</#if>
 			);
-			<#elseif data.mobSpawningType == "waterCreature" || data.mobSpawningType == "waterAmbient">
-			EntitySpawnPlacementRegistry.register(${JavaModName}Entities.${data.getModElement().getRegistryNameUpper()},
+			<#elseif data.mobSpawningType == "waterCreature" || data.mobSpawningType == "waterAmbient" || data.mobSpawningType == "undergroundWaterCreature">
+			EntitySpawnPlacementRegistry.register(${JavaModName}Entities.${REGISTRYNAME}.get(),
 					EntitySpawnPlacementRegistry.PlacementType.IN_WATER, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
 					<#if hasProcedure(data.spawningCondition)>
 					(entityType, world, reason, pos, random) -> {
@@ -772,7 +882,7 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 					</#if>
 			);
 			<#else>
-			EntitySpawnPlacementRegistry.register(${JavaModName}Entities.${data.getModElement().getRegistryNameUpper()},
+			EntitySpawnPlacementRegistry.register(${JavaModName}Entities.${REGISTRYNAME}.get(),
 					EntitySpawnPlacementRegistry.PlacementType.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
 					<#if hasProcedure(data.spawningCondition)>
 					(entityType, world, reason, pos, random) -> {
@@ -789,7 +899,7 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 		</#if>
 
 		<#if data.spawnInDungeons>
-			DungeonHooks.addDungeonMob(${JavaModName}Entities.${data.getModElement().getRegistryNameUpper()}, 180);
+			DungeonHooks.addDungeonMob(${JavaModName}Entities.${REGISTRYNAME}.get(), 180);
 		</#if>
 	}
 
@@ -832,3 +942,48 @@ public class ${name}Entity extends ${extendsClass}Entity <#if data.ranged>implem
 	}
 }
 <#-- @formatter:on -->
+<#function expandBiomeTag biomeTag>
+    <#local result = []>
+
+    <#if biomeTag?contains("#")>
+        <#local biomeName = fixNamespace(biomeTag)>
+        <#local tagKey = "BIOMES:" + biomeName?substring(1)>
+
+        <#local tagFound = false>
+        <#list w.getWorkspace().getTagElements()?keys as tagElement>
+            <#if tagElement.toString().replace("mod:", modid + ":") == tagKey>
+                <#local tagFound = true>
+                <#local biomeValues = w.getWorkspace().getTagElements().get(tagElement)>
+                <#list biomeValues as biomeValue>
+                    <#if biomeValue?starts_with("#")>
+                        <#local expandedSubValues = expandBiomeTag(biomeValue?replace("mod:", modid + ":"))>
+                        <#list expandedSubValues as expandedSubValue>
+                            <#local result = result + [expandedSubValue]>
+                        </#list>
+                    <#else>
+                        <#local result = result + [generator.map(biomeValue, "biomes")]>
+                    </#if>
+                </#list>
+                <#break>
+            </#if>
+        </#list>
+
+        <#if !tagFound>
+            <#local result = result + [biomeName?substring(1)]>
+        </#if>
+    <#else>
+        <#local result = result + [biomeTag]>
+    </#if>
+
+    <#return result>
+</#function>
+<#function fixNamespace input>
+    <#assign noHash = input?starts_with("#")?then(input?substring(1), input)/>
+
+    <#if noHash?contains(":")>
+        <#return input>
+    <#else>
+        <#assign result = "minecraft:" + noHash />
+        <#return input?starts_with("#")?then("#" + result, result)/>
+    </#if>
+</#function>

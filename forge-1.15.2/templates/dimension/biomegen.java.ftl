@@ -53,11 +53,11 @@ public static class ${name}BiomeProvider extends BiomeProvider {
 			for (Biome biome : this.biomes) {
 				biome.addCarver(GenerationStage.Carving.AIR, Biome.createCarver(new CaveWorldCarver(ProbabilityConfig::deserialize, 256) {
 					{
-						carvableBlocks = ImmutableSet.of(${mappedBlockToBlock(data.mainFillerBlock)},
-							biome.getSurfaceBuilder().getConfig().getTop().getBlock(),
-							biome.getSurfaceBuilder().getConfig().getUnder().getBlock()
-						);
+						carvableBlocks = ImmutableSet.of(${mappedBlockToBlock(data.mainFillerBlock)}, 
+							biome.getSurfaceBuilder().getConfig().getTop().getBlock(), 
+							biome.getSurfaceBuilder().getConfig().getUnder().getBlock());
 					}
+
 				}, new ProbabilityConfig(0.14285715f)));
 			}
 			biomesPatched = true;
