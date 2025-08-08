@@ -118,7 +118,7 @@ public class ${name}Block extends ${getPlantClass(data.plantType)}Block
 		return state == null ? null : state.with(WATERLOGGED, context.getWorld().getFluidState(context.getPos()).getFluid() == Fluids.WATER);
 	}
 
-	@Override public FluidState getFluidState(BlockState state) {
+	@Override public IFluidState getFluidState(BlockState state) {
 		return state.get(WATERLOGGED) ? Fluids.WATER.getStillFluidState(false) : super.getFluidState(state);
 	}
 	@Override public BlockState updatePostPlacement(BlockState state, Direction facing, BlockState facingState, IWorld world, BlockPos currentPos, BlockPos facingPos) {
@@ -187,11 +187,16 @@ public class ${name}Block extends ${getPlantClass(data.plantType)}Block
 	}
 	</#if>
 
-	<#if data.emissiveRendering>
-        @OnlyIn(Dist.CLIENT) @Override public boolean isEmissiveRendering(BlockState blockState) {
+   	<#if data.emissiveRendering>
+   	@Override public boolean needsPostProcessing(BlockState state, IBlockReader world, BlockPos pos) {
 		return true;
-	}
-	</#if>
+   	}
+
+   	@OnlyIn(Dist.CLIENT)
+   	@Override public boolean isEmissiveRendering(BlockState state) {
+		return true;
+   	}
+   	</#if>
 
 	<@addSpecialInformation data.specialInformation, "block." + modid + "." + registryname, true/>
 

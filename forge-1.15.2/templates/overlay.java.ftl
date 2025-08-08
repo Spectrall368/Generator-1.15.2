@@ -1,6 +1,7 @@
 <#--
  # MCreator (https://mcreator.net/)
- # Copyright (C) 2020 Pylo and contributors
+ # Copyright (C) 2012-2020, Pylo
+ # Copyright (C) 2020-2024, Pylo, opensource contributors
  # 
  # This program is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
@@ -28,91 +29,149 @@
 -->
 
 <#-- @formatter:off -->
-<#include "tokens.ftl">
 <#include "procedures.java.ftl">
-<#assign hasTextures = data.baseTexture?has_content>
-<#list data.components as component>
-	<#if component.getClass().getSimpleName() == "Image">
-		<#assign hasTextures = true>
-		<#break>
-	</#if>
-</#list>
 package ${package}.client.screens;
 
-@Mod.EventBusSubscriber public class ${name}Overlay {
+@Mod.EventBusSubscriber({Dist.CLIENT}) public class ${name}Overlay {
 
-	@OnlyIn(Dist.CLIENT)
 	@SubscribeEvent(priority = EventPriority.${data.priority})
 	<#if generator.map(data.overlayTarget, "screens") == "Ingame">
-	public static void eventHandler(RenderGameOverlayEvent.Post event) {
-		if (event.getType() == RenderGameOverlayEvent.ElementType.HELMET) {
-			int w = event.getWindow().getScaledWidth();
-			int h = event.getWindow().getScaledHeight();
+        public static void eventHandler(RenderGameOverlayEvent.Post event) {
+            if (event.getType() == RenderGameOverlayEvent.ElementType.HELMET) {
+		int w = event.getWindow().getScaledWidth();
+            	int h = event.getWindow().getScaledHeight();
 	<#else>
-	public static void eventHandler(GuiScreenEvent.DrawScreenEvent.Post event) {
-		if (event.getGui() instanceof ${generator.map(data.overlayTarget, "screens")}) {
-			int w = event.getGui().width;
-			int h = event.getGui().height;
+        public static void eventHandler(GuiScreenEvent.DrawScreenEvent.Post event) {
+            if (event.getGui() instanceof ${generator.map(data.overlayTarget, "screens")}) {
+                int w = event.getGui().width;
+                int h = event.getGui().height;
 	</#if>
 
-			int posX = w / 2;
-			int posY = h / 2;
+        World world = null;
+        double x = 0;
+        double y = 0;
+        double z = 0;
 
-			World world = null;
-			double x = 0;
-			double y = 0;
-			double z = 0;
+        PlayerEntity entity = Minecraft.getInstance().player;
+        if (entity != null) {
+            world = entity.world;
+            x = entity.getPosX();
+            y = entity.getPosY();
+            z = entity.getPosZ();
+        }
 
-			PlayerEntity entity = Minecraft.getInstance().player;
-			if (entity != null) {
-				world = entity.world;
-				x = entity.getPosX();
-				y = entity.getPosY();
-				z = entity.getPosZ();
-			}
+        <#if data.hasTextures()>
+            RenderSystem.disableDepthTest();
+            RenderSystem.depthMask(false);
+            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+            RenderSystem.color4f(1, 1, 1, 1);
+            RenderSystem.disableAlphaTest();
+        </#if>
 
-			<#if hasTextures>
-				RenderSystem.disableDepthTest();
-				RenderSystem.depthMask(false);
-				RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-						GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-				RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-				RenderSystem.disableAlphaTest();
-			</#if>
+        if (<@procedureOBJToConditionCode data.displayCondition/>) {
+            <#if data.baseTexture?has_content>
+               Minecraft.getInstance().getTextureManager().bindTexture(new ResourceLocation("${modid}:textures/screens/${data.baseTexture}"));
+                Minecraft.getInstance().ingameGUI.blit(0, 0, 0, 0, w, h, w, h);
+            </#if>
 
-			if (<@procedureOBJToConditionCode data.displayCondition/>) {
-				<#if data.baseTexture?has_content>
-					Minecraft.getInstance().getTextureManager().bindTexture(new ResourceLocation("${modid}:textures/screens/${data.baseTexture}"));
-					Minecraft.getInstance().ingameGUI.blit(0, 0, 0, 0, w, h, w, h);
-				</#if>
+            <#list data.getComponentsOfType("Image") as component>
+                <#if hasProcedure(component.displayCondition)>
+                        if (<@procedureOBJToConditionCode component.displayCondition/>) {
+                </#if>
+                   Minecraft.getInstance().getTextureManager().bindTexture(new ResourceLocation("${modid}:textures/screens/${component.image}"));
+                    Minecraft.getInstance().ingameGUI.blit(<@calculatePosition component/>, 0, 0,
+                        ${component.getWidth(w.getWorkspace())}, ${component.getHeight(w.getWorkspace())},
+                        ${component.getWidth(w.getWorkspace())}, ${component.getHeight(w.getWorkspace())});
+                <#if hasProcedure(component.displayCondition)>}</#if>
+            </#list>
 
-				<#list data.components as component>
-	                <#assign x = component.x - 213>
-	                <#assign y = component.y - 120>
-	                <#if component.getClass().getSimpleName() == "Label">
-						<#if hasProcedure(component.displayCondition)>
-						if (<@procedureOBJToConditionCode component.displayCondition/>)
-						</#if>
-						Minecraft.getInstance().fontRenderer.drawString("${translateTokens(JavaConventions.escapeStringForJava(component.text))}",
-									posX + ${x}, posY + ${y}, ${component.color.getRGB()});
-	                <#elseif component.getClass().getSimpleName() == "Image">
-						<#if hasProcedure(component.displayCondition)>if (<@procedureOBJToConditionCode component.displayCondition/>) {</#if>
-						Minecraft.getInstance().getTextureManager().bindTexture(new ResourceLocation("${modid}:textures/screens/${component.image}"));
-						Minecraft.getInstance().ingameGUI.blit(posX + ${x}, posY + ${y}, 0, 0,
-							${component.getWidth(w.getWorkspace())}, ${component.getHeight(w.getWorkspace())},
-							${component.getWidth(w.getWorkspace())}, ${component.getHeight(w.getWorkspace())});
-						<#if hasProcedure(component.displayCondition)>}</#if>
-	                </#if>
-	            		</#list>
-			}
+			<#list data.getComponentsOfType("Sprite") as component>
+				<#if hasProcedure(component.displayCondition)>if (<@procedureOBJToConditionCode component.displayCondition/>) {</#if>
+					Minecraft.getInstance().getTextureManager().bindTexture(new ResourceLocation("${modid}:textures/screens/${component.sprite}"));
+						Minecraft.getInstance().ingameGUI.blit(<@calculatePosition component/>,
+						<#if (component.getTextureWidth(w.getWorkspace()) > component.getTextureHeight(w.getWorkspace()))>
+							<@getSpriteByIndex component "width"/>, 0
+						<#else>
+							0, <@getSpriteByIndex component "height"/>
+						</#if>,
+						${component.getWidth(w.getWorkspace())}, ${component.getHeight(w.getWorkspace())},
+						${component.getTextureWidth(w.getWorkspace())}, ${component.getTextureHeight(w.getWorkspace())});
+				<#if hasProcedure(component.displayCondition)>}</#if>
+			</#list>
 
-			<#if hasTextures>
-				RenderSystem.depthMask(true);
-				RenderSystem.enableDepthTest();
-				RenderSystem.enableAlphaTest();
-				RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-			</#if>
-		}
+            <#list data.getComponentsOfType("Label") as component>
+                <#if hasProcedure(component.displayCondition)>
+                    if (<@procedureOBJToConditionCode component.displayCondition/>)
+                </#if>
+                Minecraft.getInstance().fontRenderer.drawString(
+                    <#if hasProcedure(component.text)><@procedureOBJToStringCode component.text/><#else>new TranslationTextComponent("gui.${modid}.${registryname}.${component.getName()}").getString()</#if>,
+                    <@calculatePosition component/>, ${component.color.getRGB()});
+            </#list>
+
+			<#list data.getComponentsOfType("EntityModel") as component>
+			    if (<@procedureOBJToConditionCode component.entityModel/> instanceof LivingEntity) {
+			    	<#if hasProcedure(component.displayCondition)>
+                        if (<@procedureOBJToConditionCode component.displayCondition/>)
+		                </#if>
+
+				InventoryScreen.drawEntityOnScreen(<@calculatePosition component=component x_offset=10 y_offset=20/>,
+                        ${component.scale}, ${component.rotationX / 20.0}f, 0, (LivingEntity) <@procedureOBJToConditionCode component.entityModel/>);
+			    }
+			</#list>
+        }
+
+        <#if data.hasTextures()>
+            RenderSystem.depthMask(true);
+            RenderSystem.enableDepthTest();
+            RenderSystem.enableAlphaTest();
+            RenderSystem.color4f(1, 1, 1, 1);
+        </#if>
+        }
 	}
 }
+<#macro calculatePosition component x_offset=0 y_offset=0>
+	<#if component.anchorPoint.name() == "TOP_LEFT">
+		${component.x + x_offset}, ${component.y + y_offset}
+	<#elseif component.anchorPoint.name() == "TOP_CENTER">
+		w / 2 + ${component.x - (213 - x_offset)}, ${component.y + y_offset}
+	<#elseif component.anchorPoint.name() == "TOP_RIGHT">
+		w - ${427 - (component.x + x_offset)}, ${component.y + y_offset}
+	<#elseif component.anchorPoint.name() == "CENTER_LEFT">
+		${component.x + x_offset}, h / 2 + ${component.y - (120 - y_offset)}
+	<#elseif component.anchorPoint.name() == "CENTER">
+		w / 2 + ${component.x - (213 - x_offset)}, h / 2 + ${component.y - (120 - y_offset)}
+	<#elseif component.anchorPoint.name() == "CENTER_RIGHT">
+		w - ${427 - (component.x + x_offset)}, h / 2 + ${component.y - (120 - y_offset)}
+	<#elseif component.anchorPoint.name() == "BOTTOM_LEFT">
+		${component.x + x_offset}, h - ${240 - (component.y + y_offset)}
+	<#elseif component.anchorPoint.name() == "BOTTOM_CENTER">
+		w / 2 + ${component.x - (213 - x_offset)}, h - ${240 - (component.y + y_offset)}
+	<#elseif component.anchorPoint.name() == "BOTTOM_RIGHT">
+		w - ${427 - (component.x + x_offset)}, h - ${240 - (component.y + y_offset)}
+	</#if>
+</#macro>
+<#macro getSpriteByIndex component dim>
+	<#if hasProcedure(component.spriteIndex)>
+		MathHelper.clamp((int) <@procedureOBJToNumberCode component.spriteIndex/> *
+			<#if dim == "width">
+				${component.getWidth(w.getWorkspace())}
+			<#else>
+				${component.getHeight(w.getWorkspace())}
+			</#if>,
+			0,
+			<#if dim == "width">
+				${component.getTextureWidth(w.getWorkspace()) - component.getWidth(w.getWorkspace())}
+			<#else>
+				${component.getTextureHeight(w.getWorkspace()) - component.getHeight(w.getWorkspace())}
+			</#if>
+		)
+	<#else>
+		<#if dim == "width">
+			${component.getWidth(w.getWorkspace()) * component.spriteIndex.getFixedValue()}
+		<#else>
+			${component.getHeight(w.getWorkspace()) * component.spriteIndex.getFixedValue()}
+		</#if>
+	</#if>
+</#macro>
 <#-- @formatter:on -->

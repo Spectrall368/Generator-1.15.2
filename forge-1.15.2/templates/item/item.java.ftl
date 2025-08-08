@@ -33,20 +33,27 @@
 <#include "../mcitems.ftl">
 <#include "../triggers.java.ftl">
 package ${package}.item;
+<#assign hasCustomJAVAModels = data.hasCustomJAVAModel() || data.getModels()?filter(e -> e.hasCustomJAVAModel())?has_content>
 
-public class ${name}Item extends Item {
+<#compress>
+public class ${name}Item extends <#if data.hasBannerPatterns()>BannerPattern<#elseif data.isMusicDisc>MusicDisc</#if>Item {
 
 	public ${name}Item() {
-		super(new Item.Properties()
-				.group(${data.creativeTab})
+    super(<#if data.hasBannerPatterns()>${JavaModName}BannerPatterns.${data.providedBannerPatterns[0]?upper_case},
+                <#elseif data.isMusicDisc>
+                ${data.musicDiscAnalogOutput}, <#if data.musicDiscMusic.getUnmappedValue().startsWith("CUSTOM:")>new SoundEvent<#else>ForgeRegistries.SOUND_EVENTS.getValue</#if>(new ResourceLocation("${data.musicDiscMusic}")),
+                </#if>new Item.Properties()
+				.group(<@CreativeTabs data.creativeTabs/>)
 				<#if data.hasInventory()>
 				.maxStackSize(1)
 				<#elseif data.damageCount != 0>
 				.maxDamage(${data.damageCount})
-				<#else>
+				<#elseif data.stackSize != 64>
 				.maxStackSize(${data.stackSize})
 				</#if>
+				<#if data.rarity != "COMMON">
 				.rarity(Rarity.${data.rarity})
+				</#if>
 				<#if data.isFood>
 				.food((new Food.Builder())
 					.hunger(${data.nutritionalValue})
@@ -55,8 +62,28 @@ public class ${name}Item extends Item {
 					<#if data.isMeat>.meat()</#if>
 					.build())
 				</#if>
+				<#if data.stayInGridWhenCrafting && (!data.recipeRemainder?? || data.recipeRemainder.isEmpty()) && data.damageCount != 0>
+				.setNoRepair()
+				</#if>
+				<#if hasCustomJAVAModels>
+				.setISTER(() -> new Callable() {
+			        private ${name}ItemRenderer rendererInstance;
+
+			        @Override public ItemStackTileEntityRenderer call() throws Exception {
+				        if (rendererInstance == null)
+					        rendererInstance = new ${name}ItemRenderer();
+				        return rendererInstance;
+			        }
+                })
+	            </#if>
 		);
 	}
+
+	<#if data.hasBannerPatterns()> <#-- Workaround to allow both music disc and patterns info in description -->
+	@Override @OnlyIn(Dist.CLIENT) public IFormattableTextComponent func_219981_d_() {
+		return new TranslationTextComponent(this.getTranslationKey() + ".patterns");
+	}
+	</#if>
 
 	<#if data.hasNonDefaultAnimation()>
 	@Override public UseAction getUseAction(ItemStack itemstack) {
@@ -88,20 +115,10 @@ public class ${name}Item extends Item {
 				}
 				return retval;
 			}
-
-			@Override public boolean isRepairable(ItemStack itemstack) {
-				return false;
-			}
 		<#else>
 			@Override public ItemStack getContainerItem(ItemStack itemstack) {
 				return new ItemStack(this);
 			}
-
-			<#if data.damageCount != 0>
-			@Override public boolean isRepairable(ItemStack itemstack) {
-				return false;
-			}
-			</#if>
 		</#if>
 	</#if>
 
@@ -125,18 +142,18 @@ public class ${name}Item extends Item {
 
 	<#if data.enableMeleeDamage>
 		@Override public Multimap<String, AttributeModifier> getAttributeModifiers(EquipmentSlotType equipmentSlot) {
-			Multimap<String, AttributeModifier> multimap = super.getAttributeModifiers(equipmentSlot);
 			if (equipmentSlot == EquipmentSlotType.MAINHAND) {
-				multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "item_damage", ${data.damageVsEntity - 1}d, AttributeModifier.Operation.ADDITION));
-				multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(ATTACK_SPEED_MODIFIER, "item_attack_speed", -2.4, AttributeModifier.Operation.ADDITION));
+				ImmutableMultimap.Builder<String, AttributeModifier> builder = ImmutableMultimap.builder();
+				builder.putAll(super.getAttributeModifiers(equipmentSlot));
+				builder.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Item modifier", ${data.damageVsEntity - 1}d, AttributeModifier.Operation.ADDITION));
+				builder.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(ATTACK_SPEED_MODIFIER, "Item modifier", -2.4, AttributeModifier.Operation.ADDITION));
+				return builder.build();
 			}
-			return multimap;
+			return super.getAttributeModifiers(equipmentSlot);
 		}
 	</#if>
 
-	<#if data.hasGlow>
 	<@hasGlow data.glowCondition/>
-	</#if>
 
 	<#if data.destroyAnyBlock>
 	@Override public boolean canHarvestBlock(BlockState state) {
@@ -144,15 +161,35 @@ public class ${name}Item extends Item {
 	}
 	</#if>
 
-	<@addSpecialInformation data.specialInformation/>
+	<@addSpecialInformation data.specialInformation, "item." + modid + "." + registryname/>
 
-	<#if hasProcedure(data.onRightClickedInAir) || data.hasInventory()>
+	<#assign shouldExplicitlyCallStartUsing = !data.isFood && (data.useDuration > 0)> <#-- ranged items handled in if below so no need to check for that here too -->
+	<#if hasProcedure(data.onRightClickedInAir) || data.hasInventory() || data.enableRanged || shouldExplicitlyCallStartUsing>
 	@Override public ActionResult<ItemStack> onItemRightClick(World world, PlayerEntity entity, Hand hand) {
+		<#if data.enableRanged>
+		ActionResult<ItemStack> ar = ActionResult.resultFail(entity.getHeldItem(hand));
+		<#else>
 		ActionResult<ItemStack> ar = super.onItemRightClick(world, entity, hand);
-		ItemStack itemstack = ar.getResult();
-		double x = entity.getPosX();
-		double y = entity.getPosY();
-		double z = entity.getPosZ();
+		</#if>
+
+		<#if data.enableRanged>
+			<#if hasProcedure(data.rangedUseCondition)>
+			if (<@procedureCode data.rangedUseCondition, {
+				"x": "entity.getPosX()",
+				"y": "entity.getPosY()",
+				"z": "entity.getPosZ()",
+				"world": "world",
+				"entity": "entity",
+				"itemstack": "ar.getResult()"
+			}, false/>)
+			</#if>
+			if (entity.abilities.isCreativeMode || findAmmo(entity) != ItemStack.EMPTY) {
+				ar = ActionResult.resultSuccess(entity.getHeldItem(hand));
+				entity.setActiveHand(hand);
+			}
+		<#elseif shouldExplicitlyCallStartUsing>
+			entity.setActiveHand(hand);
+		</#if>
 
 		<#if data.hasInventory()>
 		if(entity instanceof ServerPlayerEntity) {
@@ -163,18 +200,27 @@ public class ${name}Item extends Item {
 
 				@Override public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
 					PacketBuffer packetBuffer = new PacketBuffer(Unpooled.buffer());
-					packetBuffer.writeBlockPos(new BlockPos(x, y, z));
+					packetBuffer.writeBlockPos(entity.getPosition());
 					packetBuffer.writeByte(hand == Hand.MAIN_HAND ? 0 : 1);
 					return new ${data.guiBoundTo}Menu(id, inventory, packetBuffer);
 				}
 			}, buf -> {
-				buf.writeBlockPos(new BlockPos(x, y, z));
+				buf.writeBlockPos(entity.getPosition());
 				buf.writeByte(hand == Hand.MAIN_HAND ? 0 : 1);
 			});
 		}
 		</#if>
 
-		<@procedureOBJToCode data.onRightClickedInAir/>
+		<#if hasProcedure(data.onRightClickedInAir)>
+			<@procedureCode data.onRightClickedInAir, {
+				"x": "entity.getPosX()",
+				"y": "entity.getPosY()",
+				"z": "entity.getPosZ()",
+				"world": "world",
+				"entity": "entity",
+				"itemstack": "ar.getResult()"
+			}/>
+		</#if>
 		return ar;
 	}
 	</#if>
@@ -188,9 +234,9 @@ public class ${name}Item extends Item {
 			super.onItemUseFinish(itemstack, world, entity);
 
 			<#if hasProcedure(data.onFinishUsingItem)>
-        			double x = entity.getPosX();
-        			double y = entity.getPosY();
-        			double z = entity.getPosZ();
+				double x = entity.getPosX();
+				double y = entity.getPosY();
+				double z = entity.getPosZ();
 				<@procedureOBJToCode data.onFinishUsingItem/>
 			</#if>
 
@@ -198,10 +244,9 @@ public class ${name}Item extends Item {
 				if (itemstack.isEmpty()) {
 					return retval;
 				} else {
-        				if (entity instanceof PlayerEntity) {
-        					PlayerEntity player = (PlayerEntity) entity;
-						if (!player.isCreative() && !player.inventory.addItemStackToInventory(retval))
-							player.dropItem(retval, false);
+					if (entity instanceof PlayerEntity && !((PlayerEntity) entity).abilities.isCreativeMode) {
+						if (!((PlayerEntity) entity).inventory.addItemStackToInventory(retval))
+							((PlayerEntity) entity).dropItem(retval, false);
 					}
 					return itemstack;
 				}
@@ -209,17 +254,15 @@ public class ${name}Item extends Item {
 				return retval;
 			</#if>
 		}
-	   </#if>
+	</#if>
 
 	<@onItemUsedOnBlock data.onRightClickedOnBlock/>
 
-	<@onEntityHitWith data.onEntityHitWith/>
+	<@onEntityHitWith data.onEntityHitWith, (data.damageCount != 0 && data.enableMeleeDamage), 1/>
 
 	<@onEntitySwing data.onEntitySwing/>
 
 	<@onCrafted data.onCrafted/>
-
-	<@onStoppedUsing data.onStoppedUsing/>
 
 	<@onItemTick data.onItemInUseTick, data.onItemInInventoryTick/>
 
@@ -242,5 +285,111 @@ public class ${name}Item extends Item {
 			stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).ifPresent(capability -> ((ItemStackHandler) capability).deserializeNBT((CompoundNBT) nbt.get("Inventory")));
 	}
 	</#if>
+
+	<#if hasProcedure(data.onStoppedUsing) || (data.enableRanged && !data.shootConstantly)>
+		@Override public void onPlayerStoppedUsing(ItemStack itemstack, World world, LivingEntity entity, int time) {
+			<#if hasProcedure(data.onStoppedUsing)>
+				<@procedureCode data.onStoppedUsing, {
+					"x": "entity.getPosX()",
+					"y": "entity.getPosY()",
+					"z": "entity.getPosZ()",
+					"world": "world",
+					"entity": "entity",
+					"itemstack": "itemstack",
+					"time": "time"
+				}/>
+			</#if>
+			<#if data.enableRanged && !data.shootConstantly>
+				if (!world.isRemote() && entity instanceof ServerPlayerEntity) {
+					<#if data.rangedItemChargesPower>
+						float pullingPower = BowItem.getArrowVelocity(this.getUseDuration(itemstack) - time);
+						if (pullingPower < 0.1)
+							return;
+					</#if>
+					<@arrowShootCode/>
+				}
+			</#if>
+		}
+	</#if>
+
+	<#if data.enableRanged && data.shootConstantly>
+		@Override public void onUsingTick(ItemStack itemstack, LivingEntity entity, int count) {
+			World world = entity.world;
+			if (!world.isRemote() && entity instanceof ServerPlayerEntity) {
+				<@arrowShootCode/>
+				entity.stopActiveHand();
+			}
+		}
+	</#if>
+
+	<#if data.enableRanged>
+	private ItemStack findAmmo(PlayerEntity player) {
+		<#if data.projectileDisableAmmoCheck>
+		return new ItemStack(${generator.map(data.projectile.getUnmappedValue(), "projectiles", 2)});
+		<#else>
+		ItemStack stack = ShootableItem.getHeldAmmo(player, e -> e.getItem() == ${generator.map(data.projectile.getUnmappedValue(), "projectiles", 2)});
+		if(stack == ItemStack.EMPTY) {
+			for (int i = 0; i < player.inventory.mainInventory.size(); i++) {
+				ItemStack teststack = player.inventory.mainInventory.get(i);
+				if(teststack != null && teststack.getItem() == ${generator.map(data.projectile.getUnmappedValue(), "projectiles", 2)}) {
+					stack = teststack;
+					break;
+				}
+			}
+		}
+		return stack;
+		</#if>
+	}
+	</#if>
 }
+
+<#macro arrowShootCode>
+	<#assign projectile = data.projectile.getUnmappedValue()>
+	ItemStack stack = findAmmo((ServerPlayerEntity) entity);
+	if (((ServerPlayerEntity) entity).abilities.isCreativeMode || stack != ItemStack.EMPTY) {
+		<#assign projectileClass = generator.map(projectile, "projectiles", 0)>
+		<#if projectile.startsWith("CUSTOM:")>
+			${projectileClass} projectile = ${projectileClass}.shoot(world, entity, world.getRandom()<#if data.rangedItemChargesPower>, pullingPower</#if>);
+		<#elseif projectile.endsWith("Arrow")>
+			${projectileClass} projectile = new ${projectileClass}(world, entity);
+			projectile.func_234612_a_(entity, entity.rotationPitch, entity.rotationYaw, 0, <#if data.rangedItemChargesPower>pullingPower * </#if>3.15f, 1.0F);
+			world.addEntity(projectile);
+			world.playSound(null, entity.getPosX(), entity.getPosY(), entity.getPosZ(), ForgeRegistries.SOUND_EVENTS
+				.getValue(new ResourceLocation("entity.arrow.shoot")), SoundCategory.PLAYERS, 1, 1f / (world.getRandom().nextFloat() * 0.5f + 1));
+		</#if>
+
+		<#if data.damageCount != 0>
+		itemstack.damageItem(1, entity, e -> e.sendBreakAnimation(entity.getActiveHand()));
+		</#if>
+
+		if (((ServerPlayerEntity) entity).abilities.isCreativeMode) {
+			projectile.pickupStatus = AbstractArrowEntity.PickupStatus.CREATIVE_ONLY;
+		} else {
+			if (stack.isDamageable()) {
+				if (stack.attemptDamageItem(1, world.getRandom(), (ServerPlayerEntity) entity)) {
+					stack.shrink(1);
+					stack.setDamage(0);
+					if (stack.isEmpty())
+						((ServerPlayerEntity) entity).inventory.deleteStack(stack);
+				}
+			} else {
+				stack.shrink(1);
+				if (stack.isEmpty())
+				   ((ServerPlayerEntity) entity).inventory.deleteStack(stack);
+			}
+		}
+
+		<#if hasProcedure(data.onRangedItemUsed)>
+			<@procedureCode data.onRangedItemUsed, {
+				"x": "entity.getPosX()",
+				"y": "entity.getPosY()",
+				"z": "entity.getPosZ()",
+				"world": "world",
+				"entity": "entity",
+				"itemstack": "itemstack"
+			}/>
+		</#if>
+	}
+</#macro>
+</#compress>
 <#-- @formatter:on -->

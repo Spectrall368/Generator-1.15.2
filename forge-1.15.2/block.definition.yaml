@@ -433,7 +433,4 @@ tags:
   - tag: BLOCKS:minecraft:leaves
     condition: "${data.blockBase! == 'Leaves'}"
 
-  - tag: BLOCKS:minecraft:climbable
-    condition: isLadder
-
-field_exclusions: [immuneToFire, animations, sensitiveToVibration, vibrationSensitivityRadius, vibrationalEvents, canReceiveVibrationCondition, onReceivedVibration]
+field_exclusions: [requiresCorrectTool, immuneToFire, animations, sensitiveToVibration, vibrationSensitivityRadius, vibrationalEvents, canReceiveVibrationCondition, onReceivedVibration]

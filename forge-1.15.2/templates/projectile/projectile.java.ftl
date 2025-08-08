@@ -89,7 +89,7 @@ public class ${name}Entity extends AbstractArrowEntity implements IRendersAsItem
 		double d0 = Double.MAX_VALUE;
 		Entity entity = null;
 		AxisAlignedBB lookupBox = this.getBoundingBox();
-		for (Entity entity1 : this.world.getEntitiesInAABBexcluding(this, lookupBox, (entityIn) -> !entityIn.isSpectator() && entityIn.isAlive() && entityIn.canBeCollidedWith() && (entityIn != this.getShooter() || this.ticksInAir >= 5) && (this.field_213878_az == null || !this.field_213878_az.contains(entityIn.getEntityId())))) {
+		for (Entity entity1 : this.world.getEntitiesInAABBexcluding(this, lookupBox, (entityIn) -> !entityIn.isSpectator() && entityIn.isAlive() && entityIn.canBeCollidedWith() && (entityIn != this.getShooter() || this.ticksInAir >= 5) && (this.piercedEntities == null || !this.piercedEntities.contains(entityIn.getEntityId())))) {
 			if (entity1 == this.getShooter()) continue;
 			AxisAlignedBB aabb = entity1.getBoundingBox();
 			if (aabb.intersects(lookupBox)) {
@@ -151,8 +151,8 @@ public class ${name}Entity extends AbstractArrowEntity implements IRendersAsItem
 	</#if>
 
 	<#if hasProcedure(data.onHitsBlock)>
-	@Override public void onHit(RayTraceResult blockHitResult) {
-		super.onHit(blockHitResult);
+	@Override public void onHit(RayTraceResult rayTraceResult) {
+		super.onHit(rayTraceResult);
 
 		if (rayTraceResult.getType() == RayTraceResult.Type.BLOCK) {
 			BlockRayTraceResult blockHitResult = (BlockRayTraceResult) rayTraceResult;
@@ -179,7 +179,7 @@ public class ${name}Entity extends AbstractArrowEntity implements IRendersAsItem
 						BlockPos blockPos = new BlockPos((int) blockAABB.minX, (int) blockAABB.minY, (int) blockAABB.minZ);
 						Vec3d intersectionPoint = new Vec3d((blockAABB.minX + blockAABB.maxX) / 2, (blockAABB.minY + blockAABB.maxY) / 2, (blockAABB.minZ + blockAABB.maxZ) / 2);
 						Direction hitDirection = determineHitDirection(this.getBoundingBox(), blockAABB);
-						this.func_230299_a_(new BlockRayTraceResult(intersectionPoint, hitDirection, blockPos, false));
+						this.onHit(new BlockRayTraceResult(intersectionPoint, hitDirection, blockPos, false));
 					}
 				}
 			});

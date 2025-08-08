@@ -70,11 +70,16 @@ public class ${name}Block extends FlowingFluidBlock {
 	}
 	</#if>
 
-	<#if data.emissiveRendering>
-	@OnlyIn(Dist.CLIENT) @Override public boolean isEmissiveRendering(BlockState blockState) {
+   	<#if data.emissiveRendering>
+   	@Override public boolean needsPostProcessing(BlockState state, IBlockReader world, BlockPos pos) {
 		return true;
-	}
-	</#if>
+   	}
+
+   	@OnlyIn(Dist.CLIENT)
+   	@Override public boolean isEmissiveRendering(BlockState state) {
+		return true;
+   	}
+   	</#if>
 
 	<#if data.lightOpacity == 0>
 	@Override public boolean propagatesSkylightDown(BlockState state, IBlockReader reader, BlockPos pos) {

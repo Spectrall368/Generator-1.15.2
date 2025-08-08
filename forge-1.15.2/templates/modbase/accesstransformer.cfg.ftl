@@ -10,5 +10,10 @@ public net.minecraft.world.GameRules$BooleanValue func_223568_b(Z)Lnet/minecraft
 public net.minecraft.village.PointOfInterestType func_221052_a(Lnet/minecraft/village/PointOfInterestType;)Lnet/minecraft/village/PointOfInterestType; #registerBlockStates
 </#if>
 
+<#if w.hasElementsOfType("projectile")>
+public net.minecraft.entity.projectile.AbstractArrowEntity field_213878_az #piercedEntities
+public net.minecraft.entity.projectile.AbstractArrowEntity field_70257_an # ticksInAir
+</#if>
+
 # Start of user code block custom ATs
 # End of user code block custom ATs
