@@ -32,6 +32,8 @@
 <#include "../mcitems.ftl">
 package ${package}.world.biome;
 
+import net.minecraftforge.common.BiomeManager;
+
 public class ${name}Biome extends Biome {
 
 	<#if data.spawnBiome>
