@@ -1,0 +1,1 @@
+(world instanceof World && world.getWorld().getScoreboard().getTeam(${input$name}) != null ? world.getWorld().getScoreboard().getTeam(${input$name}).getNameTagVisibility() == Team.Visible.${field$visibility} : false)

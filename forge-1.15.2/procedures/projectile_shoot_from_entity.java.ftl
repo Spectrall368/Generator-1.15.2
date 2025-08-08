@@ -1,7 +1,7 @@
 {
 	Entity _shootFrom = ${input$entity};
 	World projectileLevel = _shootFrom.world.getWorld();
-	if (!projectileLevel.isRemote) {
+	if (!projectileLevel.isRemote()) {
 		Entity _entityToSpawn = ${input$projectile};
 		_entityToSpawn.setPosition(_shootFrom.getPosX(), _shootFrom.getPosYEye() - 0.1, _shootFrom.getPosZ());
 		if (_entityToSpawn instanceof IProjectile)

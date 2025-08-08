@@ -3,6 +3,8 @@ package ${package}.network;
 
 import ${package}.${JavaModName};
 
+import net.minecraft.nbt.INBT;
+
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD) public class ${JavaModName}Variables {
 
 	<#if w.hasVariablesOfScope("GLOBAL_SESSION")>
@@ -187,7 +189,7 @@ import ${package}.${JavaModName};
 
 		public static MapVariables get(IWorld world) {
 			if (world.getWorld() instanceof ServerWorld) {
-				return ((ServerWorld) world.getWorld()).getServer().getWorld(DimensionType.OVERWORLD).getSavedData().getOrCreate(MapVariables::new, DATA_NAME);
+				return world.getWorld().getServer().getWorld(DimensionType.OVERWORLD).getSavedData().getOrCreate(MapVariables::new, DATA_NAME);
 			} else {
 				return clientSide;
 			}
