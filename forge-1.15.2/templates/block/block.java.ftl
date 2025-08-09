@@ -128,7 +128,7 @@ public class ${name}Block extends
 		<#if data.unbreakable>
 			.hardnessAndResistance(-1, 3600000)
 		<#elseif (data.hardness == 0) && (data.resistance == 0)>
-			.zeroHardnessAndResistance()
+			.hardnessAndResistance(0.0F)
 		<#elseif data.hardness == data.resistance>
 			.hardnessAndResistance(${data.hardness}f)
 		<#else>

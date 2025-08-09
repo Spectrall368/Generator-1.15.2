@@ -1,11 +1,15 @@
 templates:
   - template: biome/biome.java.ftl
     name: "@SRCROOT/@BASEPACKAGEPATH/world/biome/@NAMEBiome.java"
+  - template: biome/tree_fruits_decorator.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/world/features/treedecorators/@NAMEFruitDecorator.java"
+    condition: hasFruits()
+  - template: biome/tree_leave_decorator.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/world/features/treedecorators/@NAMELeaveDecorator.java"
+    condition: hasVines()
   - template: biome/tree_trunk_decorator.java.ftl
-    name: "@SRCROOT/@BASEPACKAGEPATH/world/features/treedecorators/@NAMETreeFeature.java"
-    condition_any:
-      - hasVines()
-      - hasFruits()
+    name: "@SRCROOT/@BASEPACKAGEPATH/world/features/treedecorators/@NAMETrunkDecorator.java"
+    condition: hasVines()
 
 global_templates:
   - template: elementinits/biomes.java.ftl

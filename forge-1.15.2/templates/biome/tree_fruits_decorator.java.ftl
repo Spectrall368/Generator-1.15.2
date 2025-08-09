@@ -34,25 +34,34 @@ package ${package}.world.features.treedecorators;
 
 import com.mojang.datafixers.Dynamic;
 
-public class ${name}TrunkDecorator extends TrunkVineTreeDecorator {
-    public static final ${name}TrunkDecorator INSTANCE = new ${name}TrunkDecorator();
+public class ${name}FruitDecorator extends CocoaTreeDecorator {
+    public static final ${name}FruitDecorator INSTANCE = new ${name}FruitDecorator();
 
-	@Override protected void func_227424_a_(IWorldWriter ww, BlockPos bp, BooleanProperty bpr, Set<BlockPos> sbc, MutableBoundingBox mbb) {
-		func_227423_a_(ww, bp, oriented(${mappedBlockToBlockStateCode(data.treeVines)}, bpr), sbc, mbb);
-	}
+    public ${name}FruitDecorator() {
+        super(0.2f);
+    }
 
-    @SuppressWarnings("deprecation") private static BlockState oriented(BlockState blockstate, BooleanProperty bpr) {
-        if (!blockstate.has(VineBlock.SOUTH))
-            return blockstate;
+    @Override ${mcc.getMethod("net.minecraft.world.gen.treedecorator.CocoaTreeDecorator", "func_225576_a_", "IWorld", "Random", "List", "List", "Set", "MutableBoundingBox")
+        .replace("this.field_227417_b_", "0.2F")
+        .replace("Blocks.COCOA.getDefaultState().with(CocoaBlock.AGE,Integer.valueOf(p_225576_2_.nextInt(3))).with(CocoaBlock.HORIZONTAL_FACING,direction)", "oriented(" + mappedBlockToBlockStateCode(data.treeFruits) + ", direction1)")
+        .replace("p_225576_1_", "level")
+        .replace("p_225576_6_", "mbb")
+        .replace("p_225576_2_", "random")
+        .replace("p_225576_5_", "sbc")
+        .replace("p_225576_3_", "blocks")
+        .replace("p_225576_4_", "blocks2")}
 
-        if (blockstate.get(VineBlock.SOUTH))
+    @SuppressWarnings("deprecation") private static BlockState oriented(BlockState blockstate, Direction direction) {
+        switch (direction) {
+            case SOUTH:
                 return blockstate.rotate(Rotation.CLOCKWISE_180);
-        else if (blockstate.get(VineBlock.EAST))
+            case EAST:
                 return blockstate.rotate(Rotation.CLOCKWISE_90);
-        else if (blockstate.get(VineBlock.WEST))
+            case WEST:
                 return blockstate.rotate(Rotation.COUNTERCLOCKWISE_90);
-        else
+            default:
                 return blockstate;
+        }
     }
 }
 <#-- @formatter:on -->

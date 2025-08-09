@@ -67,7 +67,7 @@ public class ${name}Biome extends Biome {
         	<#list data.defaultFeatures as defaultFeature>
         	<#assign mfeat = generator.map(defaultFeature, "defaultfeatures")>
         		<#if mfeat != "null">
-			DefaultBiomeFeatures.<#if !mfeat.contains("func")>add</#if>${mfeat}(this);
+			DefaultBiomeFeatures.add${mfeat}(this);
 			</#if>
 		</#list>
 
@@ -139,25 +139,90 @@ public class ${name}Biome extends Biome {
 		this.addStructure(Feature.END_CITY.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG));
 		</#if>
 
-		<#if (data.treesPerChunk > 0)>
-			<#if data.treeType == data.TREES_CUSTOM>
-			this.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, new ${name}TreeFeature()
-					.withConfiguration((new BaseTreeFeatureConfig.Builder(new SimpleBlockStateProvider(${mappedBlockToBlockStateCode(data.treeStem)}), new SimpleBlockStateProvider(${mappedBlockToBlockStateCode(data.treeBranch)}))).baseHeight(${data.minHeight}).setSapling((net.minecraftforge.common.IPlantable) Blocks.JUNGLE_SAPLING).build())
-					.withPlacement(Placement.COUNT_EXTRA_HEIGHTMAP.configure(new AtSurfaceWithExtraConfig(${data.treesPerChunk}, 0.1F, 1))));
-           	<#elseif data.vanillaTreeType == "Big trees">
-			this.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Feature.RANDOM_SELECTOR.withConfiguration(new MultipleRandomFeatureConfig(ImmutableList.of(Feature.FANCY_TREE.withConfiguration(DefaultBiomeFeatures.FANCY_TREE_CONFIG).withChance(0.1F)), Feature.NORMAL_TREE.withConfiguration(DefaultBiomeFeatures.JUNGLE_TREE_CONFIG))).withPlacement(Placement.COUNT_EXTRA_HEIGHTMAP.configure(new AtSurfaceWithExtraConfig(${data.treesPerChunk}, 0.1F, 1))));
-           	<#elseif data.vanillaTreeType == "Savanna trees">
-			this.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Feature.RANDOM_SELECTOR.withConfiguration(new MultipleRandomFeatureConfig(ImmutableList.of(Feature.ACACIA_TREE.withConfiguration(DefaultBiomeFeatures.ACACIA_TREE_CONFIG).withChance(0.8F)), Feature.NORMAL_TREE.withConfiguration(DefaultBiomeFeatures.OAK_TREE_CONFIG))).withPlacement(Placement.COUNT_EXTRA_HEIGHTMAP.configure(new AtSurfaceWithExtraConfig(${data.treesPerChunk}, 0.1F, 1))));
-			<#elseif data.vanillaTreeType == "Mega pine trees">
-			this.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Feature.RANDOM_SELECTOR.withConfiguration(new MultipleRandomFeatureConfig(ImmutableList.of(Feature.MEGA_SPRUCE_TREE.withConfiguration(DefaultBiomeFeatures.MEGA_PINE_TREE_CONFIG).withChance(0.30769232F)), Feature.NORMAL_TREE.withConfiguration(DefaultBiomeFeatures.SPRUCE_TREE_CONFIG))).withPlacement(Placement.COUNT_EXTRA_HEIGHTMAP.configure(new AtSurfaceWithExtraConfig(${data.treesPerChunk}, 0.1F, 1))));
-           	<#elseif data.vanillaTreeType == "Mega spruce trees">
-			this.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Feature.RANDOM_SELECTOR.withConfiguration(new MultipleRandomFeatureConfig(ImmutableList.of(Feature.MEGA_SPRUCE_TREE.withConfiguration(DefaultBiomeFeatures.MEGA_SPRUCE_TREE_CONFIG).withChance(0.33333334F)), Feature.NORMAL_TREE.withConfiguration(DefaultBiomeFeatures.SPRUCE_TREE_CONFIG))).withPlacement(Placement.COUNT_EXTRA_HEIGHTMAP.configure(new AtSurfaceWithExtraConfig(${data.treesPerChunk}, 0.1F, 1))));
-           	<#elseif data.vanillaTreeType == "Birch trees">
-			this.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Feature.NORMAL_TREE.withConfiguration(DefaultBiomeFeatures.field_230129_h_).withPlacement(Placement.COUNT_EXTRA_HEIGHTMAP.configure(new AtSurfaceWithExtraConfig(${data.treesPerChunk}, 0.1F, 1))));
-           	<#else>
-			this.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, Feature.RANDOM_SELECTOR.withConfiguration(new MultipleRandomFeatureConfig(ImmutableList.of(Feature.NORMAL_TREE.withConfiguration(DefaultBiomeFeatures.field_230129_h_).withChance(0.2F), Feature.FANCY_TREE.withConfiguration(DefaultBiomeFeatures.field_230131_m_).withChance(0.1F)), Feature.NORMAL_TREE.withConfiguration(DefaultBiomeFeatures.field_230132_o_))).withPlacement(Placement.COUNT_EXTRA_HEIGHTMAP.configure(new AtSurfaceWithExtraConfig(${data.treesPerChunk}, 0.1F, 1))));
-			</#if>
-		</#if>
+        <#if (data.treesPerChunk > 0)>
+        	<#assign ct = data.treeType == data.TREES_CUSTOM>
+
+        	<#if data.vanillaTreeType == "Big trees">
+        	this.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION,
+				Feature.MEGA_JUNGLE_TREE.withConfiguration((new HugeTreeFeatureConfig.Builder(
+                    new SimpleBlockStateProvider(${ct?then(mappedBlockToBlockStateCode(data.treeStem), "Blocks.JUNGLE_LOG.getDefaultState()")}),
+                    new SimpleBlockStateProvider(${ct?then(mappedBlockToBlockStateCode(data.treeBranch), "Blocks.JUNGLE_LEAVES.getDefaultState()")}))
+                    .baseHeight(${ct?then([data.minHeight, 32]?min, 10)}).heightInterval(20)
+                    <#if data.hasVines() || data.hasFruits()>
+                    	<@vinesAndFruits/>
+                    <#else>
+                    	.ignoreVines()
+                    </#if>)
+            	.build())
+            	.withPlacement(Placement.COUNT_EXTRA_HEIGHTMAP.configure(new AtSurfaceWithExtraConfig(${data.treesPerChunk}, 0.1F, 1))));
+        	<#elseif data.vanillaTreeType == "Savanna trees">
+        	this.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION,
+                Feature.ACACIA_TREE.withConfiguration((new TreeFeatureConfig.Builder(
+                    new SimpleBlockStateProvider(${ct?then(mappedBlockToBlockStateCode(data.treeStem), "Blocks.ACACIA_LOG.getDefaultState()")}),
+                    new SimpleBlockStateProvider(${ct?then(mappedBlockToBlockStateCode(data.treeBranch), "Blocks.ACACIA_LEAVES.getDefaultState()")}),
+                    new AcaciaFoliagePlacer(2, 0))
+                    .baseHeight(${ct?then([data.minHeight, 32]?min, 5)}).heightRandA(2).heightRandB(2)
+                    .trunkHeight(0)
+                    <#if data.hasVines() || data.hasFruits()>
+                    	<@vinesAndFruits/>
+                    <#else>
+                    	.ignoreVines()
+                    </#if>)
+            	.build())
+            	.withPlacement(Placement.COUNT_EXTRA_HEIGHTMAP.configure(new AtSurfaceWithExtraConfig(${data.treesPerChunk}, 0.1F, 1))));
+        	<#elseif data.vanillaTreeType == "Mega pine trees">
+        	this.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION,
+				Feature.MEGA_SPRUCE_TREE.withConfiguration((new HugeTreeFeatureConfig.Builder(
+                    new SimpleBlockStateProvider(${ct?then(mappedBlockToBlockStateCode(data.treeStem), "Blocks.SPRUCE_LOG.getDefaultState()")}),
+                    new SimpleBlockStateProvider(${ct?then(mappedBlockToBlockStateCode(data.treeBranch), "Blocks.SPRUCE_LEAVES.getDefaultState()")}))
+                    .baseHeight(${ct?then([data.minHeight, 32]?min, 13)}).heightInterval(15).crownHeight(3)
+                    <#if data.hasVines() || data.hasFruits()>
+                    	<@vinesAndFruits/>
+                    </#if>)
+            	.build())
+            	.withPlacement(Placement.COUNT_EXTRA_HEIGHTMAP.configure(new AtSurfaceWithExtraConfig(${data.treesPerChunk}, 0.1F, 1))));
+        	<#elseif data.vanillaTreeType == "Mega spruce trees">
+        	this.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION,
+				Feature.MEGA_SPRUCE_TREE.withConfiguration((new HugeTreeFeatureConfig.Builder(
+                    new SimpleBlockStateProvider(${ct?then(mappedBlockToBlockStateCode(data.treeStem), "Blocks.SPRUCE_LOG.getDefaultState()")}),
+                    new SimpleBlockStateProvider(${ct?then(mappedBlockToBlockStateCode(data.treeBranch), "Blocks.SPRUCE_LEAVES.getDefaultState()")}))
+		            .baseHeight(${ct?then([data.minHeight, 32]?min, 13)}).heightInterval(15).crownHeight(13)
+                    .decorators(ImmutableList.of(new AlterGroundTreeDecorator(new SimpleBlockStateProvider(Blocks.PODZOL.getDefaultState()))))
+                    <#if data.hasVines() || data.hasFruits()>
+                    	<@vinesAndFruits/>
+                    </#if>)
+            	.build())
+            	.withPlacement(Placement.COUNT_EXTRA_HEIGHTMAP.configure(new AtSurfaceWithExtraConfig(${data.treesPerChunk}, 0.1F, 1))));
+        	<#elseif data.vanillaTreeType == "Birch trees">
+        	this.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION,
+				Feature.NORMAL_TREE.withConfiguration((new TreeFeatureConfig.Builder(
+                    new SimpleBlockStateProvider(${ct?then(mappedBlockToBlockStateCode(data.treeStem), "Blocks.BIRCH_LOG.getDefaultState()")}),
+                    new SimpleBlockStateProvider(${ct?then(mappedBlockToBlockStateCode(data.treeBranch), "Blocks.BIRCH_LEAVES.getDefaultState()")}),
+                    new BlobFoliagePlacer(2, 0))
+                    .baseHeight(${ct?then([data.minHeight, 32]?min, 5)}).heightRandA(2).foliageHeight(3)
+                    <#if data.hasVines() || data.hasFruits()>
+                    	<@vinesAndFruits/>
+                    <#else>
+                    	.ignoreVines()
+                    </#if>)
+            	.build())
+            	.withPlacement(Placement.COUNT_EXTRA_HEIGHTMAP.configure(new AtSurfaceWithExtraConfig(${data.treesPerChunk}, 0.1F, 1))));
+        	<#else>
+        	this.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION,
+				Feature.NORMAL_TREE.withConfiguration((new TreeFeatureConfig.Builder(
+                    new SimpleBlockStateProvider(${ct?then(mappedBlockToBlockStateCode(data.treeStem), "Blocks.OAK_LOG.getDefaultState()")}),
+                    new SimpleBlockStateProvider(${ct?then(mappedBlockToBlockStateCode(data.treeBranch), "Blocks.OAK_LEAVES.getDefaultState()")}),
+                    new BlobFoliagePlacer(2, 0))
+		            .baseHeight(${ct?then([data.minHeight, 32]?min, 4)}).heightRandA(2).foliageHeight(3)
+                    <#if data.hasVines() || data.hasFruits()>
+                    	<@vinesAndFruits/>
+                    <#else>
+                    	.ignoreVines()
+                    </#if>)
+            	.build())
+            	.withPlacement(Placement.COUNT_EXTRA_HEIGHTMAP.configure(new AtSurfaceWithExtraConfig(${data.treesPerChunk}, 0.1F, 1))));
+        	</#if>
+        </#if>
 
 		<#list data.spawnEntries as spawnEntry>
 			<#assign entity = spawnEntry.entity.getMappedValue(1)!"null">
@@ -165,18 +230,31 @@ public class ${name}Biome extends Biome {
 			this.addSpawn(${generator.map(spawnEntry.spawnType, "mobspawntypes")}, new Biome.SpawnListEntry(${entity}, ${spawnEntry.weight}, ${spawnEntry.minGroup}, ${spawnEntry.maxGroup}));
 			</#if>
 		</#list>
-		}
+	}
 
 	@OnlyIn(Dist.CLIENT) @Override public int getGrassColor(double posX, double posZ) {
 		return ${data.grassColor?has_content?then(data.grassColor.getRGB(), 9470285)};
 	}
 
-        @OnlyIn(Dist.CLIENT) @Override public int getFoliageColor() {
-        	return ${data.foliageColor?has_content?then(data.foliageColor.getRGB(), 10387789)};
-       	 }
+	@OnlyIn(Dist.CLIENT) @Override public int getFoliageColor() {
+	    return ${data.foliageColor?has_content?then(data.foliageColor.getRGB(), 10387789)};
+	}
 
 	@OnlyIn(Dist.CLIENT) @Override public int getSkyColor() {
 		return ${data.airColor?has_content?then(data.airColor.getRGB(), 7972607)};
 	}
 }
+<#macro vinesAndFruits>
+.decorators(ImmutableList.of(
+	<#if data.hasVines()>
+		${name}LeaveDecorator.INSTANCE,
+		${name}TrunkDecorator.INSTANCE
+	</#if>
+
+	<#if data.hasFruits()>
+	    <#if data.hasVines()>,</#if>
+        ${name}FruitDecorator.INSTANCE
+	</#if>
+))
+</#macro>
 <#-- @formatter:on -->

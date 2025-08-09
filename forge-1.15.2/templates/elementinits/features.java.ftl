@@ -34,7 +34,7 @@
  */
 package ${package}.init;
 
-@Mod.EventBusSubscriber public class ${JavaModName}Features {
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD) public class ${JavaModName}Features {
 
 	public static final DeferredRegister<Feature<?>> REGISTRY = new DeferredRegister<>(ForgeRegistries.FEATURES, ${JavaModName}.MODID);
 
@@ -91,9 +91,9 @@ package ${package}.init;
 	private static class FeatureRegistration {
         private final GenerationStage.Decoration stage;
         private final Set<ResourceLocation> biomes;
-        private final Supplier<ConfiguredFeature<?>> configuredFeature;
+        private final Supplier<?> configuredFeature;
 
-        public FeatureRegistration(GenerationStage.Decoration stage, Set<ResourceLocation> biomes, Supplier<ConfiguredFeature<?>> configuredFeature) {
+        public FeatureRegistration(GenerationStage.Decoration stage, Set<ResourceLocation> biomes, Supplier<?> configuredFeature) {
             this.stage = stage;
             this.biomes = biomes;
             this.configuredFeature = configuredFeature;
@@ -107,8 +107,9 @@ package ${package}.init;
             return biomes;
         }
 
-        public Supplier<ConfiguredFeature<?>> configuredFeature() {
-            return configuredFeature;
+        @SuppressWarnings("unchecked")
+        public Supplier<ConfiguredFeature<?, ?>> configuredFeature() {
+            return (Supplier<ConfiguredFeature<?, ?>>) configuredFeature;
         }
     }
 }

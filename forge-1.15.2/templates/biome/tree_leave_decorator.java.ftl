@@ -1,7 +1,7 @@
 <#--
  # MCreator (https://mcreator.net/)
  # Copyright (C) 2012-2020, Pylo
- # Copyright (C) 2020-2024, Pylo, opensource contributors
+ # Copyright (C) 2020-2023, Pylo, opensource contributors
  #
  # This program is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
@@ -29,30 +29,30 @@
 -->
 
 <#-- @formatter:off -->
-package ${package}.init;
-/*
- *    MCreator note: This file will be REGENERATED on each build.
- */
-<#assign spawn_overworld = biomes?filter(biome -> biome.spawnBiome)>
+<#include "../mcitems.ftl">
+package ${package}.world.features.treedecorators;
 
-<#if spawn_overworld?has_content>
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-</#if>
-public class ${JavaModName}Biomes {
+import com.mojang.datafixers.Dynamic;
 
-	public static final DeferredRegister<Biome> REGISTRY = DeferredRegister.create(ForgeRegistries.BIOMES, ${JavaModName}.MODID);
+public class ${name}LeaveDecorator extends LeaveVineTreeDecorator {
+    public static final ${name}LeaveDecorator INSTANCE = new ${name}LeaveDecorator();
 
-    <#list biomes as biome>
-    public static final RegistryObject<Biome> ${biome.getModElement().getRegistryNameUpper()}
-        = REGISTRY.register("${biome.getModElement().getRegistryName()}", ${biome.getModElement().getName()}Biome::new);
-    </#list>
+	@Override protected void func_227424_a_(IWorldWriter ww, BlockPos bp, BooleanProperty bpr, Set<BlockPos> sbc, MutableBoundingBox mbb) {
+		func_227423_a_(ww, bp, oriented(${mappedBlockToBlockStateCode(data.treeVines)}, bpr), sbc, mbb);
+	}
 
-    <#if spawn_overworld?has_content>
-    @SubscribeEvent public static void init(FMLCommonSetupEvent event) {
-        <#list spawn_overworld as biome>
-            ${biome.getModElement().getName()}Biome.init();
-        </#list>
+    @SuppressWarnings("deprecation") private static BlockState oriented(BlockState blockstate, BooleanProperty bpr) {
+        if (!blockstate.has(VineBlock.SOUTH))
+            return blockstate;
+
+        if (blockstate.get(VineBlock.SOUTH))
+                return blockstate.rotate(Rotation.CLOCKWISE_180);
+        else if (blockstate.get(VineBlock.EAST))
+                return blockstate.rotate(Rotation.CLOCKWISE_90);
+        else if (blockstate.get(VineBlock.WEST))
+                return blockstate.rotate(Rotation.COUNTERCLOCKWISE_90);
+        else
+                return blockstate;
     }
-    </#if>
 }
 <#-- @formatter:on -->
