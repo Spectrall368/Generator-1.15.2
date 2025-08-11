@@ -95,17 +95,7 @@ public class ${name}Feature extends ${generator.map(featuretype, "features")} {
 			    return false;
 	    </#if>
 
-		<#if placementcode != "" && data.hasPlacedFeature()>
-            <#list extractParts(placementcode) as part>
-                ${part?replace("random.", name + "Feature.random.")}
-            </#list>
-		</#if>
-
-		<#if featuretype == "feature_random_patch_simple">
-		if(!(${configurationcode?keep_after_last(".withCondition(")?keep_before_last(")")?replace("random.", name + "Feature.random.")}))
-			return false;
-		</#if>
-
+        <#if data.hasPlacedFeature()>
 		<#if hasProcedure(data.generateCondition)>
 			int x = placePos.getX();
 			int y = placePos.getY();
@@ -113,6 +103,29 @@ public class ${name}Feature extends ${generator.map(featuretype, "features")} {
 			if (!<@procedureOBJToConditionCode data.generateCondition/>)
 				return false;
 		</#if>
+
+		    <#if placementcode.contains("Rarity")>
+			    if(random.nextFloat() < 1.0F / (float) ${placementcode?keep_after("Rarity(")?keep_before(")")}) {
+			</#if>
+			<#if placementcode.contains("Count")>
+			    int count = ${placementcode?keep_after("Count(")?keep_before_last("^")};
+				for(int a = 0; a < count; a++) {
+		    </#if>
+
+			<#if placementcode != "">
+			    ${removeStrings(placementcode)}
+			</#if>
+
+            <#if featuretype == "feature_random_patch_simple">
+            if(!(${configurationcode?keep_after_last(".withCondition(")?keep_before_last(")")?replace("random.", name + "Feature.random.")}))
+                return false;
+            </#if>
+
+			return super.place(world, generator, random, placePos, config);
+
+			<#if placementcode.contains("Count")>}</#if>
+			<#if placementcode.contains("Rarity")>}</#if>
+			<#if placementcode.contains("Rarity") || placementcode.contains("Count")>return false;</#if>
 
 		<#if featuretype == "feature_simple_block">
 			BlockState state = config.state;
@@ -126,6 +139,9 @@ public class ${name}Feature extends ${generator.map(featuretype, "features")} {
 				return true;
 			}
 			return false;
+		<#else>
+			return super.generate(world, generator, random, placePos, config);
+		</#if>
 		<#else>
 			return super.generate(world, generator, random, placePos, config);
 		</#if>
@@ -147,40 +163,22 @@ public class ${name}Feature extends ${generator.map(featuretype, "features")} {
 	</#if>
 }</#compress>
 <#-- @formatter:on -->
-<#function extractParts str>
-    <#assign parts = []>
-    <#assign remainingStr = str>
-
-    <#list 1..str?length as i>
-        <#assign startIndex = remainingStr?index_of('£')>
-        <#if startIndex == -1>
-            <#break>
-        </#if>
-        <#assign endIndex = remainingStr?index_of('^', startIndex)>
-        <#if endIndex == -1>
-            <#break>
-        </#if>
-        <#assign part = remainingStr?substring(startIndex + 1, endIndex)>
-        <#assign parts = parts + [part]>
-        <#assign remainingStr = remainingStr?substring(endIndex + 1)>
-    </#list>
-
-    <#return parts>
+<#function removeStrings str>
+<#assign result = str>
+<#list 1..countOccurrencesOfSlash(result) as i>
+<#assign result_str = "/" + result?keep_after("/")?keep_before("/") + "/">
+<#assign result = result?replace(result_str, "")>
+</#list>
+<#return result>
 </#function>
-<#function removeParts str>
-    <#assign start = str?index_of("£")>
-
-    <#if start == -1>
-        <#return str>
+<#function countOccurrencesOfSlash input>
+  <#local count = 0>
+  <#list 0..(input?length - 1) as i>
+    <#if input[i] == "/">
+      <#assign count = count + 1>
     </#if>
-
-    <#assign end = str?index_of("^", start)>
-
-    <#if end == -1>
-        <#return str>
-    </#if>
-
-    <#return removeParts(str?substring(0, start) + str?substring(end + 1))>
+  </#list>
+  <#return count>
 </#function>
 <#function expandBiomeTag biomeTag>
     <#local result = []>
