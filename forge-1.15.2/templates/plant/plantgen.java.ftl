@@ -42,14 +42,10 @@ package ${package}.world.features.plants;
 		</#if>
 	</#list>
 </#if>
-<#assign confName = "ConfiguredFeature<?, ?>">
-<#if data.generationType == "Flower" || data.plantType == "growapable">
-    <#assign confName = "ConfiguredRandomFeatureList<?>">
-</#if>
 
 public class ${name}Feature extends <#if data.plantType == "normal" && data.generationType == "Flower">DefaultFlowers<#else>RandomPatch</#if>Feature {
     private static ${name}Feature INSTANCE = null;
-  	private static ${confName} CONFIGURED_FEATURE = null;
+  	private static ConfiguredFeature<?, ?> CONFIGURED_FEATURE = null;
 
 	public ${name}Feature() {
 		super(BlockClusterFeatureConfig::deserialize);
@@ -68,15 +64,12 @@ public class ${name}Feature extends <#if data.plantType == "normal" && data.gene
                     <#if data.generateAtAnyHeight>
                     .withPlacement(Placement.COUNT_RANGE.configure(new CountRangeConfig(${data.frequencyOnChunks}, 0, 0, 128)))
                     <#else>
-                    .withPlacement(<#if !(data.generationType == "Grass" || data.plantType == "growapable")>HEIGHTMAP_WORLD_SURFACE<#else>Placement.COUNT_HEIGHTMAP</#if>.configure(new FrequencyConfig(${data.frequencyOnChunks})))
-                    <#if data.generationType == "Flower" || data.plantType == "growapable">
-                    .withChance(32)</#if>
-                    </#if>;
+                    .withPlacement(<#if !(data.generationType == "Grass" || data.plantType == "growapable")>HEIGHTMAP_WORLD_SURFACE<#else>Placement.COUNT_HEIGHTMAP</#if>.configure(new FrequencyConfig(${data.frequencyOnChunks})))</#if>;
 
 		return INSTANCE;
 	}
 
-	public static ${confName} configuredFeature() {
+	public static ConfiguredFeature<?, ?> configuredFeature() {
 	    if (CONFIGURED_FEATURE == null)
 	        feature();
 
@@ -102,8 +95,9 @@ public class ${name}Feature extends <#if data.plantType == "normal" && data.gene
     }
 	</#if>
 
-	<#if data.restrictionBiomes?has_content && cond>
-	@Override public boolean generate(IWorld world, ChunkGenerator generator, Random random, BlockPos pos, BlockClusterFeatureConfig config) {
+	<#if data.generationType == "Flower" || data.plantType == "growapable" || (data.restrictionBiomes?has_content && cond)>
+	@Override public boolean place(IWorld world, ChunkGenerator generator, Random random, BlockPos pos, BlockClusterFeatureConfig config) {
+            <#if data.restrictionBiomes?has_content && cond>
 		    DimensionType dimensionType = world.getDimension().getType();
 			boolean dimensionCriteria = false;
 			<#list w.filterBrokenReferences(data.restrictionBiomes) as restrictionBiome>
@@ -122,8 +116,13 @@ public class ${name}Feature extends <#if data.plantType == "normal" && data.gene
 
 			if(!dimensionCriteria)
 			    return false;
+            </#if>
 
-		return super.generate(world, generator, random, pos, config);
+        <#if data.generationType == "Flower" || data.plantType == "growapable">
+         if(!(random.nextFloat() < 1.0F / (float) 32)) return false;
+         </#if>
+
+		return super.place(world, generator, random, pos, config);
 	}
 	</#if>
 

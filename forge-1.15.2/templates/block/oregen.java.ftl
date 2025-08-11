@@ -91,7 +91,7 @@ public class ${name}Feature extends OreFeature {
 	}
 
     <#if data.restrictionBiomes?has_content && cond>
-	@Override public boolean generate(ISeedReader world, ChunkGenerator generator, Random random, BlockPos pos, OreFeatureConfig config) {
+	@Override public boolean place(IWorld world, ChunkGenerator generator, Random random, BlockPos pos, OreFeatureConfig config) {
 		    DimensionType dimensionType = world.getDimension().getType();
 			boolean dimensionCriteria = false;
 			<#list w.filterBrokenReferences(data.restrictionBiomes) as restrictionBiome>
@@ -112,7 +112,7 @@ public class ${name}Feature extends OreFeature {
 			    return false;
 
 
-	    return super.generate(world, generator, random, pos, config);
+	    return super.place(world, generator, random, pos, config);
 	}
     </#if>
 

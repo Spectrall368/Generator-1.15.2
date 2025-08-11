@@ -50,7 +50,7 @@ package ${package}.world.features;
 <#compress>
 public class ${name}Feature extends ${generator.map(featuretype, "features")} {
     private static ${name}Feature INSTANCE = null;
-  	private static ${confName} CONFIGURED_FEATURE = null;
+  	private static ConfiguredFeature<?, ?> CONFIGURED_FEATURE = null;
   	private static final Random random = new Random();
 
 	public ${name}Feature() {
@@ -64,7 +64,7 @@ public class ${name}Feature extends ${generator.map(featuretype, "features")} {
 		return INSTANCE;
 	}
 
-	public static ${confName} configuredFeature() {
+	public static ConfiguredFeature<?, ?> configuredFeature() {
 	    if (CONFIGURED_FEATURE == null)
 	        feature();
 
@@ -72,7 +72,7 @@ public class ${name}Feature extends ${generator.map(featuretype, "features")} {
 	}
 
     <#if configuration != "BaseTreeFeatureConfig">
-	@Override public boolean generate(ISeedReader world, ChunkGenerator generator, Random random, BlockPos pos, ${configuration} config) {
+	@Override public boolean place(IWorld world, ChunkGenerator generator, Random random, BlockPos pos, ${configuration} config) {
 	    BlockPos placePos = pos;
 	    <#if data.restrictionBiomes?has_content && cond>
 		    DimensionType dimensionType = world.getDimension().getType();
@@ -121,29 +121,27 @@ public class ${name}Feature extends ${generator.map(featuretype, "features")} {
                 return false;
             </#if>
 
+            <#if featuretype == "feature_simple_block">
+                BlockState state = config.state;
+                if (state.isValidPosition(world, placePos)) {
+                    if (state.getBlock() instanceof DoublePlantBlock) {
+                        if (!world.isAirBlock(placePos.up()))
+                            return false;
+                        ((DoublePlantBlock) state.getBlock()).placeAt(world, placePos, 2);
+                    } else
+                        world.setBlockState(placePos, config.state, 2);
+                    return true;
+                }
+                return false;
+            </#if>
+
 			return super.place(world, generator, random, placePos, config);
 
 			<#if placementcode.contains("Count")>}</#if>
 			<#if placementcode.contains("Rarity")>}</#if>
 			<#if placementcode.contains("Rarity") || placementcode.contains("Count")>return false;</#if>
-
-		<#if featuretype == "feature_simple_block">
-			BlockState state = config.state;
-			if (state.isValidPosition(world, placePos)) {
-				if (state.getBlock() instanceof DoublePlantBlock) {
-					if (!world.isAirBlock(placePos.up()))
-						return false;
-					((DoublePlantBlock) state.getBlock()).placeAt(world, placePos, 2);
-				} else
-					world.setBlockState(placePos, config.state, 2);
-				return true;
-			}
-			return false;
 		<#else>
-			return super.generate(world, generator, random, placePos, config);
-		</#if>
-		<#else>
-			return super.generate(world, generator, random, placePos, config);
+			return super.place(world, generator, random, placePos, config);
 		</#if>
 	}
 	</#if>
