@@ -90,7 +90,7 @@ package ${package}.world.dimension;
 		@Override @OnlyIn(Dist.CLIENT)
 		<#if !data.airColor?has_content>
 			<#if data.skyType == "NONE">
-				${mcc.getMethod("net.minecraft.world.dimension.NetherDimension", "getFogColor", "float", "float")?keep_before_last(";")}
+				${mcc.getMethod("net.minecraft.world.dimension.NetherDimension", "getFogColor", "float", "float")?keep_before_last(";")?replace("field_227177_f_", "new Vec3d((double)0.2F, (double)0.03F, (double)0.03F)")}
 			<#elseif data.skyType == "NORMAL">
 				${mcc.getMethod("net.minecraft.world.dimension.OverworldDimension", "getFogColor", "float", "float")?keep_before_last(";")}
 			<#else>
