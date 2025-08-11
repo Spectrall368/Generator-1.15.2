@@ -43,10 +43,6 @@ package ${package}.world.features;
 		</#if>
 	</#list>
 </#if>
-<#assign confName = "ConfiguredFeature<?, ?>">
-<#if data.generationType == "Flower" || data.plantType == "growapable">
-    <#assign confName = "ConfiguredRandomFeatureList<?>">
-</#if>
 <#compress>
 public class ${name}Feature extends ${generator.map(featuretype, "features")} {
     private static ${name}Feature INSTANCE = null;
@@ -59,7 +55,7 @@ public class ${name}Feature extends ${generator.map(featuretype, "features")} {
 
 	public static Feature<?> feature() {
 		INSTANCE = new ${name}Feature();
-		CONFIGURED_FEATURE = INSTANCE.withConfiguration(${configurationcode?keep_before_last(".withCondition")?replace("random.", name + "Feature.random.")})<#if data.hasPlacedFeature()><#if placementcode?contains("£")>${removeParts(placementcode)?replace("random.", name + "Feature.random.")}<#else>${placementcode?remove_ending(",")?replace("random.", name + "Feature.random.")}</#if></#if>;
+		CONFIGURED_FEATURE = INSTANCE.withConfiguration(${configurationcode});
 
 		return INSTANCE;
 	}
