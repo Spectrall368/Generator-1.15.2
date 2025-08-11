@@ -50,7 +50,7 @@ public class ${name}Feature extends ${generator.map(featuretype, "features")} {
   	private static final Random random = new Random();
 
 	public ${name}Feature() {
-		super(${generator.map(featuretype, "features", 2)});
+		super(${configuration}::deserialize);
 	}
 
 	public static Feature<?> feature() {

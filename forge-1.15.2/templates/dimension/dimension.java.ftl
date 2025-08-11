@@ -39,8 +39,9 @@ package ${package}.world.dimension;
 	private ${name}BiomeProvider biomeProvider${name} = null;
 
 	public ${name}Dimension(World world, DimensionType type) {
-        super(world, type);
+        super(world, type, ${data.ambientLight}f);
         this.nether = <#if data.worldGenType == "Nether like gen">true<#else>false</#if>;
+        <#if data.doesWaterVaporize>this.doesWaterVaporize = true;</#if>
 	}
 
 	@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE) public static class ${name}SpecialEffectsHandler {
@@ -82,16 +83,6 @@ package ${package}.world.dimension;
 	
 	@Override public boolean canDoRainSnowIce(Chunk chunk) {
 		return false;
-	}
-	</#if>
-
-	<#if data.ambientLight != 0>
-	@Override protected void generateLightBrightnessTable() {
-		float f = ${data.ambientLight}f;
-		for (int i = 0; i <= 15; ++i) {
-			float f1 = 1 - (float) i / 15f;
-			this.lightBrightnessTable[i] = (1 - f1) / (f1 * 3 + 1) * (1 - f) + f;
-		}
 	}
 	</#if>
 
@@ -149,7 +140,7 @@ package ${package}.world.dimension;
 
         @Override @OnlyIn(Dist.CLIENT) ${mcc.getMethod("net.minecraft.world.dimension.OverworldDimension", "doesXZShowFog", "int", "int")}
     <#elseif data.defaultEffects == "the_nether">
-        @Override @OnlyIn(Dist.CLIENT) ${mcc.getMethod("net.minecraft.world.dimension.NetherDimension", "getFogColor", "float", "float")}
+        @Override @OnlyIn(Dist.CLIENT) ${mcc.getMethod("net.minecraft.world.dimension.NetherDimension", "getFogColor", "float", "float")?replace("field_227177_f_", "new Vec3d((double)0.2F, (double)0.03F, (double)0.03F)")}
 
         @Override ${mcc.getMethod("net.minecraft.world.dimension.NetherDimension", "calculateCelestialAngle", "long", "float")}
 
@@ -192,10 +183,6 @@ package ${package}.world.dimension;
 
    	@Nullable public BlockPos findSpawn(int x, int z, boolean checkValid) {
    	   return null;
-   	}
-
-	@Override public boolean doesWaterVaporize() {
-      	return ${data.doesWaterVaporize};
    	}
 
 	<#if hasProcedure(data.onPlayerLeavesDimension) || hasProcedure(data.onPlayerEntersDimension)>
