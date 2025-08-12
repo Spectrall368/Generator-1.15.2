@@ -60,8 +60,8 @@ public class ${name}ItemRenderer extends ItemStackTileEntityRenderer {
 
 		poseStack.push();
 		Minecraft.getInstance().getItemRenderer().getItemModelWithOverrides(this.transformSource.get(), null, null);
-		poseStack.translate(0.5, 1.5, 0.5);
-		poseStack.scale(1, -1, -1);
+		poseStack.translate(0.5, 2, 0.5);
+		poseStack.scale(1, -1, 1);
 		IVertexBuilder vertexConsumer = ItemRenderer.getBuffer(bufferSource, model.getRenderType(texture), false, itemstack.hasEffect());
 		model.render(poseStack, vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
 		poseStack.pop();
