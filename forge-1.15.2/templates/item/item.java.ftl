@@ -41,7 +41,7 @@ public class ${name}Item extends <#if data.hasBannerPatterns()>BannerPattern<#el
 	public ${name}Item() {
     super(<#if data.hasBannerPatterns()>${JavaModName}BannerPatterns.${data.providedBannerPatterns[0]?upper_case},
                 <#elseif data.isMusicDisc>
-                ${data.musicDiscAnalogOutput}, <#if data.musicDiscMusic.getUnmappedValue().startsWith("CUSTOM:")>new SoundEvent<#else>ForgeRegistries.SOUND_EVENTS.getValue</#if>(new ResourceLocation("${data.musicDiscMusic}")),
+                ${data.musicDiscAnalogOutput}, () -> ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation("${data.musicDiscMusic}")),
                 </#if>new Item.Properties()
 				.group(<@CreativeTabs data.creativeTabs/>)
 				<#if data.hasInventory()>
