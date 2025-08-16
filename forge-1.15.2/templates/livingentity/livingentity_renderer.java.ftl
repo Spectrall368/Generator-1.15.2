@@ -95,7 +95,7 @@ public class ${name}Renderer extends <#if humanoid>Biped<#else>Mob</#if>Renderer
 		<#if humanoid>
 		this.addLayer(new BipedArmorLayer(this, new BipedModel(0.5F), new BipedModel(1.0F)));
 		<#elseif data.mobModelName == "Villager">
-		this.addLayer(new VillagerHeldItemLayer<>(this));
+		this.addLayer(new CrossedArmsItemLayer<>(this));
 		<#elseif data.mobModelName == "Witch">
 		this.addLayer(new WitchHeldItemLayer<>(this));
 		</#if>
