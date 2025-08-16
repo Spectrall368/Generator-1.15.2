@@ -1,1 +1,1 @@
-(${input$entity}.getType().isContained(EntityTypeTags.func_219763_a("${input$tag}")))
+(${input$entity}.getType().isContained(EntityTypeTags.getCollection().getOrCreate(new ResourceLocation("${input$tag}"))))
