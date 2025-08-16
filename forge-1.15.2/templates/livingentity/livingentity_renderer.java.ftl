@@ -99,7 +99,6 @@ public class ${name}Renderer extends <#if humanoid>Biped<#else>Mob</#if>Renderer
 		<#elseif data.mobModelName == "Witch">
 		this.addLayer(new WitchHeldItemLayer<>(this));
 		</#if>
-		</#if>
 
 		<#list data.modelLayers as layer>
 		this.addLayer(new LayerRenderer<${name}Entity, ${model}>(this) {
