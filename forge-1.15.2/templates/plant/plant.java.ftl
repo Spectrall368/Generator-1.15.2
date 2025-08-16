@@ -424,7 +424,7 @@ public class ${name}Block extends ${getPlantClass(data.plantType)}Block
 	<#if canBePlacedOn.getUnmappedValue().startsWith("TAG:")>
 	groundState.isIn(BlockTags.getCollection().getOrCreate(new ResourceLocation("${canBePlacedOn.getUnmappedValue().replace("TAG:", "").replace("mod:", modid + ":")}")))
 	<#elseif canBePlacedOn.getMappedValue(1).startsWith("#")>
-	groundState.isIn(BlockTags.getCollection().getOrCreate(new ResourceLocation(${canBePlacedOn.getMappedValue(1)?remove_beginning("#")}")))
+	groundState.isIn(BlockTags.getCollection().getOrCreate(new ResourceLocation("${canBePlacedOn.getMappedValue(1)?remove_beginning("#")}")))
 	<#else>
 	groundState.getBlock() == ${mappedBlockToBlock(canBePlacedOn)}
 	</#if><#sep>||

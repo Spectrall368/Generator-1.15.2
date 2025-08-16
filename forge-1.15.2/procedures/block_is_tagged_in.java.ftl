@@ -1,2 +1,3 @@
+<#include "mcelements.ftl">
 <#include "mcitems.ftl">
-(${mappedBlockToBlock(input$a)}.isIn(BlockTags.getCollection().getOrCreate(new ResourceLocation("${input$b}"))))
+(${mappedBlockToBlock(input$a)}.isIn(BlockTags.getCollection().getOrCreate(${toResourceLocation(input$b)})))
