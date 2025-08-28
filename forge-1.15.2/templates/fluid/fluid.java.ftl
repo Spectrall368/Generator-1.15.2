@@ -131,7 +131,7 @@ public abstract class ${name}Fluid extends ForgeFlowingFluid {
 	}
 
 	public static class Flowing extends ${name}Fluid {
-		protected void fillStateContainer(StateContainer.Builder<Fluid, FluidState> builder) {
+		protected void fillStateContainer(StateContainer.Builder<Fluid, IFluidState> builder) {
 			super.fillStateContainer(builder);
 			builder.add(LEVEL_1_8);
 		}
