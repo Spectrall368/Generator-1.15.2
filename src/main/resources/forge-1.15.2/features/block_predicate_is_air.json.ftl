@@ -1,1 +1,1 @@
-world.getBlockState(placePos).getBlock() == Blocks.AIR
+world.isAirBlock(origin)
