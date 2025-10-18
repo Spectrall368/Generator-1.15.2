@@ -1,1 +1,1 @@
-/Count(${input$count}^)/
+.withPlacement(Placement.COUNT_HEIGHTMAP.configure(new FrequencyConfig(${input$count})))

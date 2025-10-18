@@ -70,7 +70,7 @@ package ${package}.init;
 	<#if playerAttributes?size != 0>
 	@SubscribeEvent public static void playerClone(PlayerEvent.Clone event) {
 		PlayerEntity oldPlayer = event.getOriginal();
-		PlayerEntity newPlayer = event.getEntityPlayer();
+		PlayerEntity newPlayer = event.getPlayer();
 		<#list playerAttributes as attribute>
 			newPlayer.getAttribute(${attribute.getModElement().getRegistryNameUpper()}).setBaseValue(oldPlayer.getAttribute(${attribute.getModElement().getRegistryNameUpper()}).getBaseValue());
 		</#list>

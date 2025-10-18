@@ -788,7 +788,7 @@ public class ${name}Block extends
 			private ${propClassName}Property(String name) {
 				this.name = name;
 			}
-			@Override public String getString() {
+			@Override public String getName() {
 				return this.name;
 			}
 		}

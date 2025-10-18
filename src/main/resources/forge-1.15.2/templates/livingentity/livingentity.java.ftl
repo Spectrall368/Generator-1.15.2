@@ -923,6 +923,10 @@ public class ${name}Entity extends ${extendsClass}Entity <#if interfaces?size gt
 		</#if>
 	}
 
+	<#if data.mobBehaviourType == "Raider">
+   	@Override public void func_213660_a(int num, boolean logic) {}
+   	</#if>
+
 	@Override protected void registerAttributes() {
 		super.registerAttributes();
 
