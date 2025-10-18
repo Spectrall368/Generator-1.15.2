@@ -59,17 +59,17 @@ package ${package}.world.teleporter;
         }
     }
 
-	${mcc.getMethod("net.minecraft.world.Teleporter", "placeInExistingPortal", "BlockPos", "Vec3d", "Direction", "double", "double", "boolean")
+	@Override ${mcc.getMethod("net.minecraft.world.Teleporter", "placeInExistingPortal", "BlockPos", "Vec3d", "Direction", "double", "double", "boolean")
 				   .replace("NetherPortalBlock.createPatternHelper", name + mappedBlockToBlockStateCode(data.portalFrame) + ".getBlock()." + createPatternHelper")
 				   .replace("PointOfInterestType.NETHER_PORTAL", "poi")
 				   .replace("TicketType.PORTAL", "CUSTOM_PORTAL")
 				   .replace("Blocks.NETHER_PORTAL", JavaModName + "Blocks." + registryname?upper_case + "_PORTAL.get()")}
 
-	${mcc.getMethod("net.minecraft.world.Teleporter", "placeInPortal", "Entity", "float")
+	@Override ${mcc.getMethod("net.minecraft.world.Teleporter", "placeInPortal", "Entity", "float")
 				   .replace("p_222268_1_.getTeleportDirection()", "teleportDirection")
 				   .replace("p_222268_1_.getLastPortalVec()", "lastPortalVec")}
 
-	${mcc.getMethod("net.minecraft.world.Teleporter", "makePortal", "Entity")
+	@Override ${mcc.getMethod("net.minecraft.world.Teleporter", "makePortal", "Entity")
 					.replace("Blocks.OBSIDIAN", mappedBlockToBlock(data.portalFrame)?string)
 					.replace(",blockstate,18);", ",blockstate,18);\nthis.world.getPointOfInterestManager().add(blockpos$mutable, poi);")
 					.replace("Blocks.NETHER_PORTAL", JavaModName + "Blocks." + registryname?upper_case + "_PORTAL.get()")}
