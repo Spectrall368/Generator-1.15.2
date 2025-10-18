@@ -97,26 +97,10 @@ public class ${name}Feature extends <#if data.plantType == "normal" && data.gene
 
 	<#if data.generationType == "Flower" || data.plantType == "growapable" || (data.restrictionBiomes?has_content && cond)>
 	@Override public boolean place(IWorld world, ChunkGenerator generator, Random random, BlockPos pos, BlockClusterFeatureConfig config) {
-            <#if data.restrictionBiomes?has_content && cond>
-		    DimensionType dimensionType = world.getDimension().getType();
-			boolean dimensionCriteria = false;
-			<#list w.filterBrokenReferences(data.restrictionBiomes) as restrictionBiome>
-	            <#assign biomeName = fixNamespace(restrictionBiome)>
-				<#if biomeName == "#minecraft:is_overworld">
-				    if(dimensionType == World.OVERWORLD)
-					    dimensionCriteria = true;
-				<#elseif biomeName == "#minecraft:is_nether">
-				    if(dimensionType == World.THE_NETHER)
-						dimensionCriteria = true;
-				<#else>
-					if(dimensionType == World.THE_END)
-			    		dimensionCriteria = true;
-				</#if>
-	    	</#list>
-
-			if(!dimensionCriteria)
-			    return false;
-            </#if>
+	    <#if data.restrictionBiomes?has_content && cond>
+		if (!generate_dimensions.contains(world.getDimension().getType()))
+			return false;
+	    </#if>
 
         <#if data.generationType == "Flower" || data.plantType == "growapable">
          if(!(random.nextFloat() < 1.0F / (float) 32)) return false;
@@ -135,9 +119,24 @@ public class ${name}Feature extends <#if data.plantType == "normal" && data.gene
 			new ResourceLocation("${expandedBiome}")<#sep>,
 		    </#list><#sep>,
         </#list>
-	);
+	)
 	<#else>
-	null;
+	null
+	</#if>;
+
+	<#if data.restrictionBiomes?has_content && cond>
+	private final Set<DimensionType> generate_dimensions = ImmutableSet.of(
+			<#list w.filterBrokenReferences(data.restrictionBiomes) as restrictionBiome>
+	        <#assign biomeName = fixNamespace(restrictionBiome)>
+			<#if biomeName == "#minecraft:is_overworld">
+				DimensionType.OVERWORLD
+			<#elseif biomeName == "#minecraft:is_nether">
+				DimensionType.THE_NETHER
+			<#else>
+				DimensionType.THE_END
+			</#if><#sep>,
+		</#list>
+	);
 	</#if>
 }
 <#-- @formatter:on -->

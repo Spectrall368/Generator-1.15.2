@@ -84,7 +84,7 @@ public class ${name}Item extends ${data.toolType?replace("Spade", "Shovel")?repl
 			},
 
 			<#if data.toolType!="MultiTool">
-				<#if data.toolType=="Sword">3<#elseif data.toolType=="Hoe">0<#else>1</#if>,${data.attackSpeed - 4}f,
+				<#if data.toolType != "Hoe"><#if data.toolType=="Sword">3<#else>1</#if>,</#if>${data.attackSpeed - 4}f,
 			</#if>
 
 				new Item.Properties()
@@ -143,7 +143,7 @@ public class ${name}Item extends ${data.toolType?replace("Spade", "Shovel")?repl
 			3
 			<#else>
 			4
-			</#if> >= state.getHarvestLevel();
+			</#if> >= blockstate.getHarvestLevel();
 		}
 
 		@Override public float getDestroySpeed(ItemStack itemstack, BlockState blockstate) {

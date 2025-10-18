@@ -54,7 +54,7 @@ import net.minecraft.network.datasync.DataParameter;
 public class ${name}Entity extends ${extendsClass}Entity <#if interfaces?size gt 0>implements ${interfaces?join(",")}</#if> {
 
 	<#if data.spawnThisMob>
-	private static final Set<ResourceLocation> GENERATE_BIOMES =
+	private static final Set<ResourceLocation> SPAWN_BIOMES =
 	<#if data.restrictionBiomes?has_content>
 	ImmutableSet.of(
 		<#list w.filterBrokenReferences(data.restrictionBiomes) as restrictionBiome>
@@ -63,10 +63,10 @@ public class ${name}Entity extends ${extendsClass}Entity <#if interfaces?size gt
 			new ResourceLocation("${expandedBiome}")<#sep>,
 		    </#list><#sep>,
         </#list>
-        );
+        )
         <#else>
-        null;
-        </#if>
+        null
+        </#if>;
 	</#if>
 
 	<#list data.entityDataEntries as entry>
@@ -431,6 +431,7 @@ public class ${name}Entity extends ${extendsClass}Entity <#if interfaces?size gt
 	<#if data.guiBoundTo?has_content>
 	private final ItemStackHandler inventory = new ItemStackHandler(${data.inventorySize})
 	<#if data.inventoryStackSize != 99>
+	{
 		@Override public int getSlotLimit(int slot) {
 			return ${data.inventoryStackSize};
 		}
@@ -496,11 +497,11 @@ public class ${name}Entity extends ${extendsClass}Entity <#if interfaces?size gt
 	<#if hasProcedure(data.onRightClickedOn) || data.ridable || (data.tameable && data.breedable) || data.guiBoundTo?has_content>
 	@Override public boolean processInteract(PlayerEntity sourceentity, Hand hand) {
 		ItemStack itemstack = sourceentity.getHeldItem(hand);
-		boolean retval = this.world.isRemote();
+		ActionResultType retval = ActionResult.newResult(ActionResultType.SUCCESS, this.world.isRemote()).getType();
 
 		<#if data.guiBoundTo?has_content>
 			<#if data.ridable>
-				if (sourceentity.isSecondaryUseActive()) {
+				if (sourceentity.isSneaking()) {
 			</#if>
 				if(sourceentity instanceof ServerPlayerEntity) {
 					NetworkHooks.openGui((ServerPlayerEntity) sourceentity, new INamedContainerProvider() {
@@ -532,23 +533,23 @@ public class ${name}Entity extends ${extendsClass}Entity <#if interfaces?size gt
 		<#if (data.tameable && data.breedable)>
 			Item item = itemstack.getItem();
 			if (itemstack.getItem() instanceof SpawnEggItem) {
-				retval = super.processInteract(sourceentity, hand);
+				retval = ActionResult.newResult(ActionResultType.SUCCESS, super.processInteract(sourceentity, hand)).getType();
 			} else if (this.world.isRemote()) {
 				retval = (this.isTamed() && this.isOwner(sourceentity) || this.isBreedingItem(itemstack))
-						? this.world.isRemote();
+						? ActionResult.newResult(ActionResultType.SUCCESS, this.world.isRemote()).getType() : ActionResultType.PASS;
 			} else {
 				if (this.isTamed()) {
 					if (this.isOwner(sourceentity)) {
 						if (item.isFood() && this.isBreedingItem(itemstack) && this.getHealth() < this.getMaxHealth()) {
 							this.consumeItemFromStack(sourceentity, itemstack);
 							this.heal((float)item.getFood().getHealing());
-							retval = this.world.isRemote();
+							retval = ActionResult.newResult(ActionResultType.SUCCESS, this.world.isRemote()).getType();
 						} else if (this.isBreedingItem(itemstack) && this.getHealth() < this.getMaxHealth()) {
 							this.consumeItemFromStack(sourceentity, itemstack);
 							this.heal(4);
-							retval = this.world.isRemote();
+							retval = ActionResult.newResult(ActionResultType.SUCCESS, this.world.isRemote()).getType();
 						} else {
-							retval = super.processInteract(sourceentity, hand);
+							retval = ActionResult.newResult(ActionResultType.SUCCESS, super.processInteract(sourceentity, hand)).getType();
 						}
 					}
 				} else if (this.isBreedingItem(itemstack)) {
@@ -561,10 +562,10 @@ public class ${name}Entity extends ${extendsClass}Entity <#if interfaces?size gt
 					}
 
 					this.enablePersistence();
-					retval = this.world.isRemote();
+					retval = ActionResult.newResult(ActionResultType.SUCCESS, this.world.isRemote()).getType();
 				} else {
-					retval = super.processInteract(sourceentity, hand);
-					if (retval)
+					retval = ActionResult.newResult(ActionResultType.SUCCESS, super.processInteract(sourceentity, hand)).getType();
+					if (retval == ActionResultType.SUCCESS)
 						this.enablePersistence();
 				}
 			}
@@ -586,10 +587,10 @@ public class ${name}Entity extends ${extendsClass}Entity <#if interfaces?size gt
 				return <@procedureOBJToInteractionResultCode data.onRightClickedOn/>.isSuccessOrConsume();
 			<#else>
 				<@procedureOBJToCode data.onRightClickedOn/>
-				return retval;
+				return retval != ActionResultType.FAIL;
 			</#if>
 		<#else>
-			return retval;
+			return retval != ActionResultType.FAIL;
 		</#if>
 	}
     </#if>
@@ -832,7 +833,7 @@ public class ${name}Entity extends ${extendsClass}Entity <#if interfaces?size gt
 		for (Biome biome : ForgeRegistries.BIOMES.getValues()) {
 		<#if data.restrictionBiomes?has_content>
             if (SPAWN_BIOMES.contains(ForgeRegistries.BIOMES.getKey(biome)))
-            </#if>
+        </#if>
 
 			biome.getSpawns(${generator.map(data.mobSpawningType, "mobspawntypes")}).add(new Biome.SpawnListEntry(${JavaModName}Entities.${REGISTRYNAME}.get(), ${data.spawningProbability},
 		        ${data.minNumberOfMobsPerGroup}, ${data.maxNumberOfMobsPerGroup}));
@@ -867,7 +868,7 @@ public class ${name}Entity extends ${extendsClass}Entity <#if interfaces?size gt
 					MobEntity::canSpawnOn
 					</#if>
 			);
-			<#elseif data.mobSpawningType == "waterCreature" || data.mobSpawningType == "waterAmbient" || data.mobSpawningType == "undergroundWaterCreature">
+			<#elseif data.mobSpawningType == "waterCreature" || data.mobSpawningType == "waterAmbient">
 			EntitySpawnPlacementRegistry.register(${JavaModName}Entities.${REGISTRYNAME}.get(),
 					EntitySpawnPlacementRegistry.PlacementType.IN_WATER, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
 					<#if hasProcedure(data.spawningCondition)>
@@ -878,7 +879,24 @@ public class ${name}Entity extends ${extendsClass}Entity <#if interfaces?size gt
 						return <@procedureOBJToConditionCode data.spawningCondition/>;
 					}
 					<#else>
-					SquidEntity::func_223365_b
+					(entityType, world, reason, pos, random) ->
+							(world.getBlockState(pos).getBlock() == Blocks.WATER && world.getBlockState(pos.up()).getBlock() == Blocks.WATER)
+					</#if>
+			);
+			<#elseif data.mobSpawningType == "undergroundWaterCreature">
+			EntitySpawnPlacementRegistry.register(${JavaModName}Entities.${REGISTRYNAME}.get(),
+					EntitySpawnPlacementRegistry.PlacementType.IN_WATER, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
+					<#if hasProcedure(data.spawningCondition)>
+					(entityType, world, reason, pos, random) -> {
+						int x = pos.getX();
+						int y = pos.getY();
+						int z = pos.getZ();
+						return <@procedureOBJToConditionCode data.spawningCondition/>;
+					}
+					<#else>
+					(entityType, world, reason, pos, random) -> {
+					    return world.getFluidState(pos.down()).isTagged(FluidTags.WATER) && world.getBlockState(pos.up()).getBlock() == Blocks.WATER && pos.getY() >= (world.getSeaLevel() - 13) && pos.getY() <= world.getSeaLevel();
+                    }
 					</#if>
 			);
 			<#else>
@@ -892,7 +910,9 @@ public class ${name}Entity extends ${extendsClass}Entity <#if interfaces?size gt
 						return <@procedureOBJToConditionCode data.spawningCondition/>;
 					}
 					<#else>
-					MonsterEntity::canMonsterSpawn
+						(entityType, world, reason, pos, random) ->
+								(world.getDifficulty() != Difficulty.PEACEFUL && MonsterEntity.func_223323_a(world, pos, random)
+										&& MobEntity.func_223315_a(entityType, world, reason, pos, random))
 					</#if>
 			);
 			</#if>

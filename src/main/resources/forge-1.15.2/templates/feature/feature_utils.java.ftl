@@ -29,20 +29,28 @@
 -->
 
 <#-- @formatter:off -->
-/*
- * MCreator note: This file will be REGENERATED on each build.
- */
-package ${package}.init;
+package ${package}.world.features;
 
-public class ${JavaModName}Fluids {
+public final class ${JavaModName}FeatureUtils {
+    protected static BlockState addProperty(BlockState block, String propr, boolean bool) {
+    	if (block.getBlock().getStateContainer().getProperty(propr) instanceof BooleanProperty)
+    		return block.with((BooleanProperty) block.getBlock().getStateContainer().getProperty(propr), bool);
 
-	public static final DeferredRegister<Fluid> REGISTRY = DeferredRegister.create(ForgeRegistries.FLUIDS, ${JavaModName}.MODID);
+        return block;
+    }
 
-	<#list fluids as fluid>
-	public static final RegistryObject<FlowingFluid> ${fluid.getModElement().getRegistryNameUpper()} =
-		REGISTRY.register("${fluid.getModElement().getRegistryName()}", ${fluid.getModElement().getName()}Fluid.Source::new);
-	public static final RegistryObject<FlowingFluid> FLOWING_${fluid.getModElement().getRegistryNameUpper()} =
-		REGISTRY.register("flowing_${fluid.getModElement().getRegistryName()}", ${fluid.getModElement().getName()}Fluid.Flowing::new);
-	</#list>
+    protected static BlockState addProperty(BlockState block, String propr, int num) {
+        if (block.getBlock().getStateContainer().getProperty(propr) instanceof IntegerProperty && ((IntegerProperty) block.getBlock().getStateContainer().getProperty(propr)).getAllowedValues().contains(num))
+            return block.with((IntegerProperty) block.getBlock().getStateContainer().getProperty(propr), num);
+
+        return block;
+    }
+
+    protected static BlockState addProperty(BlockState block, String propr, String str) {
+        if (block.getBlock().getStateContainer().getProperty(propr) instanceof EnumProperty && ((EnumProperty) block.getBlock().getStateContainer().getProperty(propr)).parseValue(str).isPresent())
+            return block.with((EnumProperty) block.getBlock().getStateContainer().getProperty(propr), (Enum) ((EnumProperty) block.getBlock().getStateContainer().getProperty(propr)).parseValue(str).get());
+
+        return block;
+    }
 }
 <#-- @formatter:on -->
