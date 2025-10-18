@@ -150,8 +150,6 @@ public class ${name}Biome extends Biome {
                     .baseHeight(${ct?then([data.minHeight, 32]?min, 10)}).heightInterval(20)
                     <#if data.hasVines() || data.hasFruits()>
                     	<@vinesAndFruits/>
-                    <#else>
-                    	.ignoreVines()
                     </#if>)
             	.build())
             	.withPlacement(Placement.COUNT_EXTRA_HEIGHTMAP.configure(new AtSurfaceWithExtraConfig(${data.treesPerChunk}, 0.1F, 1))));
