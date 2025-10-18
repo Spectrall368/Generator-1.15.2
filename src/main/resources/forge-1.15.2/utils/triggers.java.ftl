@@ -16,11 +16,11 @@
 		<#if hasProcedure(procedure)>
 			Entity entity = Minecraft.getInstance().player;
 			String hoverText = <@procedureCode procedure, {
-				"x": "entity.getPosX()",
-				"y": "entity.getPosY()",
-				"z": "entity.getPosZ()",
+				"x": "entity != null ? entity.getPosX() : 0.0",
+				"y": "entity != null ? entity.getPosY() : 0.0",
+				"z": "entity != null ? entity.getPosZ() : 0.0",
 				"entity": "entity",
-				"world": "<#if !isBlock>world<#else>entity.world</#if>",
+				"world": "world instanceof World ? (IWorld) world : null",
 				"itemstack": "itemstack"
 			}, false/>;
 			if (hoverText != null) {
