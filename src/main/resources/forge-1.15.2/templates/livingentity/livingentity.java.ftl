@@ -713,8 +713,8 @@ public class ${name}Entity extends ${extendsClass}Entity <#if interfaces?size gt
 	</#if>
 
 	<#if data.solidBoundingBox?? && (hasProcedure(data.solidBoundingBox) || data.solidBoundingBox.getFixedValue())>
-	@Override public boolean canCollide(Entity entity) {
-		return true;
+	@Override public AxisAlignedBB getCollisionBox(Entity entity) {
+		return entity.getBoundingBox();
 	}
 
 	@Override public AxisAlignedBB getCollisionBoundingBox() {
