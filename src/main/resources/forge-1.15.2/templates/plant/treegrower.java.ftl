@@ -33,7 +33,7 @@ package ${package}.block.grower;
 
 <#compress>
 public class ${name}TreeGrower extends <#if (data.megaTrees[0]?has_content) || (data.megaTrees[1]?has_content)>Big</#if>Tree {
-	protected ConfiguredFeature<BaseTreeFeatureConfig, ?> getTreeFeature(Random randomSource, boolean hasFlower) {
+	protected ConfiguredFeature<TreeFeatureConfig, ?> getTreeFeature(Random randomSource, boolean hasFlower) {
 		<#if data.secondaryTreeChance != 0 && (data.trees[1]?has_content || data.flowerTrees[1]?has_content)>
 		if (randomSource.nextFloat() < ${data.secondaryTreeChance}) {
 			<#if data.flowerTrees[1]?has_content>
@@ -49,7 +49,7 @@ public class ${name}TreeGrower extends <#if (data.megaTrees[0]?has_content) || (
 	}
 
 	<#if (data.megaTrees[0]?has_content) || (data.megaTrees[1]?has_content)>
-	protected ConfiguredFeature<BaseTreeFeatureConfig, ?> getHugeTreeFeature(Random randomSource) {
+	protected ConfiguredFeature<HugeTreeFeatureConfig, ?> getHugeTreeFeature(Random randomSource) {
 		<#if data.megaTrees[1]?has_content && data.secondaryTreeChance != 0>
 		return (randomSource.nextFloat() < ${data.secondaryTreeChance}) ? <@toTreeKey data.megaTrees[1]/> : <@toTreeKey data.megaTrees[0]/>;
 		<#else>
@@ -62,7 +62,7 @@ public class ${name}TreeGrower extends <#if (data.megaTrees[0]?has_content) || (
 <#-- @formatter:on -->
 <#macro toTreeKey tree="">
 <#if tree?has_content>
-${generator.map(tree, "configuredfeatures")}
+new ${generator.map(tree, "configuredfeatures")}
 <#else>
 null
 </#if>
