@@ -80,7 +80,7 @@ public class ${name}Item extends <#if data.hasBannerPatterns()>BannerPattern<#el
 	}
 
 	<#if data.hasBannerPatterns()> <#-- Workaround to allow both music disc and patterns info in description -->
-	@Override @OnlyIn(Dist.CLIENT) public IFormattableTextComponent func_219981_d_() {
+	@Override @OnlyIn(Dist.CLIENT) public ITextComponent func_219981_d() {
 		return new TranslationTextComponent(this.getTranslationKey() + ".patterns");
 	}
 	</#if>
@@ -352,7 +352,7 @@ public class ${name}Item extends <#if data.hasBannerPatterns()>BannerPattern<#el
 			${projectileClass} projectile = ${projectileClass}.shoot(world, entity, world.getRandom()<#if data.rangedItemChargesPower>, pullingPower</#if>);
 		<#elseif projectile.endsWith("Arrow")>
 			${projectileClass} projectile = new ${projectileClass}(world, entity);
-			projectile.func_234612_a_(entity, entity.rotationPitch, entity.rotationYaw, 0, <#if data.rangedItemChargesPower>pullingPower * </#if>3.15f, 1.0F);
+			projectile.shoot(entity, entity.rotationPitch, entity.rotationYaw, 0, <#if data.rangedItemChargesPower>pullingPower * </#if>3.15f, 1.0F);
 			world.addEntity(projectile);
 			world.playSound(null, entity.getPosX(), entity.getPosY(), entity.getPosZ(), ForgeRegistries.SOUND_EVENTS
 				.getValue(new ResourceLocation("entity.arrow.shoot")), SoundCategory.PLAYERS, 1, 1f / (world.getRandom().nextFloat() * 0.5f + 1));
