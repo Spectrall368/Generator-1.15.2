@@ -1,1 +1,1 @@
-NoFeatureConfig.NO_FEATURE_CONFIG
+IFeatureConfig.NO_FEATURE_CONFIG

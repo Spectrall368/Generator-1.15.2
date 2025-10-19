@@ -38,22 +38,22 @@ public class ${name}TreeGrower extends <#if (data.megaTrees[0]?has_content) || (
 		if (randomSource.nextFloat() < ${data.secondaryTreeChance}) {
 			<#if data.flowerTrees[1]?has_content>
 			if (hasFlower)
-				return <@toTreeKey data.flowerTrees[1]/>;
+				return (ConfiguredFeature<TreeFeatureConfig, ?>) (Object) <@toTreeKey data.flowerTrees[1]/>;
 			</#if>
 			<#if data.trees[1]?has_content>
-			return <@toTreeKey data.trees[1]/>;
+			return (ConfiguredFeature<TreeFeatureConfig, ?>) (Object) <@toTreeKey data.trees[1]/>;
 			</#if>
 		}
 		</#if>
-		return <#if data.flowerTrees[0]?has_content>hasFlower ? <@toTreeKey data.flowerTrees[0]/> :</#if> <@toTreeKey data.trees[0]/>;
+		return <#if data.flowerTrees[0]?has_content>hasFlower ? (ConfiguredFeature<TreeFeatureConfig, ?>) (Object) <@toTreeKey data.flowerTrees[0]/> :</#if> (ConfiguredFeature<TreeFeatureConfig, ?>) (Object) <@toTreeKey data.trees[0]/>;
 	}
 
 	<#if (data.megaTrees[0]?has_content) || (data.megaTrees[1]?has_content)>
 	protected ConfiguredFeature<HugeTreeFeatureConfig, ?> getHugeTreeFeature(Random randomSource) {
 		<#if data.megaTrees[1]?has_content && data.secondaryTreeChance != 0>
-		return (randomSource.nextFloat() < ${data.secondaryTreeChance}) ? <@toTreeKey data.megaTrees[1]/> : <@toTreeKey data.megaTrees[0]/>;
+		return (randomSource.nextFloat() < ${data.secondaryTreeChance}) ? (ConfiguredFeature<HugeTreeFeatureConfig, ?>) (Object) <@toTreeKey data.megaTrees[1]/> : (ConfiguredFeature<HugeTreeFeatureConfig, ?>) (Object) <@toTreeKey data.megaTrees[0]/>;
 		<#else>
-		return <@toTreeKey data.megaTrees[0]/>;
+		return (ConfiguredFeature<HugeTreeFeatureConfig, ?>) (Object) <@toTreeKey data.megaTrees[0]/>;
 		</#if>
 	}
 	</#if>
@@ -62,7 +62,7 @@ public class ${name}TreeGrower extends <#if (data.megaTrees[0]?has_content) || (
 <#-- @formatter:on -->
 <#macro toTreeKey tree="">
 <#if tree?has_content>
-new ${generator.map(tree, "configuredfeatures")}
+${generator.map(tree, "configuredfeatures")}
 <#else>
 null
 </#if>
