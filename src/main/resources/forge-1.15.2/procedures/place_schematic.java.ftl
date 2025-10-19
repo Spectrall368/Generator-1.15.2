@@ -6,7 +6,7 @@ if (world instanceof ServerWorld) {
 		template.addBlocksToWorld(world,
 			${toBlockPos(input$x,input$y,input$z)},
 			new PlacementSettings()
-				.setRotation(Rotation.<#if (field$rotation!'NONE') != "RANDOM">${field$rotation!'NONE'}<#else>func_222466_a(world.getWorld().rand)</#if>)
+				.setRotation(Rotation.<#if (field$rotation!'NONE') != "RANDOM">${field$rotation!'NONE'}<#else>randomRotation(world.getWorld().rand)</#if>)
 				.setMirror(Mirror.<#if (field$mirror!'NONE') != "RANDOM">${field$mirror!'NONE'}<#else>values()[world.getWorld().rand.nextInt(2)]</#if>)
 				.setIgnoreEntities(false), 3);
 	}
