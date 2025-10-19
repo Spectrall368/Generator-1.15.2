@@ -1,1 +1,0 @@
-new BeehiveTreeDecorator(${field$probability}f)
