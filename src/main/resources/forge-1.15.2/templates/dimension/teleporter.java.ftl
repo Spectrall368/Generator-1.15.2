@@ -1,7 +1,7 @@
 <#--
  # MCreator (https://mcreator.net/)
  # Copyright (C) 2012-2020, Pylo
- # Copyright (C) 2020-2024, Pylo, opensource contributors
+ # Copyright (C) 2020-2025, Pylo, opensource contributors
  #
  # This program is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@
 package ${package}.world.teleporter;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD) public class ${name}Teleporter implements ITeleporter {
-    public static final TicketType<BlockPos> CUSTOM_PORTAL = TicketType.create("${registryname}_portal", Vec3i::compareTo, 300);
+    private static final TicketType<BlockPos> CUSTOM_PORTAL = TicketType.create("${registryname}_portal", Vec3i::compareTo, 300);
     private static PointOfInterestType poi = null;
 	private Vec3d lastPortalVec;
 	private Direction teleportDirection;
@@ -48,31 +48,25 @@ package ${package}.world.teleporter;
 		this.teleportDirection = teleportDirection;
 	}
 
-    @SubscribeEvent public void registerPointOfInterest(RegistryEvent.Register<PointOfInterestType> event) {
-        try {
-            Method method = ObfuscationReflectionHelper.findMethod(PointOfInterestType.class, "func_226359_a_", String.class, Set.class, int.class, int.class);
-            method.setAccessible(true);
-            poi = (PointOfInterestType) method.invoke(null, "${registryname}_portal", Sets.newHashSet(ImmutableSet.copyOf(portal.getStateContainer().getValidStates())), 0, 1);
-            event.getRegistry().register(poi);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+	@SubscribeEvent public static void registerPointOfInterest(RegistryEvent.Register<PointOfInterestType> event) {
+		poi = new PointOfInterestType("${registryname}_portal", Sets.newHashSet(ImmutableSet.copyOf(${JavaModName}Blocks.${registryname?upper_case}_PORTAL.get().getStateContainer().getValidStates())), 0, 1).setRegistryName("${registryname}_portal");
+		ForgeRegistries.POI_TYPES.register(poi);
+	}
 
 	${mcc.getMethod("net.minecraft.world.Teleporter", "placeInExistingPortal", "BlockPos", "Vec3d", "Direction", "double", "double", "boolean")
-				   .replace("NetherPortalBlock.createPatternHelper", name + mappedBlockToBlockStateCode(data.portalFrame) + ".getBlock()." + createPatternHelper")
-				   .replace("PointOfInterestType.NETHER_PORTAL", "poi")
-				   .replace("TicketType.PORTAL", "CUSTOM_PORTAL")
-				   .replace("Blocks.NETHER_PORTAL", JavaModName + "Blocks." + registryname?upper_case + "_PORTAL.get()")}
+		.replace("NetherPortalBlock.createPatternHelper", name + "PortalBlock.createPatternHelper")
+		.replace("PointOfInterestType.NETHER_PORTAL", "poi")
+		.replace("TicketType.PORTAL", "CUSTOM_PORTAL")
+		.replace("Blocks.NETHER_PORTAL", JavaModName + "Blocks." + registryname?upper_case + "_PORTAL.get()")}
 
 	${mcc.getMethod("net.minecraft.world.Teleporter", "placeInPortal", "Entity", "float")
-				   .replace("p_222268_1_.getTeleportDirection()", "teleportDirection")
-				   .replace("p_222268_1_.getLastPortalVec()", "lastPortalVec")}
+		.replace("p_222268_1_.getTeleportDirection()", "teleportDirection")
+		.replace("p_222268_1_.getLastPortalVec()", "lastPortalVec")}
 
 	${mcc.getMethod("net.minecraft.world.Teleporter", "makePortal", "Entity")
-					.replace("Blocks.OBSIDIAN", mappedBlockToBlock(data.portalFrame)?string)
-					.replace(",blockstate,18);", ",blockstate,18);\nthis.world.getPointOfInterestManager().add(blockpos$mutable, poi);")
-					.replace("Blocks.NETHER_PORTAL", JavaModName + "Blocks." + registryname?upper_case + "_PORTAL.get()")}
+		.replace("Blocks.OBSIDIAN", mappedBlockToBlock(data.portalFrame)?string)
+		.replace(",blockstate,18);", ",blockstate,18);\nthis.world.getPointOfInterestManager().add(blockpos$mutable, poi);")
+		.replace("Blocks.NETHER_PORTAL", JavaModName + "Blocks." + registryname?upper_case + "_PORTAL.get()")}
 
 	@Override public Entity placeEntity(Entity entity, ServerWorld serverworld, ServerWorld serverworld1, float yaw, Function<Boolean, Entity> repositionEntity) {
 		double d0 = entity.getPosX();
