@@ -1,7 +1,7 @@
 <#--
  # MCreator (https://mcreator.net/)
  # Copyright (C) 2012-2020, Pylo
- # Copyright (C) 2020-2023, Pylo, opensource contributors
+ # Copyright (C) 2020-2025, Pylo, opensource contributors
  #
  # This program is free software: you can redistribute it and/or modify
  # it under the terms of the GNU General Public License as published by
@@ -31,14 +31,16 @@
 <#-- @formatter:off -->
 package ${package}.world.features;
 
+import com.mojang.datafixers.Dynamic;
+
 <#compress>
 @Mod.EventBusSubscriber public class StructureModFeature extends Feature<StructureModFeatureConfiguration> {
 	public static final DeferredRegister<Feature<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.FEATURES, ${JavaModName}.MODID);
-	public static final RegistryObject<Feature<?>> STRUCTURE_FEATURE = REGISTRY.register("structure_feature", () -> new StructureModFeature(StructureModFeatureConfiguration.CODEC));
+	public static final RegistryObject<Feature<?>> STRUCTURE_FEATURE = REGISTRY.register("structure_feature", () -> new StructureModFeature(StructureModFeatureConfiguration::deserialize));
 
-	public StructureModFeature(Codec<StructureModFeatureConfiguration> codec) {
-		super(codec);
-	}
+	public StructureModFeature(Function<Dynamic<?>, ? extends StructureModFeatureConfiguration> configFactory) {
+    		super(configFactory);
+  	}
 
 	@Override public boolean place(IWorld world, ChunkGenerator<? extends GenerationSettings> generator, Random rand, BlockPos pos, StructureModFeatureConfiguration config) {
 		Rotation rotation = config.random_rotation ? Rotation.randomRotation(rand) : Rotation.NONE;

@@ -31,6 +31,8 @@
 <#-- @formatter:off -->
 package ${package}.world.features.configurations;
 
+import com.mojang.datafixers.Dynamic;
+
 public class StructureModFeatureConfiguration implements IFeatureConfig {
    public final ResourceLocation structure;
    public final boolean random_rotation;
