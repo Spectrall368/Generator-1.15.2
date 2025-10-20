@@ -911,8 +911,8 @@ public class ${name}Entity extends ${extendsClass}Entity <#if interfaces?size gt
 					}
 					<#else>
 						(entityType, world, reason, pos, random) ->
-								(world.getDifficulty() != Difficulty.PEACEFUL && MonsterEntity.canMonsterSpawn((EntityType<? extends MonsterEntity>) entityType, world, reason, pos, random)
-										&& MobEntity.canSpawnOn((EntityType<? extends MobEntity>) entityType, world, reason, pos, random))
+								(world.getDifficulty() != Difficulty.PEACEFUL && MonsterEntity.canMonsterSpawn((EntityType<? extends MonsterEntity>) (EntityType<?>) entityType, world, reason, pos, random)
+										&& MobEntity.canSpawnOn(entityType, world, reason, pos, random))
 					</#if>
 			);
 			</#if>
