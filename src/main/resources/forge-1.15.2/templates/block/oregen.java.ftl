@@ -62,12 +62,12 @@ public class ${name}Feature extends OreFeature {
   	private static ConfiguredFeature<?, ?> CONFIGURED_FEATURE = null;
 
 	public ${name}Feature() {
-		super(OreFeatureConfig.CODEC);
+		super(OreFeatureConfig::deserialize);
 	}
 
 	public static Feature<?> feature() {
 		INSTANCE = new ${name}Feature();
-		CONFIGURED_FEATURE = INSTANCE.withConfiguration(OreFeatureConfig.FillerBlockType.create("${registryname}", "${registryname}", blockstate -> {
+		CONFIGURED_FEATURE = INSTANCE.withConfiguration(new OreFeatureConfig(OreFeatureConfig.FillerBlockType.create("${registryname}", "${registryname}", blockstate -> {
             <#assign hasDefaultTag = replaceInList(data.blocksToReplace, "minecraft:stone_ore_replaceables", "stone_ore_replaceables")?seq_contains("TAG:stone_ore_replaceables")>
             <#if hasDefaultTag>Block blockAt = blockstate.getBlock();</#if>
             return <#if hasDefaultTag>blockAt == Blocks.STONE || blockAt == Blocks.GRANITE || blockAt == Blocks.DIORITE || blockAt == Blocks.ANDESITE <#if (data.blocksToReplace?size > 1)>|| </#if></#if><#if !hasDefaultTag || (data.blocksToReplace?size > 1)>${containsAnyOfBlocks(removeFromList(removeFromList(data.blocksToReplace, "TAG:stone_ore_replaceables"), "TAG:minecraft:stone_ore_replaceables"), "blockstate")}</#if>;
@@ -78,7 +78,7 @@ public class ${name}Feature extends OreFeature {
                 <#assign averageHeight = (maxGenerateHeight + minGenerateHeight) / 2>
                 <#assign averageHeight = averageHeight?int>
         		COUNT_DEPTH_AVERAGE.configure(new DepthAverageConfig(${data.frequencyPerChunks}, ${averageHeight}, ${averageHeight}))
-        	</#if>)
+        	</#if>);
 
 		return INSTANCE;
 	}
