@@ -71,9 +71,9 @@ Smoker: SmokerScreen
 Stonecutter: StonecutterScreen
 AccessibilityOptions: AccessibilityScreen
 Win: WinGameScreen
+ItemCombiner: AnvilScreen
 Realms: RealmsScreen
 AbstractCommandBlock: AbstractCommandBlockScreen
 AbstractContainer: ContainerScreen
 AbstractEditSign: EditSignScreen
 AbstractFurnace: AbstractFurnaceScreen
-DisconnectedRealms: DisconnectedScreen
