@@ -243,6 +243,12 @@
 </#if>
 </#macro>
 
+<#-- Not supported -->
+<#macro onItemEntityDestroyed procedure="">
+<#if hasProcedure(procedure)>
+</#if>
+</#macro>
+
 <#-- Block-related triggers -->
 <#macro onDestroyedByExplosion procedure="">
 <#if hasProcedure(procedure)>
@@ -398,6 +404,23 @@
 	"world": "world",
 	"entity": "entity",
 	"blockstate": "world.getBlockState(pos)"
+	}/>
+}
+</#if>
+</#macro>
+
+<#macro onEntityFallsOn procedure="">
+<#if hasProcedure(data.onEntityFallsOn)>
+@Override public void onFallenUpon(World world, BlockPos pos, Entity entity, float distance) {
+	super.onFallenUpon(world, pos, entity, distance);
+	<@procedureCode data.onEntityFallsOn, {
+		"x": "pos.getX()",
+		"y": "pos.getY()",
+		"z": "pos.getZ()",
+		"world": "world",
+		"entity": "entity",
+		"blockstate": "world.getBlockState(pos)",
+		"distance": "distance"
 	}/>
 }
 </#if>

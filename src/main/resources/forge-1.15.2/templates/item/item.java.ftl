@@ -35,7 +35,7 @@
 package ${package}.item;
 <#assign hasCustomJAVAModels = data.hasCustomJAVAModel() || data.getModels()?filter(e -> e.hasCustomJAVAModel())?has_content>
 
-<#compress>
+<@javacompress>
 public class ${name}Item extends <#if data.hasBannerPatterns()>BannerPattern<#elseif data.isMusicDisc>MusicDisc</#if>Item {
 
 	public ${name}Item() {
@@ -91,11 +91,19 @@ public class ${name}Item extends <#if data.hasBannerPatterns()>BannerPattern<#el
 	}
 	</#if>
 
-        <#if data.isFood && (data.animation == "drink")>
-        @Override public SoundEvent getEatSound() {
-            return SoundEvents.ENTITY_GENERIC_DRINK;
-        }
-        </#if>
+	<#if !data.isFood && data.animation == "eat">
+	@Override public SoundEvent getEatSound() {
+		return null;
+	}
+	<#elseif !data.isFood && data.animation == "drink">
+	@Override public SoundEvent getDrinkSound() {
+		return null;
+	}
+	<#elseif data.isFood && data.animation == "drink">
+	@Override public SoundEvent getEatSound() {
+		return SoundEvents.ENTITY_GENERIC_DRINK;
+	}
+	</#if>
 
 	<#if data.stayInGridWhenCrafting>
 		@Override public boolean hasContainerItem() {
@@ -268,6 +276,8 @@ public class ${name}Item extends <#if data.hasBannerPatterns()>BannerPattern<#el
 
 	<@onDroppedByPlayer data.onDroppedByPlayer/>
 
+	<@onItemEntityDestroyed data.onItemEntityDestroyed/>
+
 	<#if data.hasInventory()>
 	@Override public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT compound) {
 		return new ${name}InventoryCapability();
@@ -312,13 +322,25 @@ public class ${name}Item extends <#if data.hasBannerPatterns()>BannerPattern<#el
 		}
 	</#if>
 
-	<#if data.enableRanged && data.shootConstantly>
-		@Override public void onUsingTick(ItemStack itemstack, LivingEntity entity, int count) {
-			World world = entity.world;
-			if (!world.isRemote() && entity instanceof ServerPlayerEntity) {
-				<@arrowShootCode/>
-				entity.stopActiveHand();
-			}
+	<#if hasProcedure(data.everyTickWhileUsing) || (data.enableRanged && data.shootConstantly)>
+		@Override public void onUse(World world, LivingEntity entity, ItemStack itemstack, int time) {
+			<#if hasProcedure(data.everyTickWhileUsing)>
+				<@procedureCode data.everyTickWhileUsing, {
+            		"x": "entity.getPosX()",
+            		"y": "entity.getPosY()",
+            		"z": "entity.getPosZ()",
+            		"world": "world",
+            		"entity": "entity",
+            		"itemstack": "itemstack",
+            		"time": "time"
+            	}/>
+            </#if>
+			<#if data.enableRanged && data.shootConstantly>
+				if (!world.isRemote() && entity instanceof ServerPlayerEntity) {
+					<@arrowShootCode/>
+					entity.stopActiveHand();
+				}
+			</#if>
 		}
 	</#if>
 
@@ -391,5 +413,5 @@ public class ${name}Item extends <#if data.hasBannerPatterns()>BannerPattern<#el
 		</#if>
 	}
 </#macro>
-</#compress>
+</@javacompress>
 <#-- @formatter:on -->

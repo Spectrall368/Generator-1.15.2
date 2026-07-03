@@ -58,7 +58,7 @@ package ${package}.world.features;
 </#list>
 <#assign nonHardcodedConfiguration = configurationcode?replace(placementPattern, "", "r")>
 <#assign allHardcodedElements = placementHardcodedElements + configurationHardcodedElements>
-<#compress>
+<@javacompress>
 public class ${name}Feature extends ${generator.map(featuretype, "features")} {
 	private static ${name}Feature FEATURE = null;
 	private static ConfiguredFeature<?, ?> CONFIGURED_FEATURE = null;
@@ -112,9 +112,8 @@ public class ${name}Feature extends ${generator.map(featuretype, "features")} {
 	</#if>
 
 	<#if featuretype == "feature_simple_block" || (data.hasPlacedFeature() && ((data.restrictionBiomes?has_content && cond) || data.hasGenerationConditions() || (allHardcodedElements?size > 0)))>
-	@Override public boolean place(IWorld world, ChunkGenerator generator, Random random, BlockPos pos, ${configuration} config) {
+	@Override public boolean place(IWorld world, ChunkGenerator generator, Random random, BlockPos origin, ${configuration} config) {
 		<#-- #4781 - we need to use WorldGenLevel instead of Level, or one can run incompatible procedures in condition -->
-		BlockPos origin = pos;
 		<#if data.restrictionBiomes?has_content && cond>
 		if (!generateDimensions.contains(world.getDimension().getType()))
 			return false;
@@ -151,7 +150,7 @@ public class ${name}Feature extends ${generator.map(featuretype, "features")} {
 		</#if>
 	}
 	</#if>
-}</#compress>
+}</@javacompress>
 <#-- @formatter:on -->
 <#function expandBiomeTag biomeTag>
     <#local result = []>

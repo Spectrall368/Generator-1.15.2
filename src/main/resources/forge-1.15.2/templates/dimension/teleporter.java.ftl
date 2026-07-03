@@ -49,7 +49,7 @@ package ${package}.world.teleporter;
 	}
 
 	@SubscribeEvent public static void registerPointOfInterest(RegistryEvent.Register<PointOfInterestType> event) {
-		poi = new PointOfInterestType("${registryname}_portal", Sets.newHashSet(ImmutableSet.copyOf(${JavaModName}Blocks.${registryname?upper_case}_PORTAL.get().getStateContainer().getValidStates())), 0, 1).setRegistryName("${registryname}_portal");
+		poi = new PointOfInterestType("${registryname}_portal", Sets.newHashSet(ImmutableSet.copyOf(${JavaModName}Blocks.${REGISTRYNAME}_PORTAL.get().getStateContainer().getValidStates())), 0, 1).setRegistryName("${registryname}_portal");
 		ForgeRegistries.POI_TYPES.register(poi);
 	}
 
@@ -57,7 +57,7 @@ package ${package}.world.teleporter;
 		.replace("NetherPortalBlock.createPatternHelper", name + "PortalBlock.createPatternHelper")
 		.replace("PointOfInterestType.NETHER_PORTAL", "poi")
 		.replace("TicketType.PORTAL", "CUSTOM_PORTAL")
-		.replace("Blocks.NETHER_PORTAL", JavaModName + "Blocks." + registryname?upper_case + "_PORTAL.get()")}
+		.replace("Blocks.NETHER_PORTAL", JavaModName + "Blocks." + REGISTRYNAME + "_PORTAL.get()")}
 
 	${mcc.getMethod("net.minecraft.world.Teleporter", "placeInPortal", "Entity", "float")
 		.replace("p_222268_1_.getTeleportDirection()", "teleportDirection")
@@ -66,7 +66,7 @@ package ${package}.world.teleporter;
 	${mcc.getMethod("net.minecraft.world.Teleporter", "makePortal", "Entity")
 		.replace("Blocks.OBSIDIAN", mappedBlockToBlock(data.portalFrame)?string)
 		.replace(",blockstate,18);", ",blockstate,18);\nthis.world.getPointOfInterestManager().add(blockpos$mutable, poi);")
-		.replace("Blocks.NETHER_PORTAL", JavaModName + "Blocks." + registryname?upper_case + "_PORTAL.get()")}
+		.replace("Blocks.NETHER_PORTAL", JavaModName + "Blocks." + REGISTRYNAME + "_PORTAL.get()")}
 
 	@Override public Entity placeEntity(Entity entity, ServerWorld serverworld, ServerWorld serverworld1, float yaw, Function<Boolean, Entity> repositionEntity) {
 		double d0 = entity.getPosX();

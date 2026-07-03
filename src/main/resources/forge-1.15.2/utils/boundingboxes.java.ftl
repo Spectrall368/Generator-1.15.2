@@ -21,7 +21,6 @@
 </#macro>
 
 <#macro boundingBoxWithRotation positiveBoxes negativeBoxes noOffset rotationMode enablePitch=false>
-    <#compress>
     <#if rotationMode == 0>
         <@makeBoundingBox positiveBoxes negativeBoxes "north"/><#if !noOffset>.withOffset(offset.x, offset.y, offset.z)</#if>;
     <#else>
@@ -56,7 +55,6 @@
         </#if>
         <#if !noOffset>).withOffset(offset.x, offset.y, offset.z);</#if>
     </#if>
-    </#compress>
 </#macro>
 
 <#macro makeCuboid box facing pitchType>
